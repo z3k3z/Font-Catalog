@@ -43,7 +43,8 @@ def configure_probes() -> None:
             "%(asctime)s "
             "%(probe_kind)s "
             "%(levelname)s "
-            "%(filename)s:%(lineno)d:%(funcName)s(): "
+            "%(pathname)s:%(lineno)d "
+            "%(funcName)s(): "
             "%(message)s"
         ),
         datefmt="%y-%m-%d T %H-%M-%S",
