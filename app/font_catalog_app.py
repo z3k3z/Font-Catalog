@@ -3,12 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.discovery.local_discovery import discover_fonts
+from app.discovery.local_discovery import LocalDiscovery
 from app.models.font_info import FontInfo
+from app.application_configuration import ApplicationConfiguration
 
 
 class FontCatalogApp:
-    def __init__(self) -> None:
+    def __init__(self, application_configuration: ApplicationConfiguration) -> None:
+        self._applicationConfiguration: ApplicationConfiguration = application_configuration
         self._discoveredFonts: list[FontInfo] = []
 
     def create_fastapi_app(self) -> FastAPI:
@@ -28,7 +30,8 @@ class FontCatalogApp:
         async def lifespan(
             _: FastAPI,
         ) -> AsyncIterator[None]:
-            self._discoveredFonts = discover_fonts()
+            localDiscovery = LocalDiscovery(self._applicationConfiguration)
+            self._discoveredFonts = localDiscovery.discover_fonts()
 
             yield
 
