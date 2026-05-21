@@ -3,7 +3,7 @@ import winreg
 from pathlib import Path
 
 from app.application_configuration import ApplicationConfiguration
-from app.diagnostics.probe import emit_error_probe, emit_trace_probe
+from app.diagnostics.probe import emit_error_probe, emit_trace_probe, ProbeLevel
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
 from app.models.result import Result
 
@@ -59,6 +59,7 @@ class RegistryDiscovery:
 
         except OSError as exception:
             emit_error_probe(
+                ProbeLevel.ERROR,
                 lambda: (
                     f"Unable to open font registry key. "
                     f"Source: {discovery_source.value}. "
@@ -107,6 +108,7 @@ class RegistryDiscovery:
 
             else:
                 emit_error_probe(
+                    ProbeLevel.ERROR,
                     lambda value_index=value_index, font_candidate_result=font_candidate_result: (
                         f"Skipped registry font value at index {value_index}. "
                         f"Reason: {font_candidate_result.error}"

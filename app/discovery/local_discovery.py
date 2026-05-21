@@ -2,7 +2,7 @@ from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables._n_a_m_e import NameRecord, table__n_a_m_e
 
 from app.application_configuration import ApplicationConfiguration
-from app.diagnostics.probe import emit_error_probe, emit_trace_probe
+from app.diagnostics.probe import emit_error_probe, emit_trace_probe,  ProbeLevel
 from app.discovery.file_discovery import FileDiscovery
 from app.discovery.registry_discovery import RegistryDiscovery
 from app.discovery.font_candidate import FontCandidate
@@ -85,6 +85,7 @@ class LocalDiscovery:
 
             else:
                 emit_error_probe(
+                    ProbeLevel.ERROR,
                     lambda font_candidate=font_candidate, font_info_result=font_info_result: (
                         f"Skipped font candidate '{font_candidate.file_path}'. "
                         f"Source: {font_candidate.discovery_source.value}. "
@@ -242,6 +243,7 @@ class LocalDiscovery:
 
             else:
                 emit_error_probe(
+                    ProbeLevel.DEBUG,
                     lambda font_info=font_info: (
                         f"Suppressed duplicate discovered font. "
                         f"Family: '{font_info.family_name}'. "
