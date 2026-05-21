@@ -148,7 +148,7 @@ def _configure_logger(
             "%(funcName)s(): "
             "%(message)s"
         ),
-        datefmt="%y-%m-%d T %H-%M-%S",
+        datefmt="%y-%m-%d T %H:%M:%S",
     )
 
     handler.setFormatter(formatter)
