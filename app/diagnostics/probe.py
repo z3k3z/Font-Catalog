@@ -31,6 +31,43 @@ class ProbeLevel(Enum):
     WARNING = logging.WARNING
     ERROR = logging.ERROR
 
+_ANSI_RESET: str = "\033[0m"
+_ANSI_TRACE: str = "\033[36m"
+_ANSI_DEBUG: str = "\033[90m"
+_ANSI_WARNING: str = "\033[33m"
+_ANSI_ERROR: str = "\033[31m"
+
+class ProbeFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        formattedMessage: str = super().format(record)
+        color: str = self._get_color_for_record(record)
+
+        formattedProbeMessage: str = f"{color}{formattedMessage}{_ANSI_RESET}"
+
+        return formattedProbeMessage
+
+    def _get_color_for_record(
+        self,
+        record: logging.LogRecord,
+    ) -> str:
+        probeKind: str = str(getattr(record, "probe_kind", ""))
+
+        if probeKind == _TRACE_PROBE_KIND:
+            color: str = _ANSI_TRACE
+
+        elif record.levelno == logging.DEBUG:
+            color = _ANSI_DEBUG
+
+        elif record.levelno == logging.WARNING:
+            color = _ANSI_WARNING
+
+        elif record.levelno >= logging.ERROR:
+            color = _ANSI_ERROR
+
+        else:
+            color = ""
+
+        return color
 
 @dataclass(frozen=True)
 class ProbeConfiguration:
@@ -102,7 +139,7 @@ def _configure_logger(
     logger.handlers.clear()
     handler: logging.StreamHandler[TextIO] = logging.StreamHandler()
 
-    formatter: logging.Formatter = logging.Formatter(
+    formatter: logging.Formatter = ProbeFormatter(
         fmt=(
             "%(asctime)s "
             "%(probe_kind)s "
