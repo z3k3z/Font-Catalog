@@ -25,7 +25,7 @@ class RegistryDiscovery:
                 root_key=winreg.HKEY_LOCAL_MACHINE,
                 discovery_source=DiscoverySource.WINDOWS_MACHINE_REGISTRY,
                 discovery_detail=(
-                    r"HKLM\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+                    f"HKLM\\{self._applicationConfiguration.windows_font_registry_subkey}"
                 ),
             )
         )
@@ -35,7 +35,7 @@ class RegistryDiscovery:
                 root_key=winreg.HKEY_CURRENT_USER,
                 discovery_source=DiscoverySource.WINDOWS_USER_REGISTRY,
                 discovery_detail=(
-                    r"HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+                    f"HKCU\\{self._applicationConfiguration.windows_font_registry_subkey}"
                 ),
             )
         )
