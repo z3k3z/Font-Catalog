@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.application_configuration import ApplicationConfiguration
-from app.diagnostics.probe import emit_error_probe, emit_trace_probe, ProbeLevel
+from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
 from app.discovery.base_discovery_helper import (
     build_font_candidates_from_paths,
     filter_supported_font_paths,
@@ -14,17 +14,13 @@ class FileDiscovery:
         self,
         application_configuration: ApplicationConfiguration,
     ) -> None:
-        self._applicationConfiguration: ApplicationConfiguration = (
-            application_configuration
-        )
+        self._applicationConfiguration: ApplicationConfiguration = application_configuration
 
     def collect_font_candidates(self) -> list[FontCandidate]:
         font_candidates: list[FontCandidate] = []
 
-        directory_font_candidates: list[FontCandidate] = (
-            self._collect_font_candidates_from_directory(
-                self._applicationConfiguration.windows_font_directory
-            )
+        directory_font_candidates: list[FontCandidate] = self._collect_font_candidates_from_directory(
+            self._applicationConfiguration.windows_font_directory
         )
 
         font_candidates.extend(directory_font_candidates)
@@ -38,8 +34,8 @@ class FileDiscovery:
         if not directory.exists():
             emit_error_probe(
                 ProbeLevel.WARNING,
-                lambda: f"Font directory does not exist: '{directory}'."
-                )
+                lambda: f"Font directory does not exist: '{directory}'.",
+            )
             return []
 
         directory_paths: list[Path] = list(directory.iterdir())

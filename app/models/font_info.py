@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from app.discovery.font_candidate import FontCandidate
 
 

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
 
-
 _SUPPORTED_EXTENSIONS: tuple[str, ...] = (
     ".ttf",
     ".otf",

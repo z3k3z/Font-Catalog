@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 108
+
+[tool.isort]
+profile = "black"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "none"

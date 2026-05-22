@@ -2,22 +2,17 @@ from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables._n_a_m_e import NameRecord, table__n_a_m_e
 
 from app.application_configuration import ApplicationConfiguration
-from app.diagnostics.probe import emit_error_probe, emit_trace_probe,  ProbeLevel
+from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
 from app.discovery.file_discovery import FileDiscovery
-from app.discovery.registry_discovery import RegistryDiscovery
 from app.discovery.font_candidate import FontCandidate
+from app.discovery.registry_discovery import RegistryDiscovery
 from app.models.font_info import FontInfo
 from app.models.result import Result
 
 
 class LocalDiscovery:
-    def __init__(
-        self,
-        application_configuration: ApplicationConfiguration,
-    ) -> None:
-        self._applicationConfiguration: ApplicationConfiguration = (
-            application_configuration
-        )
+    def __init__(self, application_configuration: ApplicationConfiguration) -> None:
+        self._applicationConfiguration: ApplicationConfiguration = application_configuration
 
     def discover_fonts(self) -> list[FontInfo]:
         emit_trace_probe(lambda: "Starting local font discovery.")
@@ -43,26 +38,18 @@ class LocalDiscovery:
         return font_infos
 
     def _discover_file_font_infos(self) -> list[FontInfo]:
-        file_discovery: FileDiscovery = FileDiscovery(
-            self._applicationConfiguration
-        )
+        file_discovery: FileDiscovery = FileDiscovery(self._applicationConfiguration)
 
-        font_candidates: list[FontCandidate] = (
-            file_discovery.collect_font_candidates()
-        )
+        font_candidates: list[FontCandidate] = file_discovery.collect_font_candidates()
 
         font_infos: list[FontInfo] = self._load_font_infos(font_candidates)
 
         return font_infos
 
     def _discover_registry_font_infos(self) -> list[FontInfo]:
-        registry_discovery: RegistryDiscovery = RegistryDiscovery(
-            self._applicationConfiguration
-        )
+        registry_discovery: RegistryDiscovery = RegistryDiscovery(self._applicationConfiguration)
 
-        font_candidates: list[FontCandidate] = (
-            registry_discovery.collect_font_candidates()
-        )
+        font_candidates: list[FontCandidate] = registry_discovery.collect_font_candidates()
 
         font_infos: list[FontInfo] = self._load_font_infos(font_candidates)
 
@@ -75,9 +62,7 @@ class LocalDiscovery:
         font_infos: list[FontInfo] = []
 
         for font_candidate in font_candidates:
-            font_info_result: Result[FontInfo] = self._try_load_font_info(
-                font_candidate
-            )
+            font_info_result: Result[FontInfo] = self._try_load_font_info(font_candidate)
 
             if font_info_result.succeeded():
                 font_info: FontInfo = font_info_result.get_value()
@@ -91,7 +76,7 @@ class LocalDiscovery:
                         f"Source: {font_candidate.discovery_source.value}. "
                         f"Detail: {font_candidate.discovery_detail}. "
                         f"Reason: {font_info_result.error}"
-                    )
+                    ),
                 )
 
         return font_infos
@@ -166,13 +151,9 @@ class LocalDiscovery:
         font: TTFont,
         name_id: int,
     ) -> str:
-        matching_records: list[NameRecord] = (
-            self._collect_matching_name_records(font, name_id)
-        )
+        matching_records: list[NameRecord] = self._collect_matching_name_records(font, name_id)
 
-        extracted_name: str = self._extract_first_decodable_name(
-            matching_records
-        )
+        extracted_name: str = self._extract_first_decodable_name(matching_records)
 
         return extracted_name
 
@@ -228,14 +209,12 @@ class LocalDiscovery:
         for font_info in primary_font_infos:
             merged_font_infos.append(font_info)
 
-        known_identity_keys: set[tuple[str, str, str]] = (
-            self._build_font_identity_key_set(merged_font_infos)
+        known_identity_keys: set[tuple[str, str, str]] = self._build_font_identity_key_set(
+            merged_font_infos
         )
 
         for font_info in secondary_font_infos:
-            identity_key: tuple[str, str, str] = (
-                self._build_font_identity_key(font_info)
-            )
+            identity_key: tuple[str, str, str] = self._build_font_identity_key(font_info)
 
             if identity_key not in known_identity_keys:
                 merged_font_infos.append(font_info)
@@ -253,7 +232,7 @@ class LocalDiscovery:
                         f"{font_info.font_candidate.discovery_source.value}. "
                         f"Detail: "
                         f"{font_info.font_candidate.discovery_detail}."
-                    )
+                    ),
                 )
 
         return merged_font_infos
@@ -265,9 +244,7 @@ class LocalDiscovery:
         identity_keys: set[tuple[str, str, str]] = set()
 
         for font_info in font_infos:
-            identity_key: tuple[str, str, str] = (
-                self._build_font_identity_key(font_info)
-            )
+            identity_key: tuple[str, str, str] = self._build_font_identity_key(font_info)
 
             identity_keys.add(identity_key)
 

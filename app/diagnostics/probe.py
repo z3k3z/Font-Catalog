@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TextIO
 
-
 _TRACE_LOGGER_NAME: str = "font_catalog.trace"
 _ERROR_PROBE_LOGGER_NAME: str = "font_catalog.error_probe"
 
@@ -31,11 +30,13 @@ class ProbeLevel(Enum):
     WARNING = logging.WARNING
     ERROR = logging.ERROR
 
+
 _ANSI_RESET: str = "\033[0m"
 _ANSI_TRACE: str = "\033[36m"
 _ANSI_DEBUG: str = "\033[90m"
 _ANSI_WARNING: str = "\033[33m"
 _ANSI_ERROR: str = "\033[31m"
+
 
 class ProbeFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -69,6 +70,7 @@ class ProbeFormatter(logging.Formatter):
 
         return color
 
+
 @dataclass(frozen=True)
 class ProbeConfiguration:
     fTraceProbeEnabled: bool
@@ -82,9 +84,7 @@ def configure_probes() -> None:
     global _probeConfiguration
 
     _probeConfiguration = ProbeConfiguration(
-        fTraceProbeEnabled=_is_environment_flag_enabled(
-            _TRACE_ENVIRONMENT_VARIABLE_NAME
-        ),
+        fTraceProbeEnabled=_is_environment_flag_enabled(_TRACE_ENVIRONMENT_VARIABLE_NAME),
         errorProbeMinimumLevel=_read_error_probe_minimum_level(),
     )
 
@@ -102,10 +102,7 @@ def configure_probes() -> None:
 def emit_trace_probe(message_provider: Callable[[], str]) -> None:
     probeConfiguration: ProbeConfiguration = _get_probe_configuration()
 
-    if (
-        probeConfiguration.fTraceProbeEnabled
-        and _traceLogger.isEnabledFor(logging.INFO)
-    ):
+    if probeConfiguration.fTraceProbeEnabled and _traceLogger.isEnabledFor(logging.INFO):
         message: str = message_provider()
 
         _traceLogger.info(

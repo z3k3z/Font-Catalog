@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.application_configuration import ApplicationConfiguration
 from app.discovery.local_discovery import LocalDiscovery
 from app.models.font_info import FontInfo
-from app.application_configuration import ApplicationConfiguration
 
 
 class FontCatalogApp:
@@ -38,16 +38,16 @@ class FontCatalogApp:
         return lifespan
 
     def _configure_routes(self, fastapi_app: FastAPI) -> None:
-      fastapi_app.add_api_route(
-         path="/",
-         endpoint=self._read_root,
-         methods=["GET"],
-      )
+        fastapi_app.add_api_route(
+            path="/",
+            endpoint=self._read_root,
+            methods=["GET"],
+        )
 
     def _read_root(self) -> dict[str, str | int]:
-      response: dict[str, str | int] = {
-         "status": "Font Catalog is running",
-         "discovered_font_count": len(self._discoveredFonts),
-      }
+        response: dict[str, str | int] = {
+            "status": "Font Catalog is running",
+            "discovered_font_count": len(self._discoveredFonts),
+        }
 
-      return response
+        return response
