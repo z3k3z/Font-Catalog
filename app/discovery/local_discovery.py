@@ -7,79 +7,84 @@ from app.discovery.file_discovery import FileDiscovery
 from app.discovery.font_candidate import FontCandidate
 from app.discovery.registry_discovery import RegistryDiscovery
 from app.models.font_info import FontInfo
+from app.models.font_info_collection import FontInfoCollection
 from app.models.result import Result
 
 
 class LocalDiscovery:
     def __init__(self, application_configuration: ApplicationConfiguration) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
+        self._fontCollection: FontInfoCollection = FontInfoCollection(
+            key_builder=self._build_font_identity_key
+        )
 
     def discover_fonts(self) -> list[FontInfo]:
+        count: int = 0
         emit_trace_probe(lambda: "Starting local font discovery.")
 
-        file_font_infos: list[FontInfo] = self._discover_file_font_infos()
-        registry_font_infos: list[FontInfo] = self._discover_registry_font_infos()
-
-        font_infos: list[FontInfo] = self._merge_unique_font_infos(
-            primary_font_infos=file_font_infos,
-            secondary_font_infos=registry_font_infos,
-        )
+        # load fonts from Windows font folder
+        count = self._discover_file_font_infos()
+        emit_trace_probe(lambda: (f"File discovery loaded {count} fonts."))
+        # load additional unique fonts housed in the registry
+        count = self._discover_registry_font_infos()
+        emit_trace_probe(lambda: (f"Registry discovery loaded {count} fonts."))
 
         emit_trace_probe(
             lambda: (
                 f"Completed local font discovery. "
-                f"Loaded {len(font_infos)} total unique fonts. "
-                f"File discovery loaded {len(file_font_infos)} fonts. "
-                f"Registry discovery added "
-                f"{len(font_infos) - len(file_font_infos)} fonts."
+                f"Loaded {len(self._fontCollection)} total unique fonts. "
             )
         )
 
-        return font_infos
+        return self._fontCollection.to_list()
 
-    def _discover_file_font_infos(self) -> list[FontInfo]:
+    def _discover_file_font_infos(self) -> int:
         file_discovery: FileDiscovery = FileDiscovery(self._applicationConfiguration)
 
         font_candidates: list[FontCandidate] = file_discovery.collect_font_candidates()
 
-        font_infos: list[FontInfo] = self._load_font_infos(font_candidates)
+        return self._load_font_infos(font_candidates)
 
-        return font_infos
-
-    def _discover_registry_font_infos(self) -> list[FontInfo]:
+    def _discover_registry_font_infos(self) -> int:
         registry_discovery: RegistryDiscovery = RegistryDiscovery(self._applicationConfiguration)
 
         font_candidates: list[FontCandidate] = registry_discovery.collect_font_candidates()
 
-        font_infos: list[FontInfo] = self._load_font_infos(font_candidates)
-
-        return font_infos
+        return self._load_font_infos(font_candidates)
 
     def _load_font_infos(
         self,
         font_candidates: list[FontCandidate],
-    ) -> list[FontInfo]:
-        font_infos: list[FontInfo] = []
+    ) -> int:
+        count: int = 0
 
         for font_candidate in font_candidates:
-            font_info_result: Result[FontInfo] = self._try_load_font_info(font_candidate)
+            # only load the file if we have not done so before
+            if not self._fontCollection.contains_path(font_candidate.file_path):
+                font_info_result: Result[FontInfo] = self._try_load_font_info(font_candidate)
 
-            if font_info_result.succeeded():
-                font_info: FontInfo = font_info_result.get_value()
-                font_infos.append(font_info)
+                if font_info_result.succeeded():
+                    font_info: FontInfo = font_info_result.get_value()
+                    if self._fontCollection.insert(font_info):
+                        count += 1
+                    else:
+                        emit_error_probe(
+                            ProbeLevel.WARNING,
+                            lambda: (f"Skipped duplicate font found at {font_candidate.file_path}."),
+                        )
 
-            else:
-                emit_error_probe(
-                    ProbeLevel.ERROR,
-                    lambda font_candidate=font_candidate, font_info_result=font_info_result: (
-                        f"Skipped font candidate '{font_candidate.file_path}'. "
-                        f"Source: {font_candidate.discovery_source.value}. "
-                        f"Detail: {font_candidate.discovery_detail}. "
-                        f"Reason: {font_info_result.error}"
-                    ),
-                )
+                else:
+                    emit_error_probe(
+                        ProbeLevel.ERROR,
+                        lambda font_candidate=font_candidate, font_info_result=font_info_result: (
+                            f"Skipped font candidate '{font_candidate.file_path}'. "
+                            f"Source: {font_candidate.discovery_source.value}. "
+                            f"Detail: {font_candidate.discovery_detail}. "
+                            f"Reason: {font_info_result.error}"
+                        ),
+                    )
 
-        return font_infos
+        return count
 
     def _try_load_font_info(
         self,
@@ -198,57 +203,6 @@ class LocalDiscovery:
             decoded_name = ""
 
         return decoded_name
-
-    def _merge_unique_font_infos(
-        self,
-        primary_font_infos: list[FontInfo],
-        secondary_font_infos: list[FontInfo],
-    ) -> list[FontInfo]:
-        merged_font_infos: list[FontInfo] = []
-
-        for font_info in primary_font_infos:
-            merged_font_infos.append(font_info)
-
-        known_identity_keys: set[tuple[str, str, str]] = self._build_font_identity_key_set(
-            merged_font_infos
-        )
-
-        for font_info in secondary_font_infos:
-            identity_key: tuple[str, str, str] = self._build_font_identity_key(font_info)
-
-            if identity_key not in known_identity_keys:
-                merged_font_infos.append(font_info)
-                known_identity_keys.add(identity_key)
-
-            else:
-                emit_error_probe(
-                    ProbeLevel.DEBUG,
-                    lambda font_info=font_info: (
-                        f"Suppressed duplicate discovered font. "
-                        f"Family: '{font_info.family_name}'. "
-                        f"Style: '{font_info.style_name}'. "
-                        f"Full name: '{font_info.full_name}'. "
-                        f"Source: "
-                        f"{font_info.font_candidate.discovery_source.value}. "
-                        f"Detail: "
-                        f"{font_info.font_candidate.discovery_detail}."
-                    ),
-                )
-
-        return merged_font_infos
-
-    def _build_font_identity_key_set(
-        self,
-        font_infos: list[FontInfo],
-    ) -> set[tuple[str, str, str]]:
-        identity_keys: set[tuple[str, str, str]] = set()
-
-        for font_info in font_infos:
-            identity_key: tuple[str, str, str] = self._build_font_identity_key(font_info)
-
-            identity_keys.add(identity_key)
-
-        return identity_keys
 
     def _build_font_identity_key(
         self,
