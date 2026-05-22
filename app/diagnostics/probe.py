@@ -3,7 +3,10 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import TextIO
+
+from app.application_configuration import ApplicationConfiguration
 
 _TRACE_LOGGER_NAME: str = "font_catalog.trace"
 _ERROR_PROBE_LOGGER_NAME: str = "font_catalog.error_probe"
@@ -75,17 +78,19 @@ class ProbeFormatter(logging.Formatter):
 class ProbeConfiguration:
     fTraceProbeEnabled: bool
     errorProbeMinimumLevel: ProbeLevel
+    applicationLogFile: Path
 
 
 _probeConfiguration: ProbeConfiguration | None = None
 
 
-def configure_probes() -> None:
+def configure_probes(application_configuration: ApplicationConfiguration) -> None:
     global _probeConfiguration
 
     _probeConfiguration = ProbeConfiguration(
         fTraceProbeEnabled=_is_environment_flag_enabled(_TRACE_ENVIRONMENT_VARIABLE_NAME),
         errorProbeMinimumLevel=_read_error_probe_minimum_level(),
+        applicationLogFile=application_configuration.application_log,
     )
 
     _configure_logger(
@@ -134,24 +139,34 @@ def _configure_logger(
     level: int,
 ) -> None:
     logger.handlers.clear()
-    handler: logging.StreamHandler[TextIO] = logging.StreamHandler()
-
-    formatter: logging.Formatter = ProbeFormatter(
-        fmt=(
-            "%(asctime)s "
-            "%(probe_kind)s "
-            "%(levelname)s "
-            "%(pathname)s:%(lineno)d "
-            "%(funcName)s(): "
-            "%(message)s"
-        ),
-        datefmt="%y-%m-%d T %H:%M:%S",
-    )
-
-    handler.setFormatter(formatter)
-
     logger.setLevel(level)
+
+    fmtStr: str = (
+        "%(asctime)s "
+        # "%(probe_kind)s "
+        "%(levelname)s "
+        "%(message)s "
+        "%(pathname)s:%(lineno)d "
+        "%(funcName)s():"
+    )
+    dateStr: str = "%y-%m-%d T %H:%M:%S"
+
+    handler: logging.StreamHandler[TextIO] = logging.StreamHandler()
+    handler.setFormatter(ProbeFormatter(fmt=fmtStr, datefmt=dateStr))
     logger.addHandler(handler)
+
+    # explicitly clear the existing log file to avoid missing startup probes
+    logFile: Path = _get_probe_configuration().applicationLogFile
+    logFile.parent.mkdir(parents=True, exist_ok=True)
+    logFile.write_text("", encoding="utf-8")
+    fileHandler: logging.FileHandler = logging.FileHandler(
+        filename=str(logFile),
+        mode="a",
+        encoding="utf-8",
+    )
+    fileHandler.setFormatter(logging.Formatter(fmt=fmtStr, datefmt=dateStr))
+    logger.addHandler(fileHandler)
+
     logger.propagate = False
 
 

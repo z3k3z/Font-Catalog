@@ -2,7 +2,7 @@ from app.application_configuration import (
     ApplicationConfiguration,
     create_application_configuration,
 )
-from app.diagnostics.probe import configure_probes
+from app.diagnostics.probe import configure_probes, emit_trace_probe
 from app.font_catalog_app import FontCatalogApp
 
 """
@@ -13,10 +13,11 @@ $env:FONT_CATALOG_ERROR_PROBES="1"
 fastapi dev app/main.py
 """
 
-# configure error probes and tracing
-configure_probes()
-
 _applicationConfiguration: ApplicationConfiguration = create_application_configuration()
+
+# configure error probes and tracing
+configure_probes(_applicationConfiguration)
+emit_trace_probe(lambda: ("Application start!"))
 
 # create the application and run it
 _fontCatalogApp: FontCatalogApp = FontCatalogApp(_applicationConfiguration)
