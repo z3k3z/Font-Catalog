@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api_models.font_response import FontResponse
 from app.application_configuration import ApplicationConfiguration
 from app.discovery.local_discovery import LocalDiscovery
 from app.models.font_info import FontInfo
@@ -58,6 +59,15 @@ class FontCatalogApp:
             path="/api/fonts",
             endpoint=self._read_fonts,
             methods=["GET"],
+            response_model=list[FontResponse],
+            summary="List discovered fonts",
+            description=(
+                "Returns the current in-memory set of unique fonts discovered during "
+                "application startup. Results are deduplicated by semantic font identity. "
+                "The current UI renders fonts by family name using browser/system font "
+                "resolution, not by explicitly loading the returned file path."
+            ),
+            response_description="List of discovered font records.",
         )
 
     def _read_index(self) -> FileResponse:
@@ -66,18 +76,18 @@ class FontCatalogApp:
 
         return response
 
-    def _read_fonts(self) -> list[dict[str, str]]:
-        response: list[dict[str, str]] = []
+    def _read_fonts(self) -> list[FontResponse]:
+        response: list[FontResponse] = []
 
         for font_info in self._discoveredFonts:
             response.append(
-                {
-                    "family_name": font_info.family_name,
-                    "style_name": font_info.style_name,
-                    "full_name": font_info.full_name,
-                    "file_path": str(font_info.font_candidate.file_path),
-                    "source": font_info.font_candidate.discovery_source.value,
-                }
+                FontResponse(
+                    family_name=font_info.family_name,
+                    style_name=font_info.style_name,
+                    full_name=font_info.full_name,
+                    file_path=str(font_info.font_candidate.file_path),
+                    source=font_info.font_candidate.discovery_source.value,
+                )
             )
 
         return response
