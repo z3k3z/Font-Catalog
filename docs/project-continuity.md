@@ -1,310 +1,362 @@
-# Font Catalog Project Continuity
+# Windows Font Catalog — Project Continuity
 
-## Project Overview
-
-Local Windows-based font catalog and preview system.
-
-Primary goals:
-- Enumerate locally installed fonts
-- Extract reliable font metadata
-- Provide searchable preview catalog
-- Support typography trait indexing
-- Support user-defined tagging
-- Operate entirely locally
-
-Current direction is a local web application using Python and FastAPI.
+Updated: 2026-05-22
 
 ---
 
-# Current Architecture
+# Project Purpose
+
+Windows-hosted font catalog and typography exploration application.
+
+Primary goals:
+- discover locally installed fonts
+- catalog semantic metadata
+- support user tagging/classification
+- support typography exploration workflows
+- eventually support semantic/behavioral font relationships
+- provide visually oriented search and discovery
+
+The project has intentionally shifted away from a traditional CRUD/database-management mental model and toward:
 
 ```text
-Frontend UI
-    ↓
-FastAPI backend
-    ↓
-Catalog/service layer
-    ↓
-Persistence layer
-    ↓
-Local font discovery layer
+visual typography exploration workstation
 ```
 
-The architecture intentionally separates:
-- local font enumeration
-- persistence
-- API exposure
-- future semantic catalog behavior
-- future UI concerns
-
-No layer-skipping is desired.
+with strong support for:
+- visual traversal
+- semantic narrowing
+- relationship discovery
+- rapid comparison
+- eventually behavior-driven recommendations
 
 ---
 
 # Technology Stack
 
-## Current
+## Backend
 
 - Python
 - FastAPI
-- SQLite (planned)
-- HTML/CSS/JavaScript frontend (planned)
-- VS Code
-- Pylance strict type validation
-
-## Current Python Libraries
-
 - fontTools
+- VS Code
+- Pylance strict typing
+
+## Formatting / Tooling
+
+- Black
+- isort
+- pyright
+
+Formatting standards:
+- Black line length configured to 108
+- 4-space indentation
+- spaces, not tabs
+
+Repository-owned configuration:
+
+```toml
+[tool.black]
+line-length = 108
+
+[tool.isort]
+profile = "black"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "none"
+```
+
+VS Code editor behavior:
+- format on save
+- Black formatter
+- organize imports on save
 
 ---
 
-# Environment Configuration
+# Architectural Discipline
 
-## Python Installation
+The project strongly favors:
 
-Python was installed using:
-- Python Install Manager for Windows
+- explicit ownership
+- immutable runtime configuration
+- explicit type discipline
+- subsystem identity
+- class-oriented encapsulation
+- low cognitive noise
+- deterministic behavior
+- inspectable flow
 
-Project conventions:
-- Prefer `py` launcher over direct `python` invocation where practical
-- Virtual environments remain project-local (`.venv`)
-- VS Code interpreter targets `.venv`
-
-## Virtual Environment
-
-Project uses:
-
-```text
-.venv/
-```
-
-## VS Code
-
-Required:
-- Python extension
-- Pylance
-
-Current configuration expectation:
-- strict type validation enabled
-
----
-
-# Project Structure
+Go-forward project standard:
 
 ```text
-font-catalog/
-│
-├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── font_catalog_app.py
-│   ├── api/
-│   ├── catalog/
-│   ├── diagnostics/
-│   ├── discovery/
-│   ├── models/
-│   ├── persistence/
-│   └── static/
-│
-├── test/
-│
-├── README.md
-├── project-continuity.md
-├── requirements.txt
-└── .gitignore
+Prefer classes for subsystem ownership and behavior encapsulation.
+Use free functions only where the abstraction cost of a class clearly outweighs the benefits.
 ```
+
+Python style discipline:
+- clear main-line flow
+- narrow exception scopes
+- no exception-driven ordinary control flow
+- avoid arbitrary continue/return branching
+- explicit intermediate variables preferred
+- extraction into helpers preferred over nested logic
 
 ---
 
 # Current Runtime Architecture
 
-## main.py
+```text
+main.py
+  -> configure_probes()
+  -> create_application_configuration()
+  -> FontCatalogApp
 
-Responsibilities:
-- process entrypoint
-- configure diagnostics
-- create application object
-- expose FastAPI application instance
+FontCatalogApp
+  -> FastAPI lifecycle ownership
+  -> startup discovery orchestration
 
-## FontCatalogApp
+LocalDiscovery
+  -> orchestration
+  -> loading pipeline
+  -> duplicate suppression
+  -> collection ownership
 
-Responsibilities:
-- own runtime application state
-- configure FastAPI lifecycle
-- configure routes
-- coordinate startup discovery
+FileDiscovery
+  -> filesystem candidate enumeration
 
-Current runtime-owned state:
+RegistryDiscovery
+  -> Windows registry candidate enumeration
 
-```python
-self._discoveredFonts: list[FontInfo]
+FontInfoCollection
+  -> semantic uniqueness enforcement
+  -> path indexing
 ```
 
 ---
 
-# FastAPI Lifecycle Direction
+# Discovery Architecture
 
-The project uses FastAPI lifespan handlers.
+## FontCandidate
 
-Deprecated `on_event()` startup/shutdown handlers are intentionally avoided.
+Represents discovered font provenance.
 
-Current direction:
-- explicit lifespan management
-- explicit route registration
-- avoid decorator-heavy hidden framework behavior where practical
+Contains:
+- file path
+- discovery source enum
+- discovery detail
 
-Routes are registered using:
+Discovery sources currently:
+- Windows font directory
+- Windows machine registry
+- Windows user registry
 
-```python
-fastapi_app.add_api_route(...)
-```
+## FontInfo
 
-rather than nested decorated functions.
+Represents semantic metadata extracted from a font.
 
-Reasoning:
-- clearer ownership
-- avoids strict-Pylance false positives
-- avoids hidden registration semantics
-- scales better as route count increases
-
----
-
-# Python Coding Discipline
-
-The project uses Python-native constructs, but rejects casual script-style implementation.
-
-Principles:
-- Favor clear main-line flow over compact cleverness
-- Preserve explicit intermediate variables and type hints
-- Keep function control flow visually simple
-- Use early returns only for guard clauses
-- Avoid `continue` unless clearly simpler than extraction
-- Avoid nested branching when named helper functions can express intent
-- Keep exception-handling scopes narrow
-- Use exceptions only at IO/library/runtime-boundary failure points
-- Do not use exceptions for ordinary control flow
-- Convert caught exceptions immediately into structured status/report objects
-- Let the caller decide severity and logging
-- Use structured `Result[T]` at subsystem boundaries and failure-prone IO boundaries
-- Do not spread `Result[T]` to every tiny transformation unless justified
-
-The project favors readability and architectural inspection over dense idiomatic compactness.
+Contains:
+- family name
+- style name
+- full name
+- originating FontCandidate
 
 ---
 
-# Type Discipline
+# Local Discovery Model
 
-Pylance strict type validation is enabled.
+LocalDiscovery owns:
+- master FontInfoCollection
+- discovery orchestration
+- loading policy
+- duplicate suppression
+- reporting
 
-Project expectations:
-- explicit collection typing
-- avoid untyped `list` and `dict`
-- preserve strong type signatures
-- avoid unnecessary `cast()` usage
-- use `cast()` only when type information is genuinely unavailable
-- avoid type-suppression-oriented implementation
+Discovery flow:
 
-Current project uses:
+```text
+FileDiscovery
+  -> FontCandidates
+  -> load fonts
+  -> insert unique FontInfos
 
-```python
-list[FontInfo]
-Result[TTFont]
-list[NameRecord]
+RegistryDiscovery
+  -> FontCandidates
+  -> skip previously visited paths
+  -> load remaining fonts
+  -> insert unique FontInfos
 ```
 
-rather than weakly typed collections.
+No modality merge step exists anymore.
+
+Discovery methods now contribute directly into the master collection.
+
+This removed:
+- intermediate merge structures
+- parallel uniqueness tracking
+- merge-order bookkeeping
+- duplicated semantic key logic
 
 ---
 
-# Runtime Configuration Discipline
+# Duplicate Suppression
 
-Project direction prefers immutable runtime configuration.
+## Path-Based Suppression
 
-Principles:
-- configuration initialized once during startup
-- configuration exposed through controlled accessors
-- configuration represented using frozen dataclasses where practical
-- avoid mutable module-global primitive state
-- avoid ambient mutable booleans distributed across modules
+Current implementation suppresses revisiting known font file paths before loading.
 
-Current implementation example:
-- `ProbeConfiguration`
+This prevents redundant TTFont loading when:
+- filesystem discovery
+- registry discovery
+
+point to the same physical font file.
+
+Current behavior:
+
+```text
+known path
+  -> skip loading
+```
+
+Debug-level probes report these skips.
+
+## Semantic Uniqueness
+
+FontInfoCollection enforces uniqueness via configurable semantic key builder.
+
+Current key:
+
+```text
+family_name
+style_name
+full_name
+```
+
+normalized/casefolded.
 
 ---
 
-# Result Pattern
+# IMPORTANT TTC TODO
 
-Project uses a lightweight structured result model.
+Current path suppression intentionally assumes:
 
-Current implementation:
-
-```python
-Result[T]
+```text
+one path exhausted after one successful load
 ```
 
-Responsibilities:
-- carry value-or-error state
-- isolate exception handling at subsystem boundaries
-- preserve readable main-line flow
-- avoid exception-driven ordinary control flow
+This is NOT correct for:
 
-Current API:
-
-```python
-succeeded()
-failed()
-get_value()
+```text
+.ttc font collections
 ```
 
-`get_value()` raises runtime error if accessed in failed state.
+because a single file may contain multiple distinct fonts.
 
-This preserves strict non-null semantics after success validation.
+Deferred TODO:
+- revisit path indexing model
+- support multiple FontInfo entries per path
+- support fontNumber enumeration
+- avoid truncating TTC collections after first load
 
 ---
 
-# Diagnostics / Probe System
+# Diagnostics / Probe Architecture
 
-## Current Probe Types
+Diagnostics subsystem is now mature and operationally useful.
 
-Current probe categories:
-- TRACE_PROBE
-- ERROR_PROBE
+Capabilities:
+- semantic probe taxonomy
+- runtime filtering
+- colored console output
+- session log persistence
+- lazy message construction
+- VS Code clickable source navigation
+- immutable runtime configuration
+- isolated loggers
 
-## Current Semantics
+---
 
-### Trace Probes
+# Probe Taxonomy
 
-Trace probes:
-- represent expected-flow lifecycle artifacts
-- represent milestones and operational breadcrumbs
-- are runtime configurable
+## Trace Probes
 
-### Error Probes
+Purpose:
+- expected-flow visibility
+- operational tracing
+- discovery metrics
+- subsystem flow
 
-Current temporary semantics:
-- represent lower-level conditions potentially rising above expected flow
-- are currently runtime configurable
-- are not yet finalized semantically
+Enabled independently via:
 
-Current implementation uses:
-
-```python
-emit_trace_probe(lambda: ...)
-emit_error_probe(lambda: ...)
+```text
+FONT_CATALOG_TRACE
 ```
 
-Lazy message providers are intentionally used so message construction cost is avoided when probes are disabled.
+## Error Probes
 
-## Probe Formatting
+Purpose:
+- conditions potentially representing issues
+- differentiated severity
+- not necessarily fatal errors
+
+Levels:
+- DEBUG
+- WARNING
+- ERROR
+
+Configured via:
+
+```text
+FONT_CATALOG_ERROR_PROBE_LEVEL
+```
+
+Example:
+
+```powershell
+$env:FONT_CATALOG_ERROR_PROBE_LEVEL="WARNING"
+```
+
+Logger-native filtering now used.
+
+---
+
+# Probe Logging
+
+Current probe outputs:
+
+## Console
+
+- ANSI colorized
+- clickable VS Code paths
+- live runtime visibility
+
+## File
+
+Probe logs now persist to file.
+
+Behavior:
+- startup truncates previous session log
+- subsequent probes append during runtime
+
+Implementation detail:
+- file truncation occurs explicitly during configuration
+- handlers themselves use append mode
+- avoids reload-time accidental truncation
+
+---
+
+# Probe Formatting
 
 Current probe formatting includes:
-- timestamp
-- probe kind
-- log level
-- full source pathname
-- source line number
-- function name
-- message
+
+```text
+timestamp
+probe kind
+logging level
+path
+line number
+function
+message
+```
 
 Timestamp format:
 
@@ -312,206 +364,235 @@ Timestamp format:
 yy-mm-dd T hh-MM-ss
 ```
 
-Current formatting intentionally supports VS Code terminal clickable file/line navigation.
+Color semantics:
+- TRACE = cyan
+- DEBUG = gray
+- WARNING = yellow
+- ERROR = red
 
-## Logger Isolation
+Colorization occurs ONLY in formatter logic.
 
-Project uses a dedicated logger:
-
-```python
-font_catalog
-```
-
-Important lesson learned:
-- do NOT use `logging.basicConfig()` for probe formatting
-- custom probe formatter must not affect root logger
-- third-party libraries may emit records lacking probe metadata
-
-Current implementation:
-- dedicated handler attached only to application logger
-- logger propagation disabled
+No formatting/color burden exists at call sites.
 
 ---
 
-# Deferred Probe TODOs
+# Runtime Configuration
 
-## Probe Taxonomy Revisit
+Application configuration now centralized via immutable configuration object.
 
-Deferred until after first-pass font discovery stabilizes.
+Current examples:
+- Windows font directory
+- registry subkey
+- future probe file paths
 
-Desired future semantics:
-
-### Error-Level Probes
-
-- always enabled
-- require no configuration
-- represent true error conditions
-
-### Debug-Level Probes
-
-- runtime configurable
-- represent conditions whose disposition as true errors is not discernable at low-level call sites
-- distinct from tracing
-
-## Probe Colorization
-
-Deferred until probe taxonomy stabilizes.
-
-Desired future direction:
-- custom formatter-based ANSI colorization
-- formatting-time color application only
-- no call-site color logic
-- compatible with:
-  - VS Code integrated terminal
-  - Windows Terminal
-  - modern PowerShell/cmd
-
----
-
-# Font Discovery Subsystem
-
-## Current Module
+Project standard:
 
 ```text
-app/discovery/local_discovery.py
+Prefer immutable runtime configuration objects over mutable ambient module-global primitives.
 ```
 
-## Responsibilities
+---
 
-- enumerate local Windows font files
-- filter supported font extensions
-- load font metadata
-- construct `FontInfo`
-- isolate font-loading failures
+# UI Direction — IMPORTANT DESIGN SHIFT
 
-## Current Supported Extensions
+Initial mental model:
 
 ```text
-.ttf
-.otf
-.ttc
+font database inspector
 ```
 
-## Current Discovery Strategy
-
-Current first-pass strategy:
-- enumerate:
+Current evolved mental model:
 
 ```text
-C:/Windows/Fonts
+visual typography search/exploration engine
 ```
 
-- non-recursive
-- filesystem-based only
-- no registry enumeration yet
-- no normalization layer yet
-- no persistence yet
+This is a major design shift.
 
-## Current Metadata Extraction
+The primary artifact is:
 
-Uses:
-- fontTools
-- TTFont
-- OpenType name table extraction
-
-Current extracted fields:
-- family_name
-- style_name
-- full_name
-- file_path
-
-## Current Internal Model
-
-```python
-FontInfo
+```text
+the typography rendering itself
 ```
 
-Current fields:
+Metadata should remain secondary and largely hidden during exploratory workflows.
 
-```python
-family_name
-style_name
-full_name
-file_path
+---
+
+# Current UI Philosophy
+
+## Primary Mode
+
+Visual exploration.
+
+Characteristics:
+- typography-dominant
+- minimal chrome
+- low metadata noise
+- rapid visual traversal
+- comparison-oriented
+- search-centric
+
+Likely structure:
+
+```text
+search/filter
+↓
+continuous visual field of font renderings
+↓
+optional metadata reveal on focus/select
 ```
 
-No tags, traits, persistence IDs, or UI concerns are currently included.
+The UI should feel closer to:
+- visual search engine
+- typographic light table
+- comparison workspace
+
+than:
+- enterprise CRUD application
+- metadata inspector
 
 ---
 
-# Current Discovery Observations
+# Metadata Philosophy
 
-## TrueType Collections (.ttc)
+Metadata remains important, but should:
+- progressively reveal
+- remain hidden during broad exploration
+- support advanced workflows intentionally
 
-Some `.ttc` files fail opening because they require explicit `fontNumber` selection.
+Advanced/metadata search remains an important escape hatch.
 
-Current behavior:
-- discovery failure preserved intentionally
-- no incomplete fallback implementation accepted
+Future advanced search examples:
 
-Deferred TODO:
-- proper enumeration of all collection entries
-- avoid simplistic `fontNumber=0` fallback
-
----
-
-# Current Known Architectural Boundaries
-
-## Discovery Layer
-
-Responsible ONLY for:
-- locating installed fonts
-- extracting raw metadata
-- filesystem interaction
-- future registry interaction
-
-NOT responsible for:
-- tagging
-- searching
-- persistence
-- UI rendering
-- semantic categorization
+```text
+supports Cyrillic
+weight > 700
+variable font
+OpenType alternates
+installed from registry only
+```
 
 ---
 
-# Current Application State
+# Search / Relationship Direction
 
-Working:
-- FastAPI startup
-- lifespan handling
-- strict typing
-- local font enumeration
-- metadata extraction
-- runtime probe configuration
-- VS Code integration
-- probe output formatting
-- clickable source navigation from probe output
+This became one of the most important emerging project directions.
 
-Observed:
-- some `.ttc` discovery failures
-- FontTools runtime behavior validated
-- probe system functioning correctly
+The application should eventually support:
 
-Not yet implemented:
-- persistence
-- catalog layer
-- search
-- UI
-- tagging
-- normalization
-- trait indexing
-- font preview rendering
+```text
+semantic exploration trajectories
+```
+
+Example:
+
+```text
+retro
+→ geometric
+→ rounded
+→ eurostile-like
+→ compact sci-fi
+→ final selection
+```
+
+The path itself has value.
 
 ---
 
-# Current Immediate Direction
+# Future Relationship Model
 
-Current focus remains:
-- stabilizing first-pass discovery
-- understanding Windows font ecosystem behavior
-- validating metadata quality
-- identifying malformed/problematic fonts
-- determining future normalization needs
+Potential future concepts:
 
-Persistence and UI work intentionally deferred until discovery behavior is better understood.
+- fonts commonly explored together
+- semantic neighborhood suggestions
+- co-selection behavior
+- search refinement trajectories
+- relationship graphs
+- exploration breadcrumbs
+- saved journeys
+- similarity clustering
+
+This implies future dual indexing:
+
+## Structured Metadata Index
+
+Deterministic:
+- names
+- tags
+- provenance
+- OpenType features
+- technical metadata
+
+## Behavioral / Semantic Index
+
+Probabilistic:
+- search journeys
+- co-selection
+- visual similarity
+- relationship inference
+- semantic clustering
+
+This may become one of the genuinely differentiated aspects of the application.
+
+---
+
+# Immediate Next UI Direction
+
+Likely first vertical slice:
+
+```text
+simple browser UI
+→ search field
+→ rendered font result cards
+→ minimal metadata
+→ backend font endpoint
+```
+
+Initial rendering can rely on browser/system family resolution.
+
+Long-term likely direction:
+
+```css
+@font-face
+```
+
+with explicit backend-served font loading for deterministic rendering.
+
+---
+
+# Current Deferred TODOs
+
+## Discovery
+
+- proper TTC enumeration support
+- multiple FontInfos per path
+- better path normalization semantics
+- possible recursive/per-user discovery expansion
+
+## Diagnostics
+
+- richer probe taxonomy evolution
+- potential future error severity routing
+- possible structured/JSON logging later
+
+## UI
+
+- relationship exploration concepts
+- semantic navigation
+- behavioral recommendation systems
+- metadata inspector mode
+- advanced search/query language
+
+---
+
+# Current Project State
+
+Backend/discovery/diagnostics foundation is now strong enough to shift focus toward:
+
+```text
+first meaningful exploratory UI experience
+```
+
+without significant architectural debt pressure.
 
