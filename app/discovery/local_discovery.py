@@ -83,7 +83,16 @@ class LocalDiscovery:
                             f"Reason: {font_info_result.error}"
                         ),
                     )
-
+            else:
+                emit_error_probe(
+                    ProbeLevel.DEBUG,
+                    lambda font_candidate=font_candidate: (
+                        f"Skipped previously loaded font path "
+                        f"'{font_candidate.file_path}'. "
+                        f"Source: {font_candidate.discovery_source.value}. "
+                        f"Detail: {font_candidate.discovery_detail}."
+                    ),
+                )
         return count
 
     def _try_load_font_info(
