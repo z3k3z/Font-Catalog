@@ -31,6 +31,42 @@ h1 {
     font-size: 15px;
 }
 
+.search-panel {
+    max-width: 720px;
+}
+
+.search-chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: #2a2a2a;
+    color: #ddd;
+    border: 1px solid #555;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.search-chip button {
+    padding: 0;
+    background: transparent;
+    color: #aaa;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-chip button:hover {
+    color: #fff;
+}
+
 .font-count {
     margin-top: 8px;
     color: #999;

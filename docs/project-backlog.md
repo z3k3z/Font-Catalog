@@ -43,6 +43,12 @@ Updated: 2026-05-22
 - [ ] Keep metadata hidden/minimized during exploration workflows
 - [ ] Add optional metadata reveal/expand interaction
 
+## UI - Uncategorized
+- [ ] Add some type of navigation to docs and logs
+- [ ] endpoint to render log file view
+- [ ] hover over card animation
+- [ ] track font selection.  Show/highlight counts on card
+- [ ] support comparative selection during user search.  Mark cards for a focused selection set
 ---
 
 # Discovery / Backend

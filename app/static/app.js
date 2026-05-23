@@ -1,11 +1,99 @@
 const _sampleText = "The quick brown fox 123";
+
 let _fonts = [];
+let _searchTerms = [];
 
 async function loadFonts() {
     const response = await fetch("/api/fonts");
     _fonts = await response.json();
 
-    renderFonts(_fonts);
+    applySearch();
+}
+
+function addSearchTerm(rawSearchTerm) {
+    const searchTerm = rawSearchTerm.trim();
+
+    if (searchTerm === "") {
+        return;
+    }
+
+    const normalizedSearchTerm = searchTerm.toLowerCase();
+
+    if (!_searchTerms.includes(normalizedSearchTerm)) {
+        _searchTerms.push(normalizedSearchTerm);
+    }
+
+    document.getElementById("searchInput").value = "";
+
+    applySearch();
+}
+
+function removeSearchTerm(searchTerm) {
+    _searchTerms = _searchTerms.filter((existingSearchTerm) => {
+        return existingSearchTerm !== searchTerm;
+    });
+
+    applySearch();
+}
+
+function applySearch() {
+    const filteredFonts = _fonts.filter((font) => {
+        return fontMatchesAllSearchTerms(font);
+    });
+
+    renderSearchChips();
+    renderFonts(filteredFonts);
+}
+
+function fontMatchesAllSearchTerms(font) {
+    const searchableText = buildSearchableText(font);
+
+    for (const searchTerm of _searchTerms) {
+        if (!searchableText.includes(searchTerm)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function buildSearchableText(font) {
+    const searchableText = [
+        font.family_name,
+        font.style_name,
+        font.full_name,
+        font.source,
+    ]
+        .join(" ")
+        .toLowerCase();
+
+    return searchableText;
+}
+
+function renderSearchChips() {
+    const chipContainer = document.getElementById("searchChipContainer");
+
+    chipContainer.innerHTML = "";
+
+    for (const searchTerm of _searchTerms) {
+        const chip = document.createElement("span");
+        chip.className = "search-chip";
+
+        const label = document.createElement("span");
+        label.textContent = searchTerm;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "×";
+
+        removeButton.addEventListener("click", () => {
+            removeSearchTerm(searchTerm);
+        });
+
+        chip.appendChild(label);
+        chip.appendChild(removeButton);
+        chipContainer.appendChild(chip);
+    }
 }
 
 function renderFonts(fonts) {
@@ -34,25 +122,10 @@ function renderFonts(fonts) {
     }
 }
 
-function filterFonts(searchText) {
-    const normalizedSearchText = searchText.trim().toLowerCase();
-
-    if (normalizedSearchText === "") {
-        renderFonts(_fonts);
-        return;
+document.getElementById("searchInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        addSearchTerm(event.target.value);
     }
-
-    const filteredFonts = _fonts.filter((font) => {
-        const searchableText = `${font.family_name} ${font.style_name} ${font.full_name}`.toLowerCase();
-
-        return searchableText.includes(normalizedSearchText);
-    });
-
-    renderFonts(filteredFonts);
-}
-
-document.getElementById("searchInput").addEventListener("input", (event) => {
-    filterFonts(event.target.value);
 });
 
 loadFonts();
