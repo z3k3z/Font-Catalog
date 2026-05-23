@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -76,6 +76,33 @@ class FontCatalogApp:
             response_description="List of discovered font records.",
         )
 
+        fastapi_app.add_api_route(
+            path="/api/fonts/{font_id}/file",
+            endpoint=self._read_font_file,
+            methods=["GET"],
+            summary="Return exact font file",
+            description=(
+                "Returns the physical font file associated with the backend catalog "
+                "font id. The font id is an opaque runtime handle assigned by the "
+                "catalog. The frontend uses this endpoint as the source for generated "
+                "@font-face rules so samples render with the exact discovered font file."
+            ),
+            response_class=FileResponse,
+            responses={
+                200: {
+                    "description": "The requested font file.",
+                    "content": {
+                        "font/ttf": {},
+                        "font/otf": {},
+                        "application/octet-stream": {},
+                    },
+                },
+                404: {
+                    "description": "No catalog font record exists for the supplied font id.",
+                },
+            },
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticDirectory / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -100,5 +127,17 @@ class FontCatalogApp:
                     source=font_info.font_candidate.discovery_source.value,
                 )
             )
+
+        return response
+
+    def _read_font_file(self, font_id: int) -> FileResponse:
+        record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
+
+        if record is None:
+            raise HTTPException(status_code=404, detail="Font id not found.")
+
+        response: FileResponse = FileResponse(
+            path=record.font_info.font_candidate.file_path,
+        )
 
         return response

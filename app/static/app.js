@@ -20,6 +20,8 @@ async function loadFonts() {
     const response = await fetch("/api/fonts");
     _fonts = await response.json();
 
+    registerFontFaces(_fonts);
+
     applySearch();
 }
 
@@ -149,7 +151,7 @@ function buildFontCard(font) {
     const sample = document.createElement("div");
     sample.className = "font-sample";
     sample.textContent = _sampleText;
-    sample.style.fontFamily = `"${font.family_name}", sans-serif`;
+    sample.style.fontFamily = `"${buildFontCssFamily(font)}", sans-serif`;
 
     const name = document.createElement("div");
     name.className = "font-name";
@@ -162,6 +164,34 @@ function buildFontCard(font) {
     return card;
 }
 
+/*
+ * Explicit font rendering
+ */
+function registerFontFaces(fonts) {
+    const styleElement = document.createElement("style");
+    styleElement.id = "fontCatalogDynamicFontFaces";
+
+    let cssText = "";
+
+    for (const font of fonts) {
+        cssText += `
+@font-face {
+    font-family: "${buildFontCssFamily(font)}";
+    src: url("/api/fonts/${font.id}/file");
+}
+`;
+    }
+
+    styleElement.textContent = cssText;
+    document.head.appendChild(styleElement);
+}
+
+
+function buildFontCssFamily(font) {
+    const fontCssFamily = `FontCatalog_${font.id}`;
+
+    return fontCssFamily;
+}
 
 /*
  * Event wiring
