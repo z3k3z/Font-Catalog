@@ -3,6 +3,19 @@ const _sampleText = "The quick brown fox 123";
 let _fonts = [];
 let _searchTerms = [];
 
+
+/*
+ * Application entry point.
+ *
+ * The current UI intentionally loads the full font metadata set once,
+ * stores it in browser memory, then filters/renders locally.
+ */
+loadFonts();
+
+
+/*
+ * Initial data load
+ */
 async function loadFonts() {
     const response = await fetch("/api/fonts");
     _fonts = await response.json();
@@ -10,6 +23,10 @@ async function loadFonts() {
     applySearch();
 }
 
+
+/*
+ * Search state management
+ */
 function addSearchTerm(rawSearchTerm) {
     const searchTerm = rawSearchTerm.trim();
 
@@ -28,6 +45,7 @@ function addSearchTerm(rawSearchTerm) {
     applySearch();
 }
 
+
 function removeSearchTerm(searchTerm) {
     _searchTerms = _searchTerms.filter((existingSearchTerm) => {
         return existingSearchTerm !== searchTerm;
@@ -36,6 +54,10 @@ function removeSearchTerm(searchTerm) {
     applySearch();
 }
 
+
+/*
+ * Search application
+ */
 function applySearch() {
     const filteredFonts = _fonts.filter((font) => {
         return fontMatchesAllSearchTerms(font);
@@ -44,6 +66,7 @@ function applySearch() {
     renderSearchChips();
     renderFonts(filteredFonts);
 }
+
 
 function fontMatchesAllSearchTerms(font) {
     const searchableText = buildSearchableText(font);
@@ -56,6 +79,7 @@ function fontMatchesAllSearchTerms(font) {
 
     return true;
 }
+
 
 function buildSearchableText(font) {
     const searchableText = [
@@ -70,6 +94,10 @@ function buildSearchableText(font) {
     return searchableText;
 }
 
+
+/*
+ * Search chip rendering
+ */
 function renderSearchChips() {
     const chipContainer = document.getElementById("searchChipContainer");
 
@@ -96,6 +124,10 @@ function renderSearchChips() {
     }
 }
 
+
+/*
+ * Font card rendering
+ */
 function renderFonts(fonts) {
     const fontGrid = document.getElementById("fontGrid");
     const fontCount = document.getElementById("fontCount");
@@ -104,28 +136,37 @@ function renderFonts(fonts) {
     fontCount.textContent = `${fonts.length} fonts shown`;
 
     for (const font of fonts) {
-        const card = document.createElement("article");
-        card.className = "font-card";
-
-        const sample = document.createElement("div");
-        sample.className = "font-sample";
-        sample.textContent = _sampleText;
-        sample.style.fontFamily = `"${font.family_name}", sans-serif`;
-
-        const name = document.createElement("div");
-        name.className = "font-name";
-        name.textContent = `${font.family_name} — ${font.style_name}`;
-
-        card.appendChild(sample);
-        card.appendChild(name);
+        const card = buildFontCard(font);
         fontGrid.appendChild(card);
     }
 }
 
+
+function buildFontCard(font) {
+    const card = document.createElement("article");
+    card.className = "font-card";
+
+    const sample = document.createElement("div");
+    sample.className = "font-sample";
+    sample.textContent = _sampleText;
+    sample.style.fontFamily = `"${font.family_name}", sans-serif`;
+
+    const name = document.createElement("div");
+    name.className = "font-name";
+    name.textContent = `${font.family_name} — ${font.style_name}`;
+
+    card.appendChild(sample);
+    card.appendChild(name);
+
+    return card;
+}
+
+
+/*
+ * Event wiring
+ */
 document.getElementById("searchInput").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
         addSearchTerm(event.target.value);
     }
 });
-
-loadFonts();
