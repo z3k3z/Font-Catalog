@@ -10,12 +10,13 @@ from app.api_models.font_response import FontResponse
 from app.application_configuration import ApplicationConfiguration
 from app.discovery.local_discovery import LocalDiscovery
 from app.models.font_info import FontInfo
+from catalog.font_catalog import CatalogFontRecord, FontCatalog
 
 
 class FontCatalogApp:
     def __init__(self, application_configuration: ApplicationConfiguration) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
-        self._discoveredFonts: list[FontInfo] = []
+        self._fontCatalog: FontCatalog = FontCatalog()
         self._staticDirectory: Path = Path("app/static")
 
     def create_fastapi_app(self) -> FastAPI:
@@ -42,7 +43,12 @@ class FontCatalogApp:
             _: FastAPI,
         ) -> AsyncIterator[None]:
             localDiscovery = LocalDiscovery(self._applicationConfiguration)
-            self._discoveredFonts = localDiscovery.discover_fonts()
+
+            # discover the fonts on this machine
+            font_infos: list[FontInfo] = localDiscovery.discover_fonts()
+
+            # build our catalog
+            self._fontCatalog.load_fonts(font_infos)
 
             yield
 
@@ -79,9 +85,14 @@ class FontCatalogApp:
     def _read_fonts(self) -> list[FontResponse]:
         response: list[FontResponse] = []
 
-        for font_info in self._discoveredFonts:
+        records: list[CatalogFontRecord] = self._fontCatalog.get_records()
+
+        for record in records:
+            font_info: FontInfo = record.font_info
+
             response.append(
                 FontResponse(
+                    id=record.font_id,
                     family_name=font_info.family_name,
                     style_name=font_info.style_name,
                     full_name=font_info.full_name,

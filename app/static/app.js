@@ -155,6 +155,7 @@ function buildFontCard(font) {
     name.className = "font-name";
     name.textContent = `${font.family_name} — ${font.style_name}`;
 
+    card.dataset.fontId = String(font.id);
     card.appendChild(sample);
     card.appendChild(name);
 
