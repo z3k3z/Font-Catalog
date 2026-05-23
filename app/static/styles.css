@@ -85,6 +85,22 @@ h1 {
     background: #181818;
     border: 1px solid #333;
     border-radius: 8px;
+    transition:
+        transform 140ms ease,
+        border-color 140ms ease,
+        background-color 140ms ease,
+        box-shadow 140ms ease;
+}
+
+.font-card:hover {
+    transform: translateY(-3px);
+    border-color: #666;
+    background: #202020;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.font-card:hover .font-sample {
+    transform: scale(1.025);
 }
 
 .font-sample {
@@ -92,6 +108,7 @@ h1 {
     font-size: 34px;
     line-height: 1.2;
     color: #f2f2f2;
+    transition: transform 140ms ease;
 }
 
 .font-name {
