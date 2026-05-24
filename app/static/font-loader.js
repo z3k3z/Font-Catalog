@@ -1,9 +1,9 @@
 import { _diags } from "./diagnostics.js";
 
 export class FontLoader {
-    constructor(fontApiClient) {
+    constructor(fontApiClient, fontFaceStyleElement) {
         this._fontApiClient = fontApiClient;
-        this._styleElementId = this._createStyleElement();
+        this._fontFaceStyleElement = fontFaceStyleElement;
         this._loadedFontIds = new Set();
     }
 
@@ -33,16 +33,6 @@ export class FontLoader {
     }
 
     _registerFontFace(font) {
-        const styleElement = document.getElementById(this._styleElementId);
-
-        if (styleElement === null) {
-            _diags.emitErrorProbe(
-                () => `Unable to locate font-face style element '${this._styleElementId}'.`
-            );
-
-            return;
-        }
-
         const fontFileUrl = this._fontApiClient.buildFontFileUrl(font.id);
 
         const cssText = `
@@ -52,6 +42,6 @@ export class FontLoader {
 }
 `;
 
-        styleElement.appendChild(document.createTextNode(cssText));
+        this._fontFaceStyleElement.appendChild(document.createTextNode(cssText));
     }
 }

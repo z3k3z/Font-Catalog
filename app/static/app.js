@@ -4,10 +4,13 @@ import { FontLoader } from "./font-loader.js";
 
 let _fonts = [];
 let _searchTerms = [];
-const _fontApiClient = new FontApiClient("");
-const _fontLoader = new FontLoader(_fontApiClient);
+
 const fontGridElement = _getRequiredElementById("fontGrid");
 const fontCountElement = _getRequiredElementById("fontCount");
+const fontFaceStyleElement = _getRequiredElementById("fontCatalogDynamicFontFaces");
+
+const _fontApiClient = new FontApiClient("");
+const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 
 /*
