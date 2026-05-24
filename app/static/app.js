@@ -1,5 +1,6 @@
+import { _diags } from "./diagnostics.js";
+
 const _sampleText = "The quick brown fox 123";
-const _d = new FrontendDiagnostics(FrontendDiagnostics.DEBUG);
 
 let _fonts = [];
 let _searchTerms = [];
@@ -19,12 +20,12 @@ loadFonts();
  */
 async function loadFonts() {
     try {
-        _d.emitDebugProbe(() => "Starting frontend font metadata load.");
+        _diags.emitDebugProbe(() => "Starting frontend font metadata load.");
 
         const response = await fetch("/api/fonts");
 
         if (!response.ok) {
-            _d.emitErrorProbe(
+            _diags.emitErrorProbe(
                 () =>
                     `Failed to load font metadata. ` + `Status: ${response.status} ${response.statusText}.`
             );
@@ -34,12 +35,12 @@ async function loadFonts() {
 
         _fonts = await response.json();
 
-        _d.emitDebugProbe(() => `Loaded ${_fonts.length} font metadata records.`);
+        _diags.emitDebugProbe(() => `Loaded ${_fonts.length} font metadata records.`);
 
         configureFontObserver();
         applySearch();
     } catch (error) {
-        _d.emitErrorProbe(() => `Exception while loading font metadata: ${error}`);
+        _diags.emitErrorProbe(() => `Exception while loading font metadata: ${error}`);
     }
 }
 
@@ -143,7 +144,7 @@ function registerFontFace(font) {
         }
         `;
 
-    _d.emitDebugProbe(() => `Loading font metadata for font ${font.id}`);
+    _diags.emitDebugProbe(() => `Loading font metadata for font ${font.id}`);
     styleElement.appendChild(document.createTextNode(cssText));
 }
 
@@ -155,12 +156,6 @@ function applyLoadedFontToCard(card, font) {
     }
 
     sample.style.fontFamily = `"${buildFontCssFamily(font)}", sans-serif`;
-}
-
-function buildFontCssFamily(font) {
-    const fontCssFamily = `FontCatalog_${font.id}`;
-
-    return fontCssFamily;
 }
 
 /*

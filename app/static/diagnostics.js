@@ -1,4 +1,4 @@
-class FrontendDiagnostics {
+export class FrontendDiagnostics {
     static ProbeLevel = class {
         constructor(rank, text) {
             this._rank = rank;
@@ -14,12 +14,13 @@ class FrontendDiagnostics {
         }
     };
 
-    constructor(minimumProbeLevel) {
-        this._minimumProbeLevel = minimumProbeLevel;
-    }
     static DEBUG = new FrontendDiagnostics.ProbeLevel(10, "DEBUG");
     static WARNING = new FrontendDiagnostics.ProbeLevel(30, "WARNING");
     static ERROR = new FrontendDiagnostics.ProbeLevel(40, "ERROR");
+
+    constructor(minimumProbeLevel) {
+        this._minimumProbeLevel = minimumProbeLevel;
+    }
 
     emitDebugProbe(messageProvider) {
         if (FrontendDiagnostics.DEBUG.isEnabled(this._minimumProbeLevel)) {
@@ -76,3 +77,5 @@ class FrontendDiagnostics {
         );
     }
 }
+
+export const _diags = new FrontendDiagnostics(FrontendDiagnostics.DEBUG);
