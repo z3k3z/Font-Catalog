@@ -5,68 +5,62 @@ class FrontendDiagnostics {
             this._text = text;
         }
 
-        isEnabled(minimumProbeLevel) { return this._rank >= minimumProbeLevel._rank;}
+        isEnabled(minimumProbeLevel) {
+            return this._rank >= minimumProbeLevel._rank;
+        }
 
-        toString() { return this._text;}
+        toString() {
+            return this._text;
+        }
     };
 
     constructor(minimumProbeLevel) {
         this._minimumProbeLevel = minimumProbeLevel;
     }
-   static DEBUG = new FrontendDiagnostics.ProbeLevel(10, "DEBUG");
-   static WARNING = new FrontendDiagnostics.ProbeLevel(30, "WARNING");
-   static ERROR = new FrontendDiagnostics.ProbeLevel(40, "ERROR");
+    static DEBUG = new FrontendDiagnostics.ProbeLevel(10, "DEBUG");
+    static WARNING = new FrontendDiagnostics.ProbeLevel(30, "WARNING");
+    static ERROR = new FrontendDiagnostics.ProbeLevel(40, "ERROR");
 
-   emitDebugProbe(messageProvider) {
-      if (FrontendDiagnostics.DEBUG.isEnabled(this._minimumProbeLevel)) {
-         this._emitProbe(
-            FrontendDiagnostics.DEBUG,
-            messageProvider
-         );
-      }
-   }
+    emitDebugProbe(messageProvider) {
+        if (FrontendDiagnostics.DEBUG.isEnabled(this._minimumProbeLevel)) {
+            this._emitProbe(FrontendDiagnostics.DEBUG, messageProvider);
+        }
+    }
 
-   emitWarningProbe(messageProvider) {
-      if (FrontendDiagnostics.WARNING.isEnabled(this._minimumProbeLevel)) {
-         this._emitProbe(
-            FrontendDiagnostics.WARNING,
-            messageProvider
-         );
-      }
-   }
+    emitWarningProbe(messageProvider) {
+        if (FrontendDiagnostics.WARNING.isEnabled(this._minimumProbeLevel)) {
+            this._emitProbe(FrontendDiagnostics.WARNING, messageProvider);
+        }
+    }
 
-   emitErrorProbe(messageProvider) {
-      if (FrontendDiagnostics.ERROR.isEnabled(this._minimumProbeLevel)) {
-         this._emitProbe(
-            FrontendDiagnostics.ERROR,
-            messageProvider
-         );
-      }
-   }
+    emitErrorProbe(messageProvider) {
+        if (FrontendDiagnostics.ERROR.isEnabled(this._minimumProbeLevel)) {
+            this._emitProbe(FrontendDiagnostics.ERROR, messageProvider);
+        }
+    }
 
     _emitProbe(probeLevel, messageProvider) {
         const message = messageProvider();
         const timestamp = this._buildTimestamp();
-        const formattedMessage =
-            `${timestamp} FRONTEND ${probeLevel}: ${message}`;
+        const formattedMessage = `${timestamp} FRONTEND ${probeLevel}: ${message}`;
 
         switch (probeLevel) {
-         case FrontendDiagnostics.ERROR:
-               console.error(formattedMessage);
-               break;
+            case FrontendDiagnostics.ERROR:
+                console.error(formattedMessage);
+                break;
 
-         case FrontendDiagnostics.WARNING:
-               console.warn(formattedMessage);
-               break;
+            case FrontendDiagnostics.WARNING:
+                console.warn(formattedMessage);
+                break;
 
-         case FrontendDiagnostics.DEBUG:
-               console.debug(formattedMessage);
-               break;
+            case FrontendDiagnostics.DEBUG:
+                console.debug(formattedMessage);
+                break;
 
-         default:
-               console.log(formattedMessage);
-               break;
-         }
+            default:
+                console.log(formattedMessage);
+                break;
+        }
     }
 
     _buildTimestamp() {

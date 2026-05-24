@@ -14,24 +14,19 @@ const _loadedFontIds = new Set();
  */
 loadFonts();
 
-
 /*
  * Initial data load
  */
 async function loadFonts() {
     try {
-        _d.emitDebugProbe(
-            () => "Starting frontend font metadata load."
-        );
+        _d.emitDebugProbe(() => "Starting frontend font metadata load.");
 
         const response = await fetch("/api/fonts");
 
         if (!response.ok) {
             _d.emitErrorProbe(
-                () => (
-                    `Failed to load font metadata. ` +
-                    `Status: ${response.status} ${response.statusText}.`
-                )
+                () =>
+                    `Failed to load font metadata. ` + `Status: ${response.status} ${response.statusText}.`
             );
 
             return;
@@ -39,20 +34,14 @@ async function loadFonts() {
 
         _fonts = await response.json();
 
-        _d.emitDebugProbe(
-            () => `Loaded ${_fonts.length} font metadata records.`
-        );
+        _d.emitDebugProbe(() => `Loaded ${_fonts.length} font metadata records.`);
 
         configureFontObserver();
         applySearch();
-
     } catch (error) {
-        _d.emitErrorProbe(
-            () => `Exception while loading font metadata: ${error}`
-        );
+        _d.emitErrorProbe(() => `Exception while loading font metadata: ${error}`);
     }
 }
-
 
 /*
  * Search state management
@@ -74,7 +63,6 @@ function addSearchTerm(rawSearchTerm) {
 
     applySearch();
 }
-
 
 function removeSearchTerm(searchTerm) {
     _searchTerms = _searchTerms.filter((existingSearchTerm) => {
@@ -124,7 +112,6 @@ function loadFontForCard(card) {
     applyLoadedFontToCard(card, font);
 }
 
-
 function findFontById(fontIdText) {
     const fontId = Number(fontIdText);
 
@@ -137,7 +124,6 @@ function findFontById(fontIdText) {
     return null;
 }
 
-
 function ensureFontFaceRegistered(font) {
     if (_loadedFontIds.has(font.id)) {
         return;
@@ -146,7 +132,6 @@ function ensureFontFaceRegistered(font) {
     registerFontFace(font);
     _loadedFontIds.add(font.id);
 }
-
 
 function registerFontFace(font) {
     const styleElement = document.getElementById("fontCatalogDynamicFontFaces");
@@ -162,7 +147,6 @@ function registerFontFace(font) {
     styleElement.appendChild(document.createTextNode(cssText));
 }
 
-
 function applyLoadedFontToCard(card, font) {
     const sample = card.querySelector(".font-sample");
 
@@ -172,7 +156,6 @@ function applyLoadedFontToCard(card, font) {
 
     sample.style.fontFamily = `"${buildFontCssFamily(font)}", sans-serif`;
 }
-
 
 function buildFontCssFamily(font) {
     const fontCssFamily = `FontCatalog_${font.id}`;
@@ -192,7 +175,6 @@ function applySearch() {
     renderFonts(filteredFonts);
 }
 
-
 function fontMatchesAllSearchTerms(font) {
     const searchableText = buildSearchableText(font);
 
@@ -205,20 +187,13 @@ function fontMatchesAllSearchTerms(font) {
     return true;
 }
 
-
 function buildSearchableText(font) {
-    const searchableText = [
-        font.family_name,
-        font.style_name,
-        font.full_name,
-        font.source,
-    ]
+    const searchableText = [font.family_name, font.style_name, font.full_name, font.source]
         .join(" ")
         .toLowerCase();
 
     return searchableText;
 }
-
 
 /*
  * Search chip rendering
@@ -249,7 +224,6 @@ function renderSearchChips() {
     }
 }
 
-
 /*
  * Font card rendering
  */
@@ -265,7 +239,6 @@ function renderFonts(fonts) {
         fontGrid.appendChild(card);
     }
 }
-
 
 function buildFontCard(font) {
     const card = document.createElement("article");
