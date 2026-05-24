@@ -1,9 +1,9 @@
 import { FontApiClient } from "./font-api-client.js";
 import { FontGridView } from "./font-grid-view.js";
 import { FontLoader } from "./font-loader.js";
+import { FontSearch } from "./font-search.js";
 
 let _fonts = [];
-let _searchTerms = [];
 
 const fontGridElement = _getRequiredElementById("fontGrid");
 const fontCountElement = _getRequiredElementById("fontCount");
@@ -12,6 +12,7 @@ const fontFaceStyleElement = _getRequiredElementById("fontCatalogDynamicFontFace
 const _fontApiClient = new FontApiClient("");
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
+const _fontSearch = new FontSearch();
 
 /*
  * Application entry point.
@@ -34,17 +35,7 @@ async function loadFonts() {
  * Search state management
  */
 function addSearchTerm(rawSearchTerm) {
-    const searchTerm = rawSearchTerm.trim();
-
-    if (searchTerm === "") {
-        return;
-    }
-
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-
-    if (!_searchTerms.includes(normalizedSearchTerm)) {
-        _searchTerms.push(normalizedSearchTerm);
-    }
+    _fontSearch.addSearchTerm(rawSearchTerm);
 
     document.getElementById("searchInput").value = "";
 
@@ -52,9 +43,7 @@ function addSearchTerm(rawSearchTerm) {
 }
 
 function removeSearchTerm(searchTerm) {
-    _searchTerms = _searchTerms.filter((existingSearchTerm) => {
-        return existingSearchTerm !== searchTerm;
-    });
+    _fontSearch.removeSearchTerm(searchTerm);
 
     applySearch();
 }
@@ -63,32 +52,10 @@ function removeSearchTerm(searchTerm) {
  * Search application
  */
 function applySearch() {
-    const filteredFonts = _fonts.filter((font) => {
-        return fontMatchesAllSearchTerms(font);
-    });
+    const filteredFonts = _fontSearch.filterFonts(_fonts);
 
     renderSearchChips();
     _fontGridView.renderFonts(filteredFonts);
-}
-
-function fontMatchesAllSearchTerms(font) {
-    const searchableText = buildSearchableText(font);
-
-    for (const searchTerm of _searchTerms) {
-        if (!searchableText.includes(searchTerm)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function buildSearchableText(font) {
-    const searchableText = [font.family_name, font.style_name, font.full_name, font.source]
-        .join(" ")
-        .toLowerCase();
-
-    return searchableText;
 }
 
 /*
@@ -99,7 +66,7 @@ function renderSearchChips() {
 
     chipContainer.innerHTML = "";
 
-    for (const searchTerm of _searchTerms) {
+    for (const searchTerm of _fontSearch.getSearchTerms()) {
         const chip = document.createElement("span");
         chip.className = "search-chip";
 
