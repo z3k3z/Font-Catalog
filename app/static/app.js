@@ -1,13 +1,14 @@
 import { FontApiClient } from "./font-api-client.js";
+import { FontGridView } from "./font-grid-view.js";
 import { FontLoader } from "./font-loader.js";
-
-const _sampleText = "The quick brown fox 123";
 
 let _fonts = [];
 let _searchTerms = [];
-let _fontObserver = null;
 const _fontApiClient = new FontApiClient("");
 const _fontLoader = new FontLoader(_fontApiClient);
+const fontGridElement = _getRequiredElementById("fontGrid");
+const fontCountElement = _getRequiredElementById("fontCount");
+const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 
 /*
  * Application entry point.
@@ -23,7 +24,6 @@ loadFonts();
 async function loadFonts() {
     _fonts = await _fontApiClient.getFonts();
 
-    configureFontObserver();
     applySearch();
 }
 
@@ -57,68 +57,6 @@ function removeSearchTerm(searchTerm) {
 }
 
 /*
- * Font Observer
- */
-function configureFontObserver() {
-    _fontObserver = new IntersectionObserver(
-        (entries) => {
-            for (const entry of entries) {
-                if (entry.isIntersecting) {
-                    loadFontForCard(entry.target);
-                }
-            }
-        },
-        {
-            root: null,
-            rootMargin: "300px",
-            threshold: 0.01,
-        }
-    );
-}
-
-/*
- * Font Lazy Loading
- */
-function loadFontForCard(card) {
-    const fontIdText = card.dataset.fontId;
-
-    if (fontIdText === undefined) {
-        return;
-    }
-
-    const font = findFontById(fontIdText);
-
-    if (font === null) {
-        return;
-    }
-
-    _fontLoader.ensureFontFaceRegistered(font);
-    applyLoadedFontToCard(card, font);
-}
-
-function findFontById(fontIdText) {
-    const fontId = Number(fontIdText);
-
-    for (const font of _fonts) {
-        if (font.id === fontId) {
-            return font;
-        }
-    }
-
-    return null;
-}
-
-function applyLoadedFontToCard(card, font) {
-    const sample = card.querySelector(".font-sample");
-
-    if (sample === null) {
-        return;
-    }
-
-    sample.style.fontFamily = `"${_fontLoader.buildFontCssFamily(font)}", sans-serif`;
-}
-
-/*
  * Search application
  */
 function applySearch() {
@@ -127,7 +65,7 @@ function applySearch() {
     });
 
     renderSearchChips();
-    renderFonts(filteredFonts);
+    _fontGridView.renderFonts(filteredFonts);
 }
 
 function fontMatchesAllSearchTerms(font) {
@@ -180,46 +118,6 @@ function renderSearchChips() {
 }
 
 /*
- * Font card rendering
- */
-function renderFonts(fonts) {
-    const fontGrid = document.getElementById("fontGrid");
-    const fontCount = document.getElementById("fontCount");
-
-    fontGrid.innerHTML = "";
-    fontCount.textContent = `${fonts.length} fonts shown`;
-
-    for (const font of fonts) {
-        const card = buildFontCard(font);
-        fontGrid.appendChild(card);
-    }
-}
-
-function buildFontCard(font) {
-    const card = document.createElement("article");
-    card.className = "font-card";
-    card.dataset.fontId = String(font.id);
-
-    const sample = document.createElement("div");
-    sample.className = "font-sample";
-    sample.textContent = _sampleText;
-    sample.style.fontFamily = "system-ui, sans-serif";
-
-    const name = document.createElement("div");
-    name.className = "font-name";
-    name.textContent = `${font.family_name} — ${font.style_name}`;
-
-    card.appendChild(sample);
-    card.appendChild(name);
-
-    if (_fontObserver !== null) {
-        _fontObserver.observe(card);
-    }
-
-    return card;
-}
-
-/*
  * Event wiring
  */
 document.getElementById("searchInput").addEventListener("keydown", (event) => {
@@ -227,3 +125,13 @@ document.getElementById("searchInput").addEventListener("keydown", (event) => {
         addSearchTerm(event.target.value);
     }
 });
+
+function _getRequiredElementById(elementId) {
+    const element = document.getElementById(elementId);
+
+    if (element === null) {
+        throw new Error(`Unable to locate required element '${elementId}'.`);
+    }
+
+    return element;
+}
