@@ -1,13 +1,13 @@
-import { _diags } from "./diagnostics.js";
 import { FontApiClient } from "./font-api-client.js";
+import { FontLoader } from "./font-loader.js";
 
 const _sampleText = "The quick brown fox 123";
 
 let _fonts = [];
 let _searchTerms = [];
 let _fontObserver = null;
-const _loadedFontIds = new Set();
 const _fontApiClient = new FontApiClient("");
+const _fontLoader = new FontLoader(_fontApiClient);
 
 /*
  * Application entry point.
@@ -92,7 +92,7 @@ function loadFontForCard(card) {
         return;
     }
 
-    ensureFontFaceRegistered(font);
+    _fontLoader.ensureFontFaceRegistered(font);
     applyLoadedFontToCard(card, font);
 }
 
@@ -108,29 +108,6 @@ function findFontById(fontIdText) {
     return null;
 }
 
-function ensureFontFaceRegistered(font) {
-    if (_loadedFontIds.has(font.id)) {
-        return;
-    }
-
-    registerFontFace(font);
-    _loadedFontIds.add(font.id);
-}
-
-function registerFontFace(font) {
-    const styleElement = document.getElementById("fontCatalogDynamicFontFaces");
-
-    const cssText = `
-    @font-face {
-        font-family: "${buildFontCssFamily(font)}";
-        src: url(${_fontApiClient.buildFontFileUrl(font.id)});
-        }
-        `;
-
-    _diags.emitDebugProbe(() => `Loading font metadata for font ${font.id}`);
-    styleElement.appendChild(document.createTextNode(cssText));
-}
-
 function applyLoadedFontToCard(card, font) {
     const sample = card.querySelector(".font-sample");
 
@@ -138,7 +115,7 @@ function applyLoadedFontToCard(card, font) {
         return;
     }
 
-    sample.style.fontFamily = `"${buildFontCssFamily(font)}", sans-serif`;
+    sample.style.fontFamily = `"${_fontLoader.buildFontCssFamily(font)}", sans-serif`;
 }
 
 /*
@@ -240,15 +217,6 @@ function buildFontCard(font) {
     }
 
     return card;
-}
-
-/*
- * Explicit font rendering
- */
-function buildFontCssFamily(font) {
-    const fontCssFamily = `FontCatalog_${font.id}`;
-
-    return fontCssFamily;
 }
 
 /*
