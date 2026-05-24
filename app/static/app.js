@@ -2,17 +2,30 @@ import { FontApiClient } from "./font-api-client.js";
 import { FontGridView } from "./font-grid-view.js";
 import { FontLoader } from "./font-loader.js";
 import { FontSearch } from "./font-search.js";
+import { SearchChipBar } from "./search-chip-bar.js";
 
 let _fonts = [];
 
 const fontGridElement = _getRequiredElementById("fontGrid");
 const fontCountElement = _getRequiredElementById("fontCount");
 const fontFaceStyleElement = _getRequiredElementById("fontCatalogDynamicFontFaces");
+const searchInputElement = _getRequiredElementById("searchInput");
+const searchChipContainerElement = _getRequiredElementById("searchChipContainer");
 
 const _fontApiClient = new FontApiClient("");
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 const _fontSearch = new FontSearch();
+const _searchChipBar = new SearchChipBar(searchInputElement, searchChipContainerElement);
+_searchChipBar.setListeners({
+    onSearchTermAdded: (rawSearchTerm) => {
+        addSearchTerm(rawSearchTerm);
+    },
+
+    onSearchTermRemoved: (searchTerm) => {
+        removeSearchTerm(searchTerm);
+    },
+});
 
 /*
  * Application entry point.
@@ -28,73 +41,36 @@ loadFonts();
 async function loadFonts() {
     _fonts = await _fontApiClient.getFonts();
 
-    applySearch();
+    _applySearch();
 }
 
 /*
- * Search state management
+ * Search bar listeners
  */
 function addSearchTerm(rawSearchTerm) {
     _fontSearch.addSearchTerm(rawSearchTerm);
 
-    document.getElementById("searchInput").value = "";
+    _searchChipBar.clearSearchInput();
 
-    applySearch();
+    _applySearch();
 }
 
 function removeSearchTerm(searchTerm) {
     _fontSearch.removeSearchTerm(searchTerm);
 
-    applySearch();
+    _applySearch();
 }
 
 /*
- * Search application
+ * Search support
  */
-function applySearch() {
+function _applySearch() {
     const filteredFonts = _fontSearch.filterFonts(_fonts);
 
-    renderSearchChips();
+    _searchChipBar.renderSearchTerms(_fontSearch.getSearchTerms());
+
     _fontGridView.renderFonts(filteredFonts);
 }
-
-/*
- * Search chip rendering
- */
-function renderSearchChips() {
-    const chipContainer = document.getElementById("searchChipContainer");
-
-    chipContainer.innerHTML = "";
-
-    for (const searchTerm of _fontSearch.getSearchTerms()) {
-        const chip = document.createElement("span");
-        chip.className = "search-chip";
-
-        const label = document.createElement("span");
-        label.textContent = searchTerm;
-
-        const removeButton = document.createElement("button");
-        removeButton.type = "button";
-        removeButton.textContent = "×";
-
-        removeButton.addEventListener("click", () => {
-            removeSearchTerm(searchTerm);
-        });
-
-        chip.appendChild(label);
-        chip.appendChild(removeButton);
-        chipContainer.appendChild(chip);
-    }
-}
-
-/*
- * Event wiring
- */
-document.getElementById("searchInput").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        addSearchTerm(event.target.value);
-    }
-});
 
 function _getRequiredElementById(elementId) {
     const element = document.getElementById(elementId);
