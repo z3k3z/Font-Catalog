@@ -1,4 +1,5 @@
 const _sampleText = "The quick brown fox 123";
+const _d = new FrontendDiagnostics(FrontendDiagnostics.DEBUG);
 
 let _fonts = [];
 let _searchTerms = [];
@@ -18,12 +19,38 @@ loadFonts();
  * Initial data load
  */
 async function loadFonts() {
-    const response = await fetch("/api/fonts");
-    _fonts = await response.json();
+    try {
+        _d.emitDebugProbe(
+            () => "Starting frontend font metadata load."
+        );
 
-    configureFontObserver();
+        const response = await fetch("/api/fonts");
 
-    applySearch();
+        if (!response.ok) {
+            _d.emitErrorProbe(
+                () => (
+                    `Failed to load font metadata. ` +
+                    `Status: ${response.status} ${response.statusText}.`
+                )
+            );
+
+            return;
+        }
+
+        _fonts = await response.json();
+
+        _d.emitDebugProbe(
+            () => `Loaded ${_fonts.length} font metadata records.`
+        );
+
+        configureFontObserver();
+        applySearch();
+
+    } catch (error) {
+        _d.emitErrorProbe(
+            () => `Exception while loading font metadata: ${error}`
+        );
+    }
 }
 
 
@@ -131,7 +158,7 @@ function registerFontFace(font) {
         }
         `;
 
-    console.log("Loading font metadata for font", font.id);
+    _d.emitDebugProbe(() => `Loading font metadata for font ${font.id}`);
     styleElement.appendChild(document.createTextNode(cssText));
 }
 
