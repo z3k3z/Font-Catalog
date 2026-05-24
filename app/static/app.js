@@ -1,4 +1,5 @@
 import { _diags } from "./diagnostics.js";
+import { FontApiClient } from "./font-api-client.js";
 
 const _sampleText = "The quick brown fox 123";
 
@@ -6,6 +7,7 @@ let _fonts = [];
 let _searchTerms = [];
 let _fontObserver = null;
 const _loadedFontIds = new Set();
+const _fontApiClient = new FontApiClient("");
 
 /*
  * Application entry point.
@@ -19,29 +21,10 @@ loadFonts();
  * Initial data load
  */
 async function loadFonts() {
-    try {
-        _diags.emitDebugProbe(() => "Starting frontend font metadata load.");
+    _fonts = await _fontApiClient.getFonts();
 
-        const response = await fetch("/api/fonts");
-
-        if (!response.ok) {
-            _diags.emitErrorProbe(
-                () =>
-                    `Failed to load font metadata. ` + `Status: ${response.status} ${response.statusText}.`
-            );
-
-            return;
-        }
-
-        _fonts = await response.json();
-
-        _diags.emitDebugProbe(() => `Loaded ${_fonts.length} font metadata records.`);
-
-        configureFontObserver();
-        applySearch();
-    } catch (error) {
-        _diags.emitErrorProbe(() => `Exception while loading font metadata: ${error}`);
-    }
+    configureFontObserver();
+    applySearch();
 }
 
 /*
@@ -140,7 +123,7 @@ function registerFontFace(font) {
     const cssText = `
     @font-face {
         font-family: "${buildFontCssFamily(font)}";
-        src: url("/api/fonts/${font.id}/file");
+        src: url(${_fontApiClient.buildFontFileUrl(font.id)});
         }
         `;
 
