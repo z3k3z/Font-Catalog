@@ -1,6 +1,6 @@
 # Windows Font Catalog — Backlog
 
-Updated: 2026-05-22
+Updated: 2026-05-24
 
 ---
 
@@ -8,11 +8,11 @@ Updated: 2026-05-22
 
 ## UI — Search Experience
 
-- [ ] Implement multi-layered / stacked search terms
-- [ ] Allow user to add multiple independent search chips
-- [ ] Support removable search chips via inline `x`
-- [ ] Keep search chips visually adjacent to search field
-- [ ] Search should AND-combine active chips by default
+- [x] Implement multi-layered / stacked search terms
+- [x] Allow user to add multiple independent search chips
+- [x] Support removable search chips via inline `x`
+- [x] Keep search chips visually adjacent to search field
+- [x] Search should AND-combine active chips by default
 - [ ] Add local-session search state persistence
 - [ ] Add keyboard-friendly search-chip navigation
 
@@ -43,12 +43,47 @@ Updated: 2026-05-22
 - [ ] Keep metadata hidden/minimized during exploration workflows
 - [ ] Add optional metadata reveal/expand interaction
 
-## UI - Uncategorized
+## UI — Uncategorized
+
 - [ ] Add some type of navigation to docs and logs
-- [ ] endpoint to render log file view
-- [ ] hover over card animation
-- [ ] track font selection.  Show/highlight counts on card
-- [ ] support comparative selection during user search.  Mark cards for a focused selection set
+- [ ] Add endpoint to render log file view
+- [x] Add hover-over card animation
+- [ ] Track font selection. Show/highlight counts on card
+- [ ] Support comparative selection during user search
+- [ ] Mark cards for a focused selection set
+
+---
+
+# Frontend Architecture
+
+## ES Modules / Subsystems
+
+- [x] Convert frontend to ES module architecture
+- [x] Create FrontendDiagnostics subsystem
+- [x] Create FontApiClient subsystem
+- [x] Create FontLoader subsystem
+- [x] Create FontGridView subsystem
+- [x] Create FontSearch subsystem
+- [x] Create SearchChipBar subsystem
+- [x] Establish frontend composition-root pattern in `app.js`
+- [x] Establish validated DOM dependency injection pattern
+- [x] Establish frontend dependency ownership boundaries
+- [ ] Continue reducing orchestration sprawl in `app.js`
+- [ ] Introduce detail-view subsystem architecture
+- [ ] Introduce comparative-selection subsystem architecture
+- [ ] Evaluate future Web Components transition
+
+## Frontend Diagnostics
+
+- [x] Add frontend diagnostics/probe framework
+- [x] Add frontend probe severity levels
+- [x] Add lazy frontend probe message construction
+- [x] Add nested `ProbeLevel` ownership semantics
+- [x] Add frontend singleton diagnostics instance
+- [ ] Add frontend probe categories/taxonomy
+- [ ] Add optional frontend stack/caller extraction
+- [ ] Add frontend probe persistence strategy
+
 ---
 
 # Discovery / Backend
@@ -63,8 +98,19 @@ Updated: 2026-05-22
 - [ ] Investigate recursive discovery expansion
 - [ ] Investigate per-user/local-user font discovery
 
+## Catalog Layer
+
+- [x] Introduce FontCatalog middle layer
+- [x] Introduce opaque frontend font ids
+- [x] Separate semantic identity from transport identity
+- [ ] Investigate future persistent catalog identity semantics
+- [ ] Investigate future persistence/database integration
+
 ## API
 
+- [x] Add `/api/fonts/{font_id}/file` endpoint
+- [x] Add OpenAPI documentation for font-file endpoint
+- [x] Introduce frontend-safe font transport model
 - [ ] Keep Swagger/OpenAPI documentation aligned with implementation
 - [ ] Continue expanding field-level response descriptions
 - [ ] Continue expanding endpoint-level semantic descriptions
@@ -76,6 +122,21 @@ Updated: 2026-05-22
 - [ ] Consider structured/JSON probe output
 - [ ] Consider future severity routing/filtering model
 - [ ] Consider probe retention/session archival strategy
+
+---
+
+# Font Rendering
+
+## Explicit Font Loading
+
+- [x] Move from browser family-name rendering to explicit `@font-face` loading
+- [x] Serve exact discovered font files from backend
+- [x] Ensure deterministic browser rendering
+- [ ] Remove ambiguity between duplicate family names
+- [x] Introduce lazy viewport-driven font loading
+- [x] Introduce frontend font registration cache
+- [ ] Investigate future font-load failure handling
+- [ ] Investigate future UI virtualization/windowing
 
 ---
 
@@ -121,13 +182,6 @@ Updated: 2026-05-22
 - [ ] Add Unicode range visibility
 - [ ] Add variable-font axis visibility
 
-## Explicit Font Loading
-
-- [ ] Move from browser family-name rendering to explicit `@font-face` loading
-- [ ] Serve exact discovered font files from backend
-- [ ] Ensure deterministic browser rendering
-- [ ] Remove ambiguity between duplicate family names
-
 ---
 
 # Tooling / Project Hygiene
@@ -136,6 +190,9 @@ Updated: 2026-05-22
 - [ ] Evaluate lightweight task prioritization workflow
 - [ ] Add backlog prioritization categories
 - [ ] Add architectural milestone tracking
+- [x] Configure Prettier frontend formatting
+- [x] Add frontend format-on-save workflow
+- [x] Align frontend formatting width to 108 columns
 
 ---
 
@@ -180,4 +237,3 @@ Updated: 2026-05-22
 - [x] Initial search filtering
 - [x] Minimal metadata presentation
 - [x] Initial Swagger/OpenAPI integration
-

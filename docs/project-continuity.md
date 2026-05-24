@@ -1,598 +1,655 @@
 # Windows Font Catalog — Project Continuity
 
-Updated: 2026-05-22
+Updated: 2026-05-24
 
 ---
 
-# Project Purpose
+# Project Direction
 
-Windows-hosted font catalog and typography exploration application.
+The project is evolving toward a typography exploration environment centered around:
 
-Primary goals:
-- discover locally installed fonts
-- catalog semantic metadata
-- support user tagging/classification
-- support typography exploration workflows
-- eventually support semantic/behavioral font relationships
-- provide visually oriented search and discovery
+- semantic search
+- exploratory workflows
+- visually dominant font rendering
+- relationship-driven discovery
+- progressively richer navigation and comparison tools
 
-The project has intentionally shifted away from a traditional CRUD/database-management mental model and toward:
+The user experience philosophy intentionally minimizes metadata noise during exploration and instead emphasizes:
+
+- typography samples
+- fast filtering
+- lightweight interaction
+- eventual semantic relationships and recommendations
+
+The frontend architecture direction now strongly prefers:
+
+- object-oriented subsystem ownership
+- bounded responsibilities
+- explicit composition
+- dependency injection patterns
+- ES module separation
+
+The project intentionally avoids frontend frameworks at this stage.
+
+---
+
+# Current Backend Architecture
+
+## Discovery Pipeline
 
 ```text
-visual typography exploration workstation
-```
-
-with strong support for:
-- visual traversal
-- semantic narrowing
-- relationship discovery
-- rapid comparison
-- eventually behavior-driven recommendations
-
----
-
-# Technology Stack
-
-## Backend
-
-- Python
-- FastAPI
-- fontTools
-- VS Code
-- Pylance strict typing
-
-## Formatting / Tooling
-
-- Black
-- isort
-- pyright
-
-Formatting standards:
-- Black line length configured to 108
-- 4-space indentation
-- spaces, not tabs
-
-Repository-owned configuration:
-
-```toml
-[tool.black]
-line-length = 108
-
-[tool.isort]
-profile = "black"
-
-[tool.pyright]
-typeCheckingMode = "strict"
-reportMissingTypeStubs = "none"
-```
-
-VS Code editor behavior:
-- format on save
-- Black formatter
-- organize imports on save
-
----
-
-# Architectural Discipline
-
-The project strongly favors:
-
-- explicit ownership
-- immutable runtime configuration
-- explicit type discipline
-- subsystem identity
-- class-oriented encapsulation
-- low cognitive noise
-- deterministic behavior
-- inspectable flow
-
-Go-forward project standard:
-
-```text
-Prefer classes for subsystem ownership and behavior encapsulation.
-Use free functions only where the abstraction cost of a class clearly outweighs the benefits.
-```
-
-Python style discipline:
-- clear main-line flow
-- narrow exception scopes
-- no exception-driven ordinary control flow
-- avoid arbitrary continue/return branching
-- explicit intermediate variables preferred
-- extraction into helpers preferred over nested logic
-
----
-
-# Current Runtime Architecture
-
-```text
-main.py
-  -> configure_probes()
-  -> create_application_configuration()
-  -> FontCatalogApp
-
-FontCatalogApp
-  -> FastAPI lifecycle ownership
-  -> startup discovery orchestration
-
 LocalDiscovery
-  -> orchestration
-  -> loading pipeline
-  -> duplicate suppression
-  -> collection ownership
-
-FileDiscovery
-  -> filesystem candidate enumeration
-
-RegistryDiscovery
-  -> Windows registry candidate enumeration
-
-FontInfoCollection
-  -> semantic uniqueness enforcement
-  -> path indexing
+├── FileDiscovery
+└── RegistryDiscovery
 ```
+
+`LocalDiscovery` orchestrates discovery and owns the master `FontInfoCollection`.
+
+Discovery helpers independently discover fonts while updating the shared collection in-place to avoid redundant processing.
+
+Duplicate truncation currently occurs using:
+
+```text
+normalized font file path
+```
+
+This is intentionally pragmatic and currently coupled to discovery ordering.
+
+## Discovery Helpers
+
+### FileDiscovery
+
+Discovers fonts directly from configured filesystem locations.
+
+### RegistryDiscovery
+
+Discovers fonts from Windows registry entries.
+
+Registry discovery no longer uses hardcoded registry path literals and instead consumes values from application configuration.
+
+## Shared Discovery Infrastructure
+
+A common discovery helper base class exists for shared helper behavior.
+
+Project architectural direction now prefers:
+
+```text
+class-oriented encapsulation
+```
+
+over free-floating procedural helpers whenever practical.
 
 ---
 
-# Discovery Architecture
+# Font Model
 
 ## FontCandidate
 
-Represents discovered font provenance.
+Represents a discovered font source.
 
 Contains:
-- file path
-- discovery source enum
-- discovery detail
 
-Discovery sources currently:
-- Windows font directory
-- Windows machine registry
-- Windows user registry
+- file path
+- discovery source
+- source-specific metadata
+
+Discovery source is represented using an enumeration rather than string literals.
 
 ## FontInfo
 
-Represents semantic metadata extracted from a font.
+Represents extracted semantic font metadata.
 
-Contains:
-- family name
-- style name
-- full name
-- originating FontCandidate
+`FontInfo` contains a reference to the originating `FontCandidate` rather than copying source fields.
 
----
+This preserves:
 
-# Local Discovery Model
+- source provenance
+- ownership clarity
+- future extensibility
 
-LocalDiscovery owns:
-- master FontInfoCollection
-- discovery orchestration
-- loading policy
-- duplicate suppression
-- reporting
+## FontInfoCollection
 
-Discovery flow:
+Owns uniqueness semantics.
 
-```text
-FileDiscovery
-  -> FontCandidates
-  -> load fonts
-  -> insert unique FontInfos
+Supports:
 
-RegistryDiscovery
-  -> FontCandidates
-  -> skip previously visited paths
-  -> load remaining fonts
-  -> insert unique FontInfos
-```
+- insertion
+- containment checks
+- retrieval
+- iteration
 
-No modality merge step exists anymore.
+Uses configurable key-building semantics.
 
-Discovery methods now contribute directly into the master collection.
+Currently also maintains efficient path indexing to truncate redundant font loading.
 
-This removed:
-- intermediate merge structures
-- parallel uniqueness tracking
-- merge-order bookkeeping
-- duplicated semantic key logic
-
----
-
-# Duplicate Suppression
-
-## Path-Based Suppression
-
-Current implementation suppresses revisiting known font file paths before loading.
-
-This prevents redundant TTFont loading when:
-- filesystem discovery
-- registry discovery
-
-point to the same physical font file.
-
-Current behavior:
+Important architectural distinction:
 
 ```text
-known path
-  -> skip loading
-```
-
-Debug-level probes report these skips.
-
-## Semantic Uniqueness
-
-FontInfoCollection enforces uniqueness via configurable semantic key builder.
-
-Current key:
-
-```text
-family_name
-style_name
-full_name
-```
-
-normalized/casefolded.
-
----
-
-# IMPORTANT TTC TODO
-
-Current path suppression intentionally assumes:
-
-```text
-one path exhausted after one successful load
-```
-
-This is NOT correct for:
-
-```text
-.ttc font collections
-```
-
-because a single file may contain multiple distinct fonts.
-
-Deferred TODO:
-- revisit path indexing model
-- support multiple FontInfo entries per path
-- support fontNumber enumeration
-- avoid truncating TTC collections after first load
-
----
-
-# Diagnostics / Probe Architecture
-
-Diagnostics subsystem is now mature and operationally useful.
-
-Capabilities:
-- semantic probe taxonomy
-- runtime filtering
-- colored console output
-- session log persistence
-- lazy message construction
-- VS Code clickable source navigation
-- immutable runtime configuration
-- isolated loggers
-
----
-
-# Probe Taxonomy
-
-## Trace Probes
-
-Purpose:
-- expected-flow visibility
-- operational tracing
-- discovery metrics
-- subsystem flow
-
-Enabled independently via:
-
-```text
-FONT_CATALOG_TRACE
-```
-
-## Error Probes
-
-Purpose:
-- conditions potentially representing issues
-- differentiated severity
-- not necessarily fatal errors
-
-Levels:
-- DEBUG
-- WARNING
-- ERROR
-
-Configured via:
-
-```text
-FONT_CATALOG_ERROR_PROBE_LEVEL
-```
-
-Example:
-
-```powershell
-$env:FONT_CATALOG_ERROR_PROBE_LEVEL="WARNING"
-```
-
-Logger-native filtering now used.
-
----
-
-# Probe Logging
-
-Current probe outputs:
-
-## Console
-
-- ANSI colorized
-- clickable VS Code paths
-- live runtime visibility
-
-## File
-
-Probe logs now persist to file.
-
-Behavior:
-- startup truncates previous session log
-- subsequent probes append during runtime
-
-Implementation detail:
-- file truncation occurs explicitly during configuration
-- handlers themselves use append mode
-- avoids reload-time accidental truncation
-
----
-
-# Probe Formatting
-
-Current probe formatting includes:
-
-```text
-timestamp
-probe kind
-logging level
-path
-line number
-function
-message
-```
-
-Timestamp format:
-
-```text
-yy-mm-dd T hh-MM-ss
-```
-
-Color semantics:
-- TRACE = cyan
-- DEBUG = gray
-- WARNING = yellow
-- ERROR = red
-
-Colorization occurs ONLY in formatter logic.
-
-No formatting/color burden exists at call sites.
-
----
-
-# Runtime Configuration
-
-Application configuration now centralized via immutable configuration object.
-
-Current examples:
-- Windows font directory
-- registry subkey
-- future probe file paths
-
-Project standard:
-
-```text
-Prefer immutable runtime configuration objects over mutable ambient module-global primitives.
+FontInfoCollection owns semantic uniqueness.
 ```
 
 ---
 
-# UI Direction — IMPORTANT DESIGN SHIFT
+# Catalog Layer
 
-Initial mental model:
-
-```text
-font database inspector
-```
-
-Current evolved mental model:
+A new middle-layer catalog abstraction now exists between:
 
 ```text
-visual typography search/exploration engine
+Discovery
+→ Catalog
+→ API/UI
 ```
 
-This is a major design shift.
+## FontCatalog
 
-The primary artifact is:
+Owns:
+
+- runtime catalog records
+- opaque frontend-facing ids
+- runtime lookup by id
+
+## CatalogFontRecord
 
 ```text
-the typography rendering itself
+font_id
++ FontInfo
 ```
 
-Metadata should remain secondary and largely hidden during exploratory workflows.
+Important architectural rule:
+
+```text
+Frontend identity is opaque.
+```
+
+The frontend never derives semantic uniqueness.
+
+The catalog owns:
+
+- semantic uniqueness
+- transport/runtime identity
+
+The frontend only receives:
+
+```text
+opaque runtime handles
+```
+
+This separates:
+
+```text
+semantic identity
+vs
+transport identity
+```
+
+which is considered an important architectural boundary.
 
 ---
 
-# Current UI Philosophy
+# API Layer
 
-## Primary Mode
+## FastAPI
 
-Visual exploration.
-
-Characteristics:
-- typography-dominant
-- minimal chrome
-- low metadata noise
-- rapid visual traversal
-- comparison-oriented
-- search-centric
-
-Likely structure:
+The backend exposes:
 
 ```text
-search/filter
-↓
-continuous visual field of font renderings
-↓
-optional metadata reveal on focus/select
+/
+/api/fonts
+/api/fonts/{font_id}/file
 ```
 
-The UI should feel closer to:
-- visual search engine
-- typographic light table
-- comparison workspace
+## Response Models
 
-than:
-- enterprise CRUD application
-- metadata inspector
+Pydantic response models are now used for JSON endpoints.
+
+Swagger/OpenAPI documentation is considered a first-class maintained artifact.
+
+Field-level descriptions are added using:
+
+```python
+Field(...)
+```
+
+Route-level descriptions use:
+
+- summary
+- description
+- response_description
+
+## Font File Endpoint
+
+The frontend now loads exact discovered font files from:
+
+```text
+/api/fonts/{font_id}/file
+```
+
+This endpoint returns:
+
+```python
+FileResponse
+```
+
+The endpoint is documented in OpenAPI using explicit response metadata.
 
 ---
 
-# Metadata Philosophy
+# Frontend Architecture
 
-Metadata remains important, but should:
-- progressively reveal
-- remain hidden during broad exploration
-- support advanced workflows intentionally
+## Current Direction
 
-Advanced/metadata search remains an important escape hatch.
-
-Future advanced search examples:
+Frontend code is transitioning from:
 
 ```text
-supports Cyrillic
-weight > 700
-variable font
-OpenType alternates
-installed from registry only
+single procedural script
 ```
+
+into:
+
+```text
+composed subsystem architecture
+```
+
+using:
+
+- ES modules
+- class-oriented ownership
+- explicit composition
+- dependency injection
+
+Frameworks are intentionally deferred.
+
+## ES Module Structure
+
+Current frontend uses:
+
+```html
+<script type="module" src="/static/app.js"></script>
+```
+
+This enables:
+
+- imports/exports
+- isolated module scope
+- subsystem ownership
+- dependency visibility
+
+## Frontend Subsystems
+
+### FrontendDiagnostics
+
+Encapsulates frontend diagnostics/probes.
+
+Key decisions:
+
+- class-oriented implementation
+- nested `ProbeLevel` class
+- probe-level ownership of:
+  - enablement semantics
+  - textual rendering
+- explicit switch-based console routing
+- lazy message providers
+- exported singleton instance:
+
+```javascript
+_diags
+```
+
+Current browser strategy intentionally relies on:
+
+- native DevTools file/line tracking
+- console stack expansion
+
+rather than explicit stack parsing.
+
+### FontApiClient
+
+Encapsulates backend transport behavior.
+
+Owns:
+
+- metadata retrieval
+- font file URL construction
+- fetch failure diagnostics
+
+### FontLoader
+
+Owns:
+
+- lazy `@font-face` registration
+- loaded-font cache state
+- CSS family naming semantics
+- style element manipulation
+
+Important design:
+
+```text
+metadata eager
+font files lazy
+```
+
+Fonts are only loaded when cards become visible.
+
+Loaded fonts remain registered for the session.
+
+### FontGridView
+
+Owns:
+
+- card rendering
+- visibility observation
+- viewport-triggered font loading
+- sample rendering
+
+Uses `IntersectionObserver`.
+
+DOM elements are injected directly during construction.
+
+The view no longer performs DOM id lookups.
+
+### FontSearch
+
+Owns:
+
+- search-term state
+- filtering semantics
+- searchable text construction
+
+Supports:
+
+- stacked search terms
+- AND-combined filtering
+
+### SearchChipBar
+
+Owns:
+
+- search chip rendering
+- search input behavior
+- search term add/remove events
+
+Uses grouped listener configuration:
+
+```javascript
+setListeners(...)
+```
+
+rather than individual setter methods.
+
+## Composition Root
+
+`app.js` is now intentionally evolving into:
+
+```text
+frontend composition root
+```
+
+Responsibilities:
+
+- subsystem creation
+- dependency wiring
+- DOM dependency resolution
+- orchestration
+
+## DOM Dependency Philosophy
+
+DOM lookup responsibility belongs in the composition root.
+
+Subsystems should receive:
+
+```text
+validated dependencies
+```
+
+rather than raw ids.
+
+Pattern established:
+
+```javascript
+getRequiredElementById(...)
+```
+
+which:
+
+- throws immediately on missing DOM
+- centralizes dependency validation
+- removes downstream null-check sprawl
 
 ---
 
-# Search / Relationship Direction
+# Font Rendering Strategy
 
-This became one of the most important emerging project directions.
+## Initial Strategy
 
-The application should eventually support:
-
-```text
-semantic exploration trajectories
-```
-
-Example:
+Originally:
 
 ```text
-retro
-→ geometric
-→ rounded
-→ eurostile-like
-→ compact sci-fi
-→ final selection
+browser resolved fonts by family name
 ```
 
-The path itself has value.
+This proved nondeterministic.
 
----
+## Current Strategy
 
-# Future Relationship Model
-
-Potential future concepts:
-
-- fonts commonly explored together
-- semantic neighborhood suggestions
-- co-selection behavior
-- search refinement trajectories
-- relationship graphs
-- exploration breadcrumbs
-- saved journeys
-- similarity clustering
-
-This implies future dual indexing:
-
-## Structured Metadata Index
-
-Deterministic:
-- names
-- tags
-- provenance
-- OpenType features
-- technical metadata
-
-## Behavioral / Semantic Index
-
-Probabilistic:
-- search journeys
-- co-selection
-- visual similarity
-- relationship inference
-- semantic clustering
-
-This may become one of the genuinely differentiated aspects of the application.
-
----
-
-# Immediate Next UI Direction
-
-Likely first vertical slice:
-
-```text
-simple browser UI
-→ search field
-→ rendered font result cards
-→ minimal metadata
-→ backend font endpoint
-```
-
-Initial rendering can rely on browser/system family resolution.
-
-Long-term likely direction:
+Frontend now renders exact discovered font files using generated:
 
 ```css
 @font-face
 ```
 
-with explicit backend-served font loading for deterministic rendering.
+rules.
+
+Cards initially render using fallback system fonts.
+
+When visible:
+
+```text
+IntersectionObserver
+→ lazy font registration
+→ backend font retrieval
+→ exact rendering
+```
+
+This intentionally avoids:
+
+- backend pagination
+- eager font retrieval
+- virtualized metadata loading
+
+Current architectural expectation:
+
+```text
+all metadata local
++ future UI virtualization
+```
+
+rather than server-side pagination.
 
 ---
 
-# Current Deferred TODOs
+# Diagnostics / Probe Infrastructure
+
+## Backend Probe System
+
+Implemented:
+
+- trace probes
+- error probes
+- severity filtering
+- ANSI colorization
+- VS Code clickable paths
+- probe persistence to file
+- startup file overwrite behavior
+
+## Probe Severity
+
+Environment variable now specifies:
+
+```text
+minimum severity level
+```
+
+instead of binary enable/disable semantics.
+
+## Deferred TODO
+
+Future direction:
+
+```text
+error probes should evolve toward configurable severity semantics
+```
+
+rather than simple category toggles.
+
+---
+
+# Formatting / Tooling
+
+## Python
+
+Configured:
+
+- Black
+- isort
+- strict pyright typing
+
+Formatting standards:
+
+- 108-column width
+- explicit typing
+- format-on-save
+
+## Frontend
+
+Configured:
+
+- Prettier
+- format-on-save
+
+Formatting standards:
+
+- 4 spaces
+- semicolons enabled
+- 108-column width
+
+---
+
+# UI Philosophy
+
+## Exploration-First Design
+
+Primary user focus:
+
+```text
+font rendering samples
+```
+
+Metadata remains intentionally minimized.
+
+Metadata/details should remain secondary and optionally inspectable.
+
+## Relationship System Direction
+
+Future direction includes:
+
+- search trajectories
+- exploration graphing
+- semantic pivots
+- "people also explored" relationships
+- similarity/grouping systems
+
+The project may eventually evolve toward:
+
+```text
+typographic exploration workspace
+```
+
+rather than a simple searchable list.
+
+---
+
+# Important Backlog Themes
+
+## Search
+
+- stacked search chips
+- persisted default chips
+- distinction between default vs session chips
+- predictive/autocomplete behavior
+
+## Detail View
+
+- full character set rendering
+- custom sample text
+- point-size adjustment
+- responsive live preview
+
+## Frontend Architecture
+
+- continued subsystem extraction
+- reduction of orchestration sprawl
+- stronger component boundaries
 
 ## Discovery
 
-- proper TTC enumeration support
-- multiple FontInfos per path
-- better path normalization semantics
-- possible recursive/per-user discovery expansion
+- TTC enumeration
+- multi-font-per-path support
+- improved uniqueness semantics
 
-## Diagnostics
+## Relationship Exploration
 
-- richer probe taxonomy evolution
-- potential future error severity routing
-- possible structured/JSON logging later
-
-## UI
-
-- relationship exploration concepts
-- semantic navigation
-- behavioral recommendation systems
-- metadata inspector mode
-- advanced search/query language
+- semantic similarity
+- clustering
+- graph navigation
+- saved exploration paths
 
 ---
 
-# Current Project State
+# Architectural Principles Established
 
-Backend/discovery/diagnostics foundation is now strong enough to shift focus toward:
+## Ownership Clarity
+
+Subsystems should own:
+
+- their behavior
+- their state
+- their semantics
+
+and should avoid:
+
+- ambient globals
+- procedural sprawl
+- hidden dependencies
+
+## Composition Root Philosophy
+
+Composition and dependency resolution should happen:
 
 ```text
-first meaningful exploratory UI experience
+once
+at startup
+at boundaries
 ```
 
-without significant architectural debt pressure.
+Subsystems should receive valid dependencies.
+
+## Preference Toward Explicitness
+
+Project direction consistently prefers:
+
+- explicit control flow
+- explicit ownership
+- explicit configuration
+
+over:
+
+- clever abstraction
+- ambient magic
+- highly dynamic patterns
+
+## Frontend/Backend Symmetry
+
+The frontend architecture is intentionally beginning to mirror backend subsystem structure.
+
+This is considered desirable and should continue where practical.
 
