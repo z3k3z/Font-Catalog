@@ -38,14 +38,19 @@ export class FontGridView {
         return fontObserver;
     }
 
-    _loadFontForCard(card) {
+    async _loadFontForCard(card) {
         const font = card._fontRecord;
 
         if (font === undefined) {
             _diags.emitWarningProbe(() => "Visible font card did not have an associated font record.");
         } else {
-            this._fontLoader.ensureFontFaceRegistered(font);
-            this._applyLoadedFontToCard(card, font);
+            const loadedSuccessfully = await this._fontLoader.loadFont(font);
+
+            if (loadedSuccessfully) {
+                this._applyLoadedFontToCard(card, font);
+            } else {
+                card.classList.add("font-card--load-failed");
+            }
         }
         this._fontObserver.unobserve(card);
     }

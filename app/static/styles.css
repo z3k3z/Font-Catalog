@@ -123,3 +123,8 @@ h1 {
     color: #aaa;
     font-size: 13px;
 }
+
+.font-card--load-failed {
+    opacity: 0.25;
+    filter: grayscale(1);
+}

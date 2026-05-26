@@ -51,4 +51,24 @@ export class FontLoader {
 
         this._fontFaceStyleElement.appendChild(document.createTextNode(cssText));
     }
+
+    async loadFont(font) {
+        if (this._loadedFontIds.has(font.id)) {
+            return true;
+        }
+
+        try {
+            this._registerFontFace(font);
+
+            await document.fonts.load(`16px "${this.buildFontCssFamily(font)}"`);
+
+            this._loadedFontIds.add(font.id);
+
+            return true;
+        } catch (error) {
+            _diags.emitWarningProbe(() => `Failed to load font id ${font.id}: ${error}`);
+
+            return false;
+        }
+    }
 }
