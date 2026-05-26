@@ -9,9 +9,15 @@ body {
     position: sticky;
     top: 0;
     z-index: 1;
-    padding: 16px;
     background: #181818;
-    border-bottom: 1px solid #333;
+    padding: 1.5rem 2rem 1rem 2rem;
+    border-bottom: 1px solid #2c2c2c;
+    margin-bottom: 1rem;
+}
+
+.app-title {
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 0.08em;
 }
 
 h1 {
