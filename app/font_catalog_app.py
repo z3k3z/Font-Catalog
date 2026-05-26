@@ -123,8 +123,6 @@ class FontCatalogApp:
                     family_name=font_info.family_name,
                     style_name=font_info.style_name,
                     full_name=font_info.full_name,
-                    file_path=str(font_info.font_candidate.source_reference.get_file_path()),
-                    source=font_info.font_candidate.source_reference.describe(),
                 )
             )
 

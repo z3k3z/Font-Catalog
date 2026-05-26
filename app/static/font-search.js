@@ -48,9 +48,7 @@ export class FontSearch {
     }
 
     _buildSearchableText(font) {
-        const searchableText = [font.family_name, font.style_name, font.full_name, font.source]
-            .join(" ")
-            .toLowerCase();
+        const searchableText = [font.family_name, font.style_name, font.full_name].join(" ").toLowerCase();
 
         return searchableText;
     }
