@@ -2,10 +2,7 @@ from pathlib import Path
 
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
-from app.discovery.base_discovery_helper import (
-    build_font_candidates_from_paths,
-    filter_supported_font_paths,
-)
+from app.discovery.base_discovery_helper import BaseDiscoveryHelper
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
 
 
@@ -15,6 +12,7 @@ class FileDiscovery:
         application_configuration: ApplicationConfiguration,
     ) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
+        self._baseDiscoveryHelper: BaseDiscoveryHelper = BaseDiscoveryHelper()
 
     def collect_font_candidates(self) -> list[FontCandidate]:
         font_candidates: list[FontCandidate] = []
@@ -39,9 +37,9 @@ class FileDiscovery:
             return []
 
         directory_paths: list[Path] = list(directory.iterdir())
-        font_paths: list[Path] = filter_supported_font_paths(directory_paths)
+        font_paths: list[Path] = self._baseDiscoveryHelper.filter_supported_font_paths(directory_paths)
 
-        font_candidates: list[FontCandidate] = build_font_candidates_from_paths(
+        font_candidates: list[FontCandidate] = self._baseDiscoveryHelper.build_font_candidates_from_paths(
             font_paths=font_paths,
             discovery_source=DiscoverySource.WINDOWS_FONT_DIRECTORY,
             discovery_detail=str(directory),

@@ -77,7 +77,7 @@ class LocalDiscovery:
 
                 else:
                     emit_error_probe(
-                        ProbeLevel.ERROR,
+                        ProbeLevel.WARNING,
                         lambda font_candidate=font_candidate, font_info_result=font_info_result: (
                             f"Skipped font candidate '{font_candidate.source_reference.describe()}'. "
                             f"Source: {font_candidate.discovery_source.value}. "

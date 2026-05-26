@@ -4,15 +4,13 @@ from pathlib import Path
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
-from app.discovery.single_font_source_reference import SingleFontSourceReference
+from app.discovery.font_source_reference import FontSourceReference
+from app.discovery.font_source_reference_builder import FontSourceReferenceBuilder
 from app.models.result import Result
 
 
 class RegistryDiscovery:
-    def __init__(
-        self,
-        application_configuration: ApplicationConfiguration,
-    ) -> None:
+    def __init__(self, application_configuration: ApplicationConfiguration) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
 
     def collect_font_candidates(self) -> list[FontCandidate]:
@@ -21,13 +19,13 @@ class RegistryDiscovery:
         machine_candidates: list[FontCandidate] = self._collect_registry_font_candidates_from_key(
             root_key=winreg.HKEY_LOCAL_MACHINE,
             discovery_source=DiscoverySource.WINDOWS_MACHINE_REGISTRY,
-            discovery_detail=(f"HKLM\\{self._applicationConfiguration.windows_font_registry_subkey}"),
+            discovery_detail=f"HKLM\\{self._applicationConfiguration.windows_font_registry_subkey}",
         )
 
         user_candidates: list[FontCandidate] = self._collect_registry_font_candidates_from_key(
             root_key=winreg.HKEY_CURRENT_USER,
             discovery_source=DiscoverySource.WINDOWS_USER_REGISTRY,
-            discovery_detail=(f"HKCU\\{self._applicationConfiguration.windows_font_registry_subkey}"),
+            discovery_detail=f"HKCU\\{self._applicationConfiguration.windows_font_registry_subkey}",
         )
 
         font_candidates.extend(machine_candidates)
@@ -81,23 +79,25 @@ class RegistryDiscovery:
         value_count: int = winreg.QueryInfoKey(registry_key)[1]
 
         for value_index in range(value_count):
-            font_candidate_result: Result[FontCandidate] = self._try_collect_registry_font_candidate(
-                registry_key=registry_key,
-                value_index=value_index,
-                discovery_source=discovery_source,
-                discovery_detail=discovery_detail,
+            font_candidates_result: Result[list[FontCandidate]] = (
+                self._try_collect_registry_font_candidates(
+                    registry_key=registry_key,
+                    value_index=value_index,
+                    discovery_source=discovery_source,
+                    discovery_detail=discovery_detail,
+                )
             )
 
-            if font_candidate_result.succeeded():
-                font_candidate: FontCandidate = font_candidate_result.get_value()
-                font_candidates.append(font_candidate)
+            if font_candidates_result.succeeded():
+                collected_font_candidates: list[FontCandidate] = font_candidates_result.get_value()
+                font_candidates.extend(collected_font_candidates)
 
             else:
                 emit_error_probe(
-                    ProbeLevel.ERROR,
-                    lambda value_index=value_index, font_candidate_result=font_candidate_result: (
+                    ProbeLevel.WARNING,
+                    lambda value_index=value_index, font_candidates_result=font_candidates_result: (
                         f"Skipped registry font value at index {value_index}. "
-                        f"Reason: {font_candidate_result.error}"
+                        f"Reason: {font_candidates_result.error}"
                     ),
                 )
 
@@ -110,13 +110,13 @@ class RegistryDiscovery:
 
         return font_candidates
 
-    def _try_collect_registry_font_candidate(
+    def _try_collect_registry_font_candidates(
         self,
         registry_key: winreg.HKEYType,
         value_index: int,
         discovery_source: DiscoverySource,
         discovery_detail: str,
-    ) -> Result[FontCandidate]:
+    ) -> Result[list[FontCandidate]]:
         try:
             value_name: str
             value_data: object
@@ -127,7 +127,7 @@ class RegistryDiscovery:
                 value_index,
             )
 
-            result: Result[FontCandidate] = self._build_registry_font_candidate(
+            result: Result[list[FontCandidate]] = self._build_registry_font_candidates(
                 value_name=value_name,
                 value_data=value_data,
                 value_type=value_type,
@@ -143,16 +143,16 @@ class RegistryDiscovery:
 
         return result
 
-    def _build_registry_font_candidate(
+    def _build_registry_font_candidates(
         self,
         value_name: str,
         value_data: object,
         value_type: int,
         discovery_source: DiscoverySource,
         discovery_detail: str,
-    ) -> Result[FontCandidate]:
+    ) -> Result[list[FontCandidate]]:
         if value_type != winreg.REG_SZ:
-            result: Result[FontCandidate] = Result(
+            result: Result[list[FontCandidate]] = Result(
                 value=None,
                 error=(f"Registry value '{value_name}' is not REG_SZ. " f"Actual type: {value_type}"),
             )
@@ -169,13 +169,22 @@ class RegistryDiscovery:
 
         file_path: Path = self._resolve_registry_font_path(value_data)
 
-        font_candidate: FontCandidate = FontCandidate(
-            source_reference=SingleFontSourceReference(file_path),
-            discovery_source=discovery_source,
-            discovery_detail=f"{discovery_detail}\\{value_name}",
+        source_references: list[FontSourceReference] = (
+            FontSourceReferenceBuilder.build_source_references_from_path(file_path)
         )
 
-        result = Result(value=font_candidate)
+        font_candidates: list[FontCandidate] = []
+
+        for source_reference in source_references:
+            font_candidate: FontCandidate = FontCandidate(
+                source_reference=source_reference,
+                discovery_source=discovery_source,
+                discovery_detail=f"{discovery_detail}\\{value_name}",
+            )
+
+            font_candidates.append(font_candidate)
+
+        result = Result(value=font_candidates)
 
         return result
 
