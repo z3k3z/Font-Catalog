@@ -123,8 +123,8 @@ class FontCatalogApp:
                     family_name=font_info.family_name,
                     style_name=font_info.style_name,
                     full_name=font_info.full_name,
-                    file_path=str(font_info.font_candidate.file_path),
-                    source=font_info.font_candidate.discovery_source.value,
+                    file_path=str(font_info.font_candidate.source_reference.get_file_path()),
+                    source=font_info.font_candidate.source_reference.describe(),
                 )
             )
 
@@ -137,7 +137,7 @@ class FontCatalogApp:
             raise HTTPException(status_code=404, detail="Font id not found.")
 
         response: FileResponse = FileResponse(
-            path=record.font_info.font_candidate.file_path,
+            path=record.font_info.font_candidate.source_reference.get_file_path(),
         )
 
         return response

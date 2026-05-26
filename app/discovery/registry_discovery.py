@@ -4,6 +4,7 @@ from pathlib import Path
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
+from app.discovery.single_font_source_reference import SingleFontSourceReference
 from app.models.result import Result
 
 
@@ -169,7 +170,7 @@ class RegistryDiscovery:
         file_path: Path = self._resolve_registry_font_path(value_data)
 
         font_candidate: FontCandidate = FontCandidate(
-            file_path=file_path,
+            source_reference=SingleFontSourceReference(file_path),
             discovery_source=discovery_source,
             discovery_detail=f"{discovery_detail}\\{value_name}",
         )

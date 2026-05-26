@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from app.discovery.font_candidate import DiscoverySource, FontCandidate
+from app.discovery.single_font_source_reference import SingleFontSourceReference
 
 _SUPPORTED_EXTENSIONS: tuple[str, ...] = (
     ".ttf",
@@ -34,7 +35,7 @@ def build_font_candidates_from_paths(
 
     for font_path in font_paths:
         font_candidate: FontCandidate = FontCandidate(
-            file_path=font_path,
+            source_reference=SingleFontSourceReference(font_path),
             discovery_source=discovery_source,
             discovery_detail=discovery_detail,
         )

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
+
+from app.discovery.font_source_reference import FontSourceReference
 
 
 class DiscoverySource(Enum):
@@ -11,6 +12,6 @@ class DiscoverySource(Enum):
 
 @dataclass(frozen=True)
 class FontCandidate:
-    file_path: Path
+    source_reference: FontSourceReference
     discovery_source: DiscoverySource
     discovery_detail: str

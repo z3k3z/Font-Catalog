@@ -60,7 +60,7 @@ class LocalDiscovery:
 
         for font_candidate in font_candidates:
             # only load the file if we have not done so before
-            if not self._fontCollection.contains_path(font_candidate.file_path):
+            if not self._fontCollection.contains_source_reference(font_candidate.source_reference):
                 font_info_result: Result[FontInfo] = self._try_load_font_info(font_candidate)
 
                 if font_info_result.succeeded():
@@ -70,14 +70,16 @@ class LocalDiscovery:
                     else:
                         emit_error_probe(
                             ProbeLevel.WARNING,
-                            lambda: (f"Skipped duplicate font found at {font_candidate.file_path}."),
+                            lambda: (
+                                f"Skipped duplicate font found at {font_candidate.source_reference.describe()}."
+                            ),
                         )
 
                 else:
                     emit_error_probe(
                         ProbeLevel.ERROR,
                         lambda font_candidate=font_candidate, font_info_result=font_info_result: (
-                            f"Skipped font candidate '{font_candidate.file_path}'. "
+                            f"Skipped font candidate '{font_candidate.source_reference.describe()}'. "
                             f"Source: {font_candidate.discovery_source.value}. "
                             f"Detail: {font_candidate.discovery_detail}. "
                             f"Reason: {font_info_result.error}"
@@ -88,7 +90,7 @@ class LocalDiscovery:
                     ProbeLevel.DEBUG,
                     lambda font_candidate=font_candidate: (
                         f"Skipped previously loaded font path "
-                        f"'{font_candidate.file_path}'. "
+                        f"'{font_candidate.source_reference.describe()}'. "
                         f"Source: {font_candidate.discovery_source.value}. "
                         f"Detail: {font_candidate.discovery_detail}."
                     ),
@@ -125,7 +127,7 @@ class LocalDiscovery:
         font_candidate: FontCandidate,
     ) -> Result[TTFont]:
         try:
-            font: TTFont = TTFont(font_candidate.file_path)
+            font: TTFont = font_candidate.source_reference.open_font()
 
             result: Result[TTFont] = Result(value=font)
 
@@ -133,7 +135,8 @@ class LocalDiscovery:
             result = Result(
                 value=None,
                 error=(
-                    f"Failed to open font file '{font_candidate.file_path}'. "
+                    f"Failed to open font source "
+                    f"'{font_candidate.source_reference.describe()}'. "
                     f"Source: {font_candidate.discovery_source.value}. "
                     f"Detail: {font_candidate.discovery_detail}. "
                     f"Reason: {exception}"

@@ -2,6 +2,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
+from app.discovery.font_source_reference import FontSourceReference
 from app.models.font_info import FontInfo
 
 FontInfoKeyBuilder = Callable[[FontInfo], tuple[str, str, str]]
@@ -12,13 +13,13 @@ class FontInfoCollection:
     _keyBuilder: FontInfoKeyBuilder
     _fontInfos: list[FontInfo]
     _keyedIndex: dict[tuple[str, str, str], FontInfo]
-    _pathIndex: dict[Path, list[FontInfo]]  # one or more
+    _fontInfosBySourceKey: dict[tuple[Path, int | None], list[FontInfo]]
 
     def __init__(self, key_builder: FontInfoKeyBuilder) -> None:
         self._keyBuilder = key_builder
         self._fontInfos = []
         self._keyedIndex = {}
-        self._pathIndex = {}
+        self._fontInfosBySourceKey = {}
 
     def insert(self, font_info: FontInfo) -> bool:
         key: tuple[str, str, str] = self._keyBuilder(font_info)
@@ -28,10 +29,14 @@ class FontInfoCollection:
         if key not in self._keyedIndex:
             self._fontInfos.append(font_info)
             self._keyedIndex[key] = font_info
-            pathKey: Path = self._build_path_key(font_info.font_candidate.file_path)
-            if not pathKey in self._pathIndex:
-                self._pathIndex[pathKey] = []
-            self._pathIndex[pathKey].append(font_info)
+            source_key: tuple[Path, int | None] = (
+                font_info.font_candidate.source_reference.build_source_key()
+            )
+
+            if source_key not in self._fontInfosBySourceKey:
+                self._fontInfosBySourceKey[source_key] = []
+
+            self._fontInfosBySourceKey[source_key].append(font_info)
 
             fInserted = True
 
@@ -55,8 +60,12 @@ class FontInfoCollection:
 
         return fContains
 
-    def contains_path(self, path: Path) -> bool:
-        fContains: bool = self._build_path_key(path) in self._pathIndex
+    def contains_source_reference(
+        self,
+        source_reference: FontSourceReference,
+    ) -> bool:
+        source_key: tuple[Path, int | None] = source_reference.build_source_key()
+        fContains: bool = source_key in self._fontInfosBySourceKey
 
         return fContains
 
