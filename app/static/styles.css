@@ -98,14 +98,14 @@ h1 {
         box-shadow 140ms ease;
 }
 
-.font-card:hover {
+.font-card:not(.font-card--load-failed):hover {
     transform: translateY(-3px);
     border-color: #666;
     background: #202020;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-.font-card:hover .font-sample {
+.font-card:not(.font-card--load-failed):hover .font-sample {
     transform: scale(1.025);
 }
 
@@ -127,4 +127,5 @@ h1 {
 .font-card--load-failed {
     opacity: 0.25;
     filter: grayscale(1);
+    cursor: default;
 }
