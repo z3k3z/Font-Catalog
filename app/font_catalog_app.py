@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -130,14 +130,21 @@ class FontCatalogApp:
 
         return response
 
-    def _read_font_file(self, font_id: int) -> FileResponse:
+    def _read_font_file(self, font_id: int) -> Response:
         record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
 
         if record is None:
             raise HTTPException(status_code=404, detail="Font id not found.")
 
-        response: FileResponse = FileResponse(
-            path=record.font_info.font_candidate.source_reference.get_file_path(),
+        font_bytes: bytes = record.font_info.font_candidate.source_reference.get_font_bytes()
+
+        response: Response = Response(
+            content=font_bytes,
+            media_type="font/ttf",
+            headers={
+                "Cache-Control": "public, max-age=3600",
+                "Content-Disposition": f'inline; filename="font-{font_id}.ttf"',
+            },
         )
 
         return response

@@ -20,3 +20,7 @@ class FontSourceReference(ABC):
     @abstractmethod
     def describe(self) -> str:
         raise NotImplementedError
+
+    @abstractmethod
+    def get_font_bytes(self) -> bytes:
+        raise NotImplementedError

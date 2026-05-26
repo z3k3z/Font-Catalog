@@ -30,3 +30,8 @@ class SingleFontSourceReference(FontSourceReference):
         description: str = str(self.file_path)
 
         return description
+
+    def get_font_bytes(self) -> bytes:
+        font_bytes: bytes = self.file_path.read_bytes()
+
+        return font_bytes

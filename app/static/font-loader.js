@@ -7,6 +7,11 @@ export class FontLoader {
         this._loadedFontIds = new Set();
     }
 
+    hasFontFaceRegistered(font) {
+        const hasFontFaceRegistered = this._loadedFontIds.has(font.id);
+
+        return hasFontFaceRegistered;
+    }
     ensureFontFaceRegistered(font) {
         if (this._loadedFontIds.has(font.id)) {
             return;

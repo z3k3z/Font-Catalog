@@ -43,12 +43,11 @@ export class FontGridView {
 
         if (font === undefined) {
             _diags.emitWarningProbe(() => "Visible font card did not have an associated font record.");
-
-            return;
+        } else {
+            this._fontLoader.ensureFontFaceRegistered(font);
+            this._applyLoadedFontToCard(card, font);
         }
-
-        this._fontLoader.ensureFontFaceRegistered(font);
-        this._applyLoadedFontToCard(card, font);
+        this._fontObserver.unobserve(card);
     }
 
     _applyLoadedFontToCard(card, font) {
@@ -74,7 +73,11 @@ export class FontGridView {
         const sample = document.createElement("div");
         sample.className = "font-sample";
         sample.textContent = "The quick brown fox 123";
-        sample.style.fontFamily = "system-ui, sans-serif";
+        if (this._fontLoader.hasFontFaceRegistered(font)) {
+            sample.style.fontFamily = `"${this._fontLoader.buildFontCssFamily(font)}", sans-serif`;
+        } else {
+            sample.style.fontFamily = "system-ui, sans-serif";
+        }
 
         const name = document.createElement("div");
         name.className = "font-name";

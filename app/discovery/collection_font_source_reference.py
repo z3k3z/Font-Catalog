@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
@@ -34,3 +35,13 @@ class CollectionFontSourceReference(FontSourceReference):
         description: str = f"{self.file_path}#{self.font_number}"
 
         return description
+
+    def get_font_bytes(self) -> bytes:
+        font: TTFont = self.open_font()
+
+        buffer: BytesIO = BytesIO()
+        font.save(buffer)
+
+        font_bytes: bytes = buffer.getvalue()
+
+        return font_bytes
