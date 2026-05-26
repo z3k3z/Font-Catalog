@@ -39,6 +39,8 @@ export class FontLoader {
 @font-face {
     font-family: "${this.buildFontCssFamily(font)}";
     src: url("${fontFileUrl}");
+    font-style: normal;
+    font-weight: 400;
 }
 `;
 

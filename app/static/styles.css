@@ -109,6 +109,8 @@ h1 {
     line-height: 1.2;
     color: #f2f2f2;
     transition: transform 140ms ease;
+    font-style: normal;
+    font-weight: normal;
 }
 
 .font-name {

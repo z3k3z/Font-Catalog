@@ -78,7 +78,7 @@ export class FontGridView {
 
         const name = document.createElement("div");
         name.className = "font-name";
-        name.textContent = `${font.family_name} — ${font.style_name}`;
+        name.textContent = `${font.id} — ${font.family_name} — ${font.style_name} — ${font.full_name} — ${font.file_path}`;
 
         card.appendChild(sample);
         card.appendChild(name);
