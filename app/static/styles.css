@@ -20,6 +20,49 @@ body {
     letter-spacing: 0.08em;
 }
 
+.app-menu {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+.app-menu-button {
+    padding: 6px 10px;
+    background: #222;
+    color: #ddd;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.app-menu-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0;
+    min-width: 160px;
+    background: #1c1c1c;
+    border: 1px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.app-menu:hover .app-menu-panel {
+    display: block;
+}
+
+.app-menu-panel a {
+    display: block;
+    padding: 10px 12px;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.app-menu-panel a:hover {
+    background: #2a2a2a;
+}
+
 h1 {
     margin: 0 0 12px 0;
     font-size: 20px;
