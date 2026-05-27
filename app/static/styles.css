@@ -15,15 +15,22 @@ body {
     margin-bottom: 1rem;
 }
 
+.app-header-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
 .app-title {
     font-family: "Consolas", "Courier New", monospace;
     letter-spacing: 0.08em;
 }
 
 .app-menu {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    position: relative;
 }
 
 .app-menu-button {
@@ -38,9 +45,8 @@ body {
 .app-menu-panel {
     display: none;
     position: absolute;
-    right: 0;
     top: 100%;
-    margin-top: 0;
+    right: 0;
     min-width: 160px;
     background: #1c1c1c;
     border: 1px solid #444;
@@ -393,9 +399,6 @@ h1 {
 }
 
 .liked-fonts-button {
-    position: absolute;
-    top: 16px;
-    right: 58px;
     padding: 6px 10px;
     background: #222;
     color: #ddd;
