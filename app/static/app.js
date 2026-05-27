@@ -3,6 +3,8 @@ import { _diags } from "./diagnostics/diagnostics.js";
 import { FontDetailView } from "./font-detail/font-detail-view.js";
 import { FontGridView } from "./font-grid/font-grid-view.js";
 import { FontLoader } from "./font-grid/font-loader.js";
+import { RequiredDomElementSet } from "./foundation/required-dom-element-set.js";
+import { RequiredDomElement } from "./foundation/required-dom-element.js";
 import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
@@ -11,26 +13,26 @@ import { SearchChipBar } from "./search/search-chip-bar.js";
 let _fonts = [];
 
 /* locate and catalog required html elements */
-const fontGridElement = _getRequiredElementById("fontGrid");
-const fontCountElement = _getRequiredElementById("fontCount");
-const fontFaceStyleElement = _getRequiredElementById("fontCatalogDynamicFontFaces");
-const searchInputElement = _getRequiredElementById("searchInput");
-const searchChipContainerElement = _getRequiredElementById("searchChipContainer");
-const fontDetailElements = {
-    panel: _getRequiredElementById("fontDetailPanel"),
-    title: _getRequiredElementById("fontDetailTitle"),
-    subtitle: _getRequiredElementById("fontDetailSubtitle"),
-    closeButton: _getRequiredElementById("fontDetailCloseButton"),
-    sampleInput: _getRequiredElementById("fontDetailSampleInput"),
-    sizeInput: _getRequiredElementById("fontDetailSizeInput"),
-    sample: _getRequiredElementById("fontDetailSample"),
-    glyphSet: _getRequiredElementById("fontDetailGlyphSet"),
-    keepButton: _getRequiredElementById("fontDetailKeepButton"),
-    cancelButton: _getRequiredElementById("fontDetailCancelButton"),
-    sizeValue: _getRequiredElementById("fontDetailSizeValue"),
-    darkPreviewButton: _getRequiredElementById("fontDetailDarkPreviewButton"),
-    lightPreviewButton: _getRequiredElementById("fontDetailLightPreviewButton"),
-};
+const fontGridElement = new RequiredDomElement("fontGrid").element;
+const fontCountElement = new RequiredDomElement("fontCount").element;
+const fontFaceStyleElement = new RequiredDomElement("fontCatalogDynamicFontFaces").element;
+const searchInputElement = new RequiredDomElement("searchInput").element;
+const searchChipContainerElement = new RequiredDomElement("searchChipContainer").element;
+const fontDetailElements = new RequiredDomElementSet({
+    panel: "fontDetailPanel",
+    title: "fontDetailTitle",
+    subtitle: "fontDetailSubtitle",
+    closeButton: "fontDetailCloseButton",
+    sampleInput: "fontDetailSampleInput",
+    sizeInput: "fontDetailSizeInput",
+    sample: "fontDetailSample",
+    glyphSet: "fontDetailGlyphSet",
+    keepButton: "fontDetailKeepButton",
+    cancelButton: "fontDetailCancelButton",
+    sizeValue: "fontDetailSizeValue",
+    darkPreviewButton: "fontDetailDarkPreviewButton",
+    lightPreviewButton: "fontDetailLightPreviewButton",
+}).elements;
 
 /* stand up and wire-in all our modules */
 const _fontApiClient = new FontApiClient("");
@@ -77,10 +79,10 @@ _fontGridView.setListeners({
 });
 /* liked fonts */
 const _likedFontSet = new LikedFontSet();
-const likedFontsButtonElements = {
-    button: _getRequiredElementById("likedFontsButton"),
-    count: _getRequiredElementById("likedFontsCount"),
-};
+const likedFontsButtonElements = new RequiredDomElementSet({
+    button: "likedFontsButton",
+    count: "likedFontsCount",
+}).elements;
 const _likedFontsButton = new LikedFontsButton(likedFontsButtonElements);
 _likedFontsButton.setListeners({
     onClicked: () => {
@@ -131,14 +133,4 @@ function _applySearch() {
     _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());
 
     _fontGridView.renderFonts(filteredFonts);
-}
-
-function _getRequiredElementById(elementId) {
-    const element = document.getElementById(elementId);
-
-    if (element === null) {
-        throw new Error(`Unable to locate required element '${elementId}'.`);
-    }
-
-    return element;
 }
