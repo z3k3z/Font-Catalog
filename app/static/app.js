@@ -25,6 +25,7 @@ const fontDetailElements = {
     keepButton: _getRequiredElementById("fontDetailKeepButton"),
     cancelButton: _getRequiredElementById("fontDetailCancelButton"),
     sizeValue: _getRequiredElementById("fontDetailSizeValue"),
+    invertInput: _getRequiredElementById("fontDetailInvertInput"),
 };
 
 /* stand up and wire-in all our modules */

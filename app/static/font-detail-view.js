@@ -71,6 +71,10 @@ export class FontDetailView {
             this._renderSample();
             this._renderGlyphSet();
         });
+
+        this._elements.invertInput.addEventListener("change", () => {
+            this._renderPreviewPolarity();
+        });
     }
 
     _render(font) {
@@ -80,6 +84,22 @@ export class FontDetailView {
         this._renderSizeValue();
         this._renderSample();
         this._renderGlyphSet();
+        this._renderPreviewPolarity();
+    }
+
+    _renderPreviewPolarity() {
+        const isLightPreview = this._elements.invertInput.checked;
+
+        this._setPreviewPolarity(this._elements.sample, isLightPreview);
+        this._setPreviewPolarity(this._elements.glyphSet, isLightPreview);
+    }
+
+    _setPreviewPolarity(element, isLightPreview) {
+        if (isLightPreview) {
+            element.classList.add("font-detail-preview--light");
+        } else {
+            element.classList.remove("font-detail-preview--light");
+        }
     }
 
     _renderSizeValue() {
