@@ -1,4 +1,5 @@
 import { FontApiClient } from "./font-api-client.js";
+import { FontDetailView } from "./font-detail-view.js";
 import { FontGridView } from "./font-grid-view.js";
 import { FontLoader } from "./font-loader.js";
 import { FontSearch } from "./font-search.js";
@@ -6,16 +7,31 @@ import { SearchChipBar } from "./search-chip-bar.js";
 
 let _fonts = [];
 
+/* locate and catalog required html elements */
 const fontGridElement = _getRequiredElementById("fontGrid");
 const fontCountElement = _getRequiredElementById("fontCount");
 const fontFaceStyleElement = _getRequiredElementById("fontCatalogDynamicFontFaces");
 const searchInputElement = _getRequiredElementById("searchInput");
 const searchChipContainerElement = _getRequiredElementById("searchChipContainer");
+const fontDetailElements = {
+    panel: _getRequiredElementById("fontDetailPanel"),
+    title: _getRequiredElementById("fontDetailTitle"),
+    subtitle: _getRequiredElementById("fontDetailSubtitle"),
+    closeButton: _getRequiredElementById("fontDetailCloseButton"),
+    sampleInput: _getRequiredElementById("fontDetailSampleInput"),
+    sizeInput: _getRequiredElementById("fontDetailSizeInput"),
+    sample: _getRequiredElementById("fontDetailSample"),
+    glyphSet: _getRequiredElementById("fontDetailGlyphSet"),
+    keepButton: _getRequiredElementById("fontDetailKeepButton"),
+    cancelButton: _getRequiredElementById("fontDetailCancelButton"),
+};
 
+/* stand up and wire-in all our modules */
 const _fontApiClient = new FontApiClient("");
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 const _fontSearch = new FontSearch();
+/* wire-in the search chip bar */
 const _searchChipBar = new SearchChipBar(searchInputElement, searchChipContainerElement);
 _searchChipBar.setListeners({
     onSearchConstraintAdded: (searchTerm, mode) => {
@@ -24,6 +40,23 @@ _searchChipBar.setListeners({
 
     onSearchConstraintRemoved: (searchConstraint) => {
         removeSearchConstraint(searchConstraint);
+    },
+});
+/* wire-in the font detail view */
+const _fontDetailView = new FontDetailView(fontDetailElements, _fontLoader);
+_fontDetailView.setListeners({
+    onFontKept: (font) => {
+        _diags.emitDebugProbe(() => `Font kept for future comparison: ${font.full_name}.`);
+    },
+
+    onClosed: () => {
+        _diags.emitDebugProbe(() => "Font detail view closed.");
+    },
+});
+/* hook the card selection to the font detail panel */
+_fontGridView.setListeners({
+    onFontSelected: (font) => {
+        _fontDetailView.open(font);
     },
 });
 

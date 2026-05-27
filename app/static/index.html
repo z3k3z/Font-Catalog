@@ -29,6 +29,39 @@
             <section id="fontGrid" class="font-grid"></section>
         </main>
 
+        <aside id="fontDetailPanel" class="font-detail-panel font-detail-panel--closed">
+            <header class="font-detail-header">
+                <div>
+                    <h2 id="fontDetailTitle" class="font-detail-title"></h2>
+                    <div id="fontDetailSubtitle" class="font-detail-subtitle"></div>
+                </div>
+
+                <button id="fontDetailCloseButton" class="font-detail-close-button" type="button">×</button>
+            </header>
+
+            <section class="font-detail-controls">
+                <input
+                    id="fontDetailSampleInput"
+                    class="font-detail-sample-input"
+                    type="text"
+                    value="The quick brown fox 123"
+                />
+
+                <label class="font-detail-size-control">
+                    Size
+                    <input id="fontDetailSizeInput" type="range" min="16" max="96" value="40" />
+                </label>
+            </section>
+
+            <section id="fontDetailSample" class="font-detail-sample"></section>
+
+            <section id="fontDetailGlyphSet" class="font-detail-glyph-set"></section>
+
+            <footer class="font-detail-actions">
+                <button id="fontDetailKeepButton" type="button">Keep</button>
+                <button id="fontDetailCancelButton" type="button">Cancel</button>
+            </footer>
+        </aside>
         <script type="module" src="/static/app.js"></script>
     </body>
 </html>

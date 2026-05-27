@@ -6,6 +6,7 @@ export class FontGridView {
         this._fontCountElement = fontCountElement;
         this._fontLoader = fontLoader;
         this._fontObserver = this._createFontObserver();
+        this._onFontSelected = null;
     }
 
     renderFonts(fonts) {
@@ -17,6 +18,10 @@ export class FontGridView {
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
+    }
+
+    setListeners(listeners) {
+        this._onFontSelected = listeners.onFontSelected ?? null;
     }
 
     _createFontObserver() {
@@ -49,7 +54,7 @@ export class FontGridView {
             if (loadedSuccessfully) {
                 this._applyLoadedFontToCard(card, font);
             } else {
-                card.classList.add("font-card--load-failed");
+                this._markCardFontLoadFailed(card);
             }
         }
         this._fontObserver.unobserve(card);
@@ -90,7 +95,25 @@ export class FontGridView {
 
         card.appendChild(sample);
         card.appendChild(name);
+        card.addEventListener("click", () => {
+            if (this._isCardFontLoadFailed(card)) {
+                return;
+            }
 
+            if (this._onFontSelected !== null) {
+                this._onFontSelected(font);
+            }
+        });
         return card;
+    }
+
+    _markCardFontLoadFailed(card) {
+        card.classList.add("font-card--load-failed");
+    }
+
+    _isCardFontLoadFailed(card) {
+        const isCardFontLoadFailed = card.classList.contains("font-card--load-failed");
+
+        return isCardFontLoadFailed;
     }
 }

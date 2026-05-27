@@ -1,0 +1,128 @@
+import { _diags } from "./diagnostics.js";
+
+export class FontDetailView {
+    constructor(elements, fontLoader) {
+        this._elements = elements;
+        this._fontLoader = fontLoader;
+        this._selectedFont = null;
+
+        this._onFontKept = null;
+        this._onClosed = null;
+
+        this._configureEvents();
+    }
+
+    setListeners(listeners) {
+        this._onFontKept = listeners.onFontKept ?? null;
+        this._onClosed = listeners.onClosed ?? null;
+    }
+
+    async open(font) {
+        this._selectedFont = font;
+
+        _diags.emitDebugProbe(() => `Opening detail view for font id ${font.id}.`);
+
+        const loadedSuccessfully = await this._fontLoader.loadFont(font);
+
+        if (!loadedSuccessfully) {
+            _diags.emitWarningProbe(
+                () => `Unable to open detail view because font id ${font.id} failed to load.`
+            );
+
+            return;
+        }
+
+        this._render(font);
+        this._elements.panel.classList.remove("font-detail-panel--closed");
+    }
+
+    close() {
+        this._elements.panel.classList.add("font-detail-panel--closed");
+        this._selectedFont = null;
+
+        if (this._onClosed !== null) {
+            this._onClosed();
+        }
+    }
+
+    _configureEvents() {
+        this._elements.closeButton.addEventListener("click", () => {
+            this.close();
+        });
+
+        this._elements.cancelButton.addEventListener("click", () => {
+            this.close();
+        });
+
+        this._elements.keepButton.addEventListener("click", () => {
+            if (this._selectedFont !== null && this._onFontKept !== null) {
+                this._onFontKept(this._selectedFont);
+            }
+
+            this.close();
+        });
+
+        this._elements.sampleInput.addEventListener("input", () => {
+            this._renderSample();
+        });
+
+        this._elements.sizeInput.addEventListener("input", () => {
+            this._renderSample();
+            this._renderGlyphSet();
+        });
+    }
+
+    _render(font) {
+        this._elements.title.textContent = font.full_name;
+        this._elements.subtitle.textContent = `${font.family_name} — ${font.style_name}`;
+
+        this._renderSample();
+        this._renderGlyphSet();
+    }
+
+    _renderSample() {
+        if (this._selectedFont === null) {
+            return;
+        }
+
+        const sampleText = this._elements.sampleInput.value;
+        const fontSize = this._getSelectedPointSize();
+        const fontCssFamily = this._fontLoader.buildFontCssFamily(this._selectedFont);
+
+        this._elements.sample.textContent = sampleText;
+        this._elements.sample.style.fontFamily = `"${fontCssFamily}", sans-serif`;
+        this._elements.sample.style.fontSize = `${fontSize}px`;
+    }
+
+    _renderGlyphSet() {
+        if (this._selectedFont === null) {
+            return;
+        }
+
+        const fontSize = this._getSelectedPointSize();
+        const fontCssFamily = this._fontLoader.buildFontCssFamily(this._selectedFont);
+
+        this._elements.glyphSet.textContent = this._buildDefaultGlyphSet();
+        this._elements.glyphSet.style.fontFamily = `"${fontCssFamily}", sans-serif`;
+        this._elements.glyphSet.style.fontSize = `${Math.max(18, Math.floor(fontSize * 0.7))}px`;
+    }
+
+    _getSelectedPointSize() {
+        const fontSize = Number(this._elements.sizeInput.value);
+
+        return fontSize;
+    }
+
+    _buildDefaultGlyphSet() {
+        const glyphSet =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n" +
+            "abcdefghijklmnopqrstuvwxyz\n" +
+            "0123456789\n" +
+            ".,;:!?\"'`~^¨\n" +
+            "()[]{}<>/\\|+-=*_%#@&$¢£€¥\n" +
+            "ÁÉÍÓÚÜÑáéíóúüñ\n" +
+            "ÆŒØÐÞßæœøðþ";
+
+        return glyphSet;
+    }
+}
