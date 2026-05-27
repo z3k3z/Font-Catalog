@@ -1,50 +1,66 @@
+import { SearchConstraint } from "./search-constraint.js";
+
 export class FontSearch {
     constructor() {
-        this._searchTerms = [];
+        this._searchConstraints = [];
     }
 
-    addSearchTerm(rawSearchTerm) {
-        const searchTerm = rawSearchTerm.trim().toLowerCase();
+    addSearchConstraint(rawSearchTerm, mode) {
+        const normalizedSearchTerm = rawSearchTerm.trim().toLowerCase();
 
-        if (searchTerm === "") {
+        if (normalizedSearchTerm.length === 0) {
             return;
         }
 
-        if (!this._searchTerms.includes(searchTerm)) {
-            this._searchTerms.push(searchTerm);
+        const alreadyExists = this._searchConstraints.some((constraint) => {
+            return constraint.searchTerm === normalizedSearchTerm && constraint.mode === mode;
+        });
+
+        if (alreadyExists) {
+            return;
         }
+
+        const searchConstraint = new SearchConstraint(normalizedSearchTerm, mode);
+
+        this._searchConstraints.push(searchConstraint);
     }
 
-    removeSearchTerm(searchTerm) {
-        this._searchTerms = this._searchTerms.filter((existingSearchTerm) => {
-            return existingSearchTerm !== searchTerm;
+    removeSearchConstraint(searchConstraintToRemove) {
+        this._searchConstraints = this._searchConstraints.filter((constraint) => {
+            return constraint !== searchConstraintToRemove;
         });
     }
 
-    getSearchTerms() {
-        const searchTerms = [...this._searchTerms];
-
-        return searchTerms;
+    getSearchConstraints() {
+        return this._searchConstraints;
     }
 
     filterFonts(fonts) {
         const filteredFonts = fonts.filter((font) => {
-            return this._fontMatchesAllSearchTerms(font);
+            return this._fontMatchesAllSearchConstraints(font);
         });
 
         return filteredFonts;
     }
 
-    _fontMatchesAllSearchTerms(font) {
+    _fontMatchesAllSearchConstraints(font) {
         const searchableText = this._buildSearchableText(font);
 
-        for (const searchTerm of this._searchTerms) {
-            if (!searchableText.includes(searchTerm)) {
-                return false;
-            }
-        }
+        const satisfiesConstraints = this._searchConstraints.every((constraint) => {
+            const matches = searchableText.includes(constraint.searchTerm);
 
-        return true;
+            if (constraint.isRequireConstraint()) {
+                return matches;
+            }
+
+            if (constraint.isExcludeConstraint()) {
+                return !matches;
+            }
+
+            return true;
+        });
+
+        return satisfiesConstraints;
     }
 
     _buildSearchableText(font) {

@@ -18,12 +18,12 @@ const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontL
 const _fontSearch = new FontSearch();
 const _searchChipBar = new SearchChipBar(searchInputElement, searchChipContainerElement);
 _searchChipBar.setListeners({
-    onSearchTermAdded: (rawSearchTerm) => {
-        addSearchTerm(rawSearchTerm);
+    onSearchConstraintAdded: (searchTerm, mode) => {
+        addSearchConstraint(searchTerm, mode);
     },
 
-    onSearchTermRemoved: (searchTerm) => {
-        removeSearchTerm(searchTerm);
+    onSearchConstraintRemoved: (searchConstraint) => {
+        removeSearchConstraint(searchConstraint);
     },
 });
 
@@ -47,16 +47,16 @@ async function loadFonts() {
 /*
  * Search bar listeners
  */
-function addSearchTerm(rawSearchTerm) {
-    _fontSearch.addSearchTerm(rawSearchTerm);
+function addSearchConstraint(searchTerm, mode) {
+    _fontSearch.addSearchConstraint(searchTerm, mode);
 
     _searchChipBar.clearSearchInput();
 
     _applySearch();
 }
 
-function removeSearchTerm(searchTerm) {
-    _fontSearch.removeSearchTerm(searchTerm);
+function removeSearchConstraint(searchConstraint) {
+    _fontSearch.removeSearchConstraint(searchConstraint);
 
     _applySearch();
 }
@@ -67,7 +67,7 @@ function removeSearchTerm(searchTerm) {
 function _applySearch() {
     const filteredFonts = _fontSearch.filterFonts(_fonts);
 
-    _searchChipBar.renderSearchTerms(_fontSearch.getSearchTerms());
+    _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());
 
     _fontGridView.renderFonts(filteredFonts);
 }

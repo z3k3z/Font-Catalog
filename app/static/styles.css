@@ -73,6 +73,11 @@ h1 {
     color: #fff;
 }
 
+.search-chip--exclude {
+    opacity: 0.8;
+    border-color: #b04a4a;
+}
+
 .font-count {
     margin-top: 8px;
     color: #999;
