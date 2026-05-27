@@ -10,6 +10,7 @@ export class FontDetailView {
         this._onClosed = null;
 
         this._configureEvents();
+        this._isLightPreview = false;
     }
 
     setListeners(listeners) {
@@ -72,8 +73,12 @@ export class FontDetailView {
             this._renderGlyphSet();
         });
 
-        this._elements.invertInput.addEventListener("change", () => {
-            this._renderPreviewPolarity();
+        this._elements.darkPreviewButton.addEventListener("click", () => {
+            this._setLightPreview(false);
+        });
+
+        this._elements.lightPreviewButton.addEventListener("click", () => {
+            this._setLightPreview(true);
         });
     }
 
@@ -85,13 +90,24 @@ export class FontDetailView {
         this._renderSample();
         this._renderGlyphSet();
         this._renderPreviewPolarity();
+        this._renderPreviewModeButtons();
     }
 
     _renderPreviewPolarity() {
-        const isLightPreview = this._elements.invertInput.checked;
+        this._setPreviewPolarity(this._elements.sample, this._isLightPreview);
+        this._setPreviewPolarity(this._elements.glyphSet, this._isLightPreview);
+    }
 
-        this._setPreviewPolarity(this._elements.sample, isLightPreview);
-        this._setPreviewPolarity(this._elements.glyphSet, isLightPreview);
+    _renderPreviewModeButtons() {
+        this._elements.darkPreviewButton.classList.toggle(
+            "font-detail-preview-mode-button--selected",
+            !this._isLightPreview
+        );
+
+        this._elements.lightPreviewButton.classList.toggle(
+            "font-detail-preview-mode-button--selected",
+            this._isLightPreview
+        );
     }
 
     _setPreviewPolarity(element, isLightPreview) {
@@ -100,6 +116,13 @@ export class FontDetailView {
         } else {
             element.classList.remove("font-detail-preview--light");
         }
+    }
+
+    _setLightPreview(isLightPreview) {
+        this._isLightPreview = isLightPreview;
+
+        this._renderPreviewPolarity();
+        this._renderPreviewModeButtons();
     }
 
     _renderSizeValue() {

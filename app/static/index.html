@@ -53,10 +53,27 @@
                         <span id="fontDetailSizeValue">40px</span>
                     </div>
                 </label>
-                <label class="font-detail-invert-control">
-                    <input id="fontDetailInvertInput" type="checkbox" />
-                    Light preview
-                </label>
+                <div class="font-detail-preview-mode-switch" aria-label="Preview color mode">
+                    <button
+                        id="fontDetailDarkPreviewButton"
+                        class="font-detail-preview-mode-button font-detail-preview-mode-button--selected"
+                        type="button"
+                    >
+                        <span class="font-detail-preview-mode-swatch font-detail-preview-mode-swatch--dark"
+                            >A</span
+                        >
+                    </button>
+
+                    <button
+                        id="fontDetailLightPreviewButton"
+                        class="font-detail-preview-mode-button"
+                        type="button"
+                    >
+                        <span class="font-detail-preview-mode-swatch font-detail-preview-mode-swatch--light"
+                            >A</span
+                        >
+                    </button>
+                </div>
             </section>
 
             <section id="fontDetailSample" class="font-detail-sample"></section>
