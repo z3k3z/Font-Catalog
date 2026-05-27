@@ -37,6 +37,9 @@ Updated: 2026-05-24
 
 ## UI — General Exploration
 
+- [x] Add lightweight hamburger-style navigation menu
+- [x] Add navigation links to Swagger Docs and ReDoc
+- [x] Implement CSS-only hover/dropdown interaction
 - [ ] Improve visual card density tuning
 - [ ] Improve scrolling ergonomics
 - [ ] Improve visual hierarchy between sample and metadata
@@ -59,6 +62,7 @@ Updated: 2026-05-24
 ## ES Modules / Subsystems
 
 - [x] Convert frontend to ES module architecture
+- [x] Establish lightweight header/navigation subsystem pattern
 - [x] Create FrontendDiagnostics subsystem
 - [x] Create FontApiClient subsystem
 - [x] Create FontLoader subsystem
@@ -233,7 +237,9 @@ Updated: 2026-05-24
 ## Frontend
 
 - [x] Initial frontend static hosting
+- [x] Lightweight header navigation/dropdown menu
 - [x] Initial font rendering grid
 - [x] Initial search filtering
 - [x] Minimal metadata presentation
 - [x] Initial Swagger/OpenAPI integration
+

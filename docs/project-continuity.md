@@ -47,13 +47,19 @@ LocalDiscovery
 
 Discovery helpers independently discover fonts while updating the shared collection in-place to avoid redundant processing.
 
-Duplicate truncation currently occurs using:
+Source uniqueness is now represented through:
 
 ```text
-normalized font file path
+FontSourceReference-derived identity semantics
 ```
 
-This is intentionally pragmatic and currently coupled to discovery ordering.
+This allows:
+
+- multiple fonts per physical file
+- TTC collection support
+- future extensible source-address semantics
+
+Discovery ordering no longer implicitly determines uniqueness behavior.
 
 ## Discovery Helpers
 
@@ -89,11 +95,18 @@ Represents a discovered font source.
 
 Contains:
 
-- file path
+- source reference
 - discovery source
 - source-specific metadata
 
 Discovery source is represented using an enumeration rather than string literals.
+
+Source references are now polymorphic and represented through:
+
+- `SingleFontSourceReference`
+- `CollectionFontSourceReference`
+
+This isolates TTC-specific behavior from generic discovery semantics.
 
 ## FontInfo
 
@@ -106,6 +119,34 @@ This preserves:
 - source provenance
 - ownership clarity
 - future extensibility
+
+## FontSourceReference
+
+Represents a source-address abstraction for a font resource.
+
+Concrete implementations currently include:
+
+- `SingleFontSourceReference`
+- `CollectionFontSourceReference`
+
+Responsibilities include:
+
+- opening fonts
+- source identity semantics
+- browser-loadable byte retrieval
+- source-description rendering
+
+## FontSourceReferenceBuilder
+
+Owns orchestration of source-reference construction.
+
+Responsibilities include:
+
+- identifying TTC files
+- expanding TTC collections
+- constructing the proper derived source-reference type
+
+This intentionally centralizes collection-specific logic into a single subsystem boundary.
 
 ## FontInfoCollection
 
@@ -224,11 +265,13 @@ The frontend now loads exact discovered font files from:
 /api/fonts/{font_id}/file
 ```
 
-This endpoint returns:
+Collection-backed fonts are extracted into browser-loadable
+single-font byte streams in-memory during API response generation.
 
-```python
-FileResponse
-```
+No intermediate extracted font files are persisted.
+
+Browser cache headers are now explicitly provided to avoid redundant
+network retrievals during lazy loading.
 
 The endpoint is documented in OpenAPI using explicit response metadata.
 
@@ -332,6 +375,9 @@ Fonts are only loaded when cards become visible.
 
 Loaded fonts remain registered for the session.
 
+Failed font loads now place cards into a visually disabled/inert state
+rather than removing them from the grid.
+
 ### FontGridView
 
 Owns:
@@ -357,8 +403,10 @@ Owns:
 
 Supports:
 
-- stacked search terms
-- AND-combined filtering
+- stacked search constraints
+- REQUIRE constraints
+- EXCLUDE constraints
+- semantic chip modes
 
 ### SearchChipBar
 
@@ -375,6 +423,22 @@ setListeners(...)
 ```
 
 rather than individual setter methods.
+
+
+### Header Navigation
+
+Owns:
+
+- lightweight application navigation
+- Swagger/ReDoc access
+- CSS-only dropdown interaction
+
+Project intentionally prefers:
+
+- minimal JS ceremony
+- lightweight interaction surfaces
+
+where practical.
 
 ## Composition Root
 
@@ -449,6 +513,9 @@ IntersectionObserver
 → backend font retrieval
 → exact rendering
 ```
+
+Collection-backed fonts are transparently converted into browser-loadable
+single-font byte streams during API response generation.
 
 This intentionally avoids:
 
@@ -565,6 +632,12 @@ typographic exploration workspace
 ```
 
 rather than a simple searchable list.
+
+The application naming direction has now been established as:
+
+```text
+Font-O-Matic!
+```
 
 ---
 
