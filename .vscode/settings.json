@@ -28,6 +28,7 @@
         "HKCU",
         "HKLM",
         "isort",
+        "Likey",
         "subkey"
     ]
 }
