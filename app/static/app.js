@@ -1,12 +1,12 @@
-import { _diags } from "./diagnostics.js";
-import { FontApiClient } from "./font-api-client.js";
-import { FontDetailView } from "./font-detail-view.js";
-import { FontGridView } from "./font-grid-view.js";
-import { FontLoader } from "./font-loader.js";
-import { FontSearch } from "./font-search.js";
-import { LikedFontSet } from "./liked-font-set.js";
-import { LikedFontsButton } from "./liked-fonts-button.js";
-import { SearchChipBar } from "./search-chip-bar.js";
+import { FontApiClient } from "./api/font-api-client.js";
+import { _diags } from "./diagnostics/diagnostics.js";
+import { FontDetailView } from "./font-detail/font-detail-view.js";
+import { FontGridView } from "./font-grid/font-grid-view.js";
+import { FontLoader } from "./font-grid/font-loader.js";
+import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
+import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
+import { FontSearch } from "./search/font-search.js";
+import { SearchChipBar } from "./search/search-chip-bar.js";
 
 let _fonts = [];
 

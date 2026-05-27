@@ -1,4 +1,4 @@
-import { _diags } from "./diagnostics.js";
+import { _diags } from "../diagnostics/diagnostics.js";
 
 export class FontLoader {
     constructor(fontApiClient, fontFaceStyleElement) {
