@@ -67,6 +67,7 @@ export class FontDetailView {
         });
 
         this._elements.sizeInput.addEventListener("input", () => {
+            this._renderSizeValue();
             this._renderSample();
             this._renderGlyphSet();
         });
@@ -76,8 +77,15 @@ export class FontDetailView {
         this._elements.title.textContent = font.full_name;
         this._elements.subtitle.textContent = `${font.family_name} — ${font.style_name}`;
 
+        this._renderSizeValue();
         this._renderSample();
         this._renderGlyphSet();
+    }
+
+    _renderSizeValue() {
+        const fontSize = this._getSelectedPointSize();
+
+        this._elements.sizeValue.textContent = `${fontSize}px`;
     }
 
     _renderSample() {
@@ -102,9 +110,17 @@ export class FontDetailView {
         const fontSize = this._getSelectedPointSize();
         const fontCssFamily = this._fontLoader.buildFontCssFamily(this._selectedFont);
 
-        this._elements.glyphSet.textContent = this._buildDefaultGlyphSet();
-        this._elements.glyphSet.style.fontFamily = `"${fontCssFamily}", sans-serif`;
-        this._elements.glyphSet.style.fontSize = `${Math.max(18, Math.floor(fontSize * 0.7))}px`;
+        this._elements.glyphSet.innerHTML = "";
+
+        for (const glyphLine of this._buildDefaultGlyphSetLines()) {
+            const lineElement = document.createElement("div");
+            lineElement.className = "font-detail-glyph-line";
+            lineElement.textContent = glyphLine;
+            lineElement.style.fontFamily = `"${fontCssFamily}", sans-serif`;
+            lineElement.style.fontSize = `${Math.max(18, Math.floor(fontSize * 0.7))}px`;
+
+            this._elements.glyphSet.appendChild(lineElement);
+        }
     }
 
     _getSelectedPointSize() {
@@ -113,16 +129,17 @@ export class FontDetailView {
         return fontSize;
     }
 
-    _buildDefaultGlyphSet() {
-        const glyphSet =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n" +
-            "abcdefghijklmnopqrstuvwxyz\n" +
-            "0123456789\n" +
-            ".,;:!?\"'`~^¨\n" +
-            "()[]{}<>/\\|+-=*_%#@&$¢£€¥\n" +
-            "ÁÉÍÓÚÜÑáéíóúüñ\n" +
-            "ÆŒØÐÞßæœøðþ";
+    _buildDefaultGlyphSetLines() {
+        const glyphSetLines = [
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            "abcdefghijklmnopqrstuvwxyz",
+            "0123456789",
+            ".,;:!?\"'`~^¨",
+            "()[]{}<>/\\|+-=*_%#@&$¢£€¥",
+            "ÁÉÍÓÚÜÑáéíóúüñ",
+            "ÆŒØÐÞßæœøðþ",
+        ];
 
-        return glyphSet;
+        return glyphSetLines;
     }
 }

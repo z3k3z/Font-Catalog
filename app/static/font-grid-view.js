@@ -7,6 +7,7 @@ export class FontGridView {
         this._fontLoader = fontLoader;
         this._fontObserver = this._createFontObserver();
         this._onFontSelected = null;
+        this._selectedCard = null;
     }
 
     renderFonts(fonts) {
@@ -100,6 +101,10 @@ export class FontGridView {
                 return;
             }
 
+            this.clearSelectedCard();
+            this._markCardSelected(card);
+            this._selectedCard = card;
+
             if (this._onFontSelected !== null) {
                 this._onFontSelected(font);
             }
@@ -115,5 +120,20 @@ export class FontGridView {
         const isCardFontLoadFailed = card.classList.contains("font-card--load-failed");
 
         return isCardFontLoadFailed;
+    }
+
+    clearSelectedCard() {
+        if (this._selectedCard !== null) {
+            this._unmarkCardSelected(this._selectedCard);
+            this._selectedCard = null;
+        }
+    }
+
+    _markCardSelected(card) {
+        card.classList.add("font-card--selected");
+    }
+
+    _unmarkCardSelected(card) {
+        card.classList.remove("font-card--selected");
     }
 }

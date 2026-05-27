@@ -146,6 +146,11 @@ h1 {
         box-shadow 140ms ease;
 }
 
+.font-card--selected {
+    border-color: #8aa8ff;
+    box-shadow: 0 0 0 1px rgba(138, 168, 255, 0.55);
+}
+
 .font-card:not(.font-card--load-failed):hover {
     transform: translateY(-3px);
     border-color: #666;
@@ -249,6 +254,23 @@ h1 {
     font-size: 13px;
 }
 
+.font-detail-size-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#fontDetailSizeInput {
+    flex: 1;
+}
+
+#fontDetailSizeValue {
+    min-width: 44px;
+    color: #ddd;
+    font-size: 13px;
+    text-align: right;
+}
+
 .font-detail-sample {
     margin-bottom: 22px;
     padding: 16px;
@@ -266,6 +288,11 @@ h1 {
     border-radius: 8px;
     line-height: 1.6;
     word-break: break-word;
+}
+
+.font-detail-glyph-line {
+    display: block;
+    text-align: center;
 }
 
 .font-detail-actions {

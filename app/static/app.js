@@ -24,6 +24,7 @@ const fontDetailElements = {
     glyphSet: _getRequiredElementById("fontDetailGlyphSet"),
     keepButton: _getRequiredElementById("fontDetailKeepButton"),
     cancelButton: _getRequiredElementById("fontDetailCancelButton"),
+    sizeValue: _getRequiredElementById("fontDetailSizeValue"),
 };
 
 /* stand up and wire-in all our modules */
@@ -50,6 +51,7 @@ _fontDetailView.setListeners({
     },
 
     onClosed: () => {
+        _fontGridView.clearSelectedCard();
         _diags.emitDebugProbe(() => "Font detail view closed.");
     },
 });
