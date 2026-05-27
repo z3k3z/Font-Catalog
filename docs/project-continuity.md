@@ -636,7 +636,7 @@ rather than a simple searchable list.
 The application naming direction has now been established as:
 
 ```text
-Font-O-Matic!
+Fontopia!
 ```
 
 ---
