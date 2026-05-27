@@ -3,6 +3,8 @@ import { FontDetailView } from "./font-detail-view.js";
 import { FontGridView } from "./font-grid-view.js";
 import { FontLoader } from "./font-loader.js";
 import { FontSearch } from "./font-search.js";
+import { LikedFontSet } from "./liked-font-set.js";
+import { LikedFontsButton } from "./liked-fonts-button.js";
 import { SearchChipBar } from "./search-chip-bar.js";
 
 let _fonts = [];
@@ -49,7 +51,15 @@ _searchChipBar.setListeners({
 const _fontDetailView = new FontDetailView(fontDetailElements, _fontLoader);
 _fontDetailView.setListeners({
     onFontKept: (font) => {
-        _diags.emitDebugProbe(() => `Font kept for future comparison: ${font.full_name}.`);
+        const wasAdded = _likedFontSet.addFont(font);
+
+        _likedFontsButton.renderCount(_likedFontSet.getCount());
+
+        if (wasAdded) {
+            _diags.emitDebugProbe(() => `Font liked: ${font.full_name}.`);
+        } else {
+            _diags.emitDebugProbe(() => `Font already liked: ${font.full_name}.`);
+        }
     },
 
     onClosed: () => {
@@ -61,6 +71,18 @@ _fontDetailView.setListeners({
 _fontGridView.setListeners({
     onFontSelected: (font) => {
         _fontDetailView.open(font);
+    },
+});
+/* liked fonts */
+const _likedFontSet = new LikedFontSet();
+const likedFontsButtonElements = {
+    button: _getRequiredElementById("likedFontsButton"),
+    count: _getRequiredElementById("likedFontsCount"),
+};
+const _likedFontsButton = new LikedFontsButton(likedFontsButtonElements);
+_likedFontsButton.setListeners({
+    onClicked: () => {
+        _diags.emitDebugProbe(() => `Liked fonts subsystem requested. Count: ${_likedFontSet.getCount()}.`);
     },
 });
 
