@@ -1,0 +1,33 @@
+{
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+
+    "cSpell.words": [
+        "HKCU",
+        "HKLM",
+        "isort",
+        "subkey"
+    ]
+}
