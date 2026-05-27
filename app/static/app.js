@@ -1,3 +1,4 @@
+import { _diags } from "./diagnostics.js";
 import { FontApiClient } from "./font-api-client.js";
 import { FontDetailView } from "./font-detail-view.js";
 import { FontGridView } from "./font-grid-view.js";
@@ -60,6 +61,7 @@ _fontDetailView.setListeners({
         } else {
             _diags.emitDebugProbe(() => `Font already liked: ${font.full_name}.`);
         }
+        _fontDetailView.close();
     },
 
     onClosed: () => {
