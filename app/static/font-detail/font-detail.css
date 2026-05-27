@@ -1,0 +1,200 @@
+.font-detail-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 10;
+    width: min(560px, 92vw);
+    height: 100vh;
+    padding: 20px;
+    background: #161616;
+    border-left: 1px solid #3a3a3a;
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
+    transform: translateX(0);
+    transition: transform 180ms ease;
+    overflow-y: auto;
+}
+
+.font-detail-panel--closed {
+    transform: translateX(100%);
+}
+
+.font-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.font-detail-title {
+    margin: 0;
+    font-size: 24px;
+}
+
+.font-detail-subtitle {
+    margin-top: 4px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.font-detail-close-button {
+    padding: 4px 10px;
+    background: #252525;
+    color: #ddd;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.font-detail-controls {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.font-detail-sample-input {
+    padding: 10px 12px;
+    background: #222;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.font-detail-size-control {
+    display: grid;
+    gap: 6px;
+    color: #aaa;
+    font-size: 13px;
+}
+
+.font-detail-size-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#fontDetailSizeInput {
+    flex: 1;
+}
+
+#fontDetailSizeValue {
+    min-width: 44px;
+    color: #ddd;
+    font-size: 13px;
+    text-align: right;
+}
+
+.font-detail-sample {
+    margin-bottom: 22px;
+    padding: 16px;
+    background: #101010;
+    border: 1px solid #333;
+    border-radius: 8px;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.font-detail-glyph-set {
+    padding: 16px;
+    background: #101010;
+    border: 1px solid #333;
+    border-radius: 8px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.font-detail-glyph-line {
+    display: block;
+    text-align: center;
+}
+
+.font-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.font-detail-actions button {
+    padding: 8px 14px;
+    background: #252525;
+    color: #ddd;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+        transform 140ms ease,
+        border-color 140ms ease,
+        background-color 140ms ease,
+        box-shadow 140ms ease;
+}
+
+.font-detail-actions button:hover {
+    transform: translateY(-3px);
+    border-color: #666;
+    background: #202020;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.font-detail-invert-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aaa;
+    font-size: 13px;
+}
+
+.font-detail-preview--light {
+    background: #f2f2f2;
+    color: #111;
+}
+
+.font-detail-preview-mode-switch {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.font-detail-preview-mode-button {
+    padding: 4px;
+    background: #202020;
+    border: 1px solid #444;
+    border-radius: 8px;
+    cursor: pointer;
+    transition:
+        transform 140ms ease,
+        border-color 140ms ease,
+        background-color 140ms ease,
+        box-shadow 140ms ease;
+}
+
+.font-detail-preview-mode-button:not(.font-detail-preview-mode-button--selected):hover {
+    transform: translateY(-2px);
+    border-color: #666;
+    background: #2a2a2a;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.font-detail-preview-mode-button--selected {
+    border-color: #8aa8ff;
+    box-shadow: 0 0 0 1px rgba(138, 168, 255, 0.55);
+}
+
+.font-detail-preview-mode-swatch {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 28px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.font-detail-preview-mode-swatch--dark {
+    background: #101010;
+    color: #f2f2f2;
+}
+
+.font-detail-preview-mode-swatch--light {
+    background: #f2f2f2;
+    color: #111;
+}
