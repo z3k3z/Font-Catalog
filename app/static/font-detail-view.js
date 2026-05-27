@@ -80,6 +80,14 @@ export class FontDetailView {
         this._elements.lightPreviewButton.addEventListener("click", () => {
             this._setLightPreview(true);
         });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                if (this._selectedFont !== null) {
+                    this.close();
+                }
+            }
+        });
     }
 
     _render(font) {
