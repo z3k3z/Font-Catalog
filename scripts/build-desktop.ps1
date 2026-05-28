@@ -1,0 +1,1 @@
+pyinstaller --name Fontopia --onedir --add-data "app/static;app/static" desktop_main.py
