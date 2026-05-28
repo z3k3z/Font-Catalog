@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api_models.font_response import FontResponse
 from app.application_configuration import ApplicationConfiguration
 from app.discovery.local_discovery import LocalDiscovery
+from app.foundation.runtime_paths import get_static_root_path
 from app.models.font_info import FontInfo
 from catalog.font_catalog import CatalogFontRecord, FontCatalog
 
@@ -17,7 +18,7 @@ class FontCatalogApp:
     def __init__(self, application_configuration: ApplicationConfiguration) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
         self._fontCatalog: FontCatalog = FontCatalog()
-        self._staticDirectory: Path = Path("app/static")
+        self._staticRootPath: Path = get_static_root_path()
 
     def create_fastapi_app(self) -> FastAPI:
         lifespan = self._create_lifespan_handler()
@@ -29,7 +30,7 @@ class FontCatalogApp:
 
         fastapi_app.mount(
             "/static",
-            StaticFiles(directory=self._staticDirectory),
+            StaticFiles(directory=self._staticRootPath),
             name="static",
         )
 
@@ -104,7 +105,7 @@ class FontCatalogApp:
         )
 
     def _read_index(self) -> FileResponse:
-        index_path: Path = self._staticDirectory / "index.html"
+        index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
 
         return response
