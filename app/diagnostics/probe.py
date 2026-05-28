@@ -1,24 +1,14 @@
 import logging
-import os
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import TextIO
 
 from app.application_configuration import ApplicationConfiguration
+from app.diagnostics.probe_level import ProbeLevel
 
 _TRACE_LOGGER_NAME: str = "font_catalog.trace"
 _ERROR_PROBE_LOGGER_NAME: str = "font_catalog.error_probe"
-
-_TRACE_ENVIRONMENT_VARIABLE_NAME: str = "FONT_CATALOG_TRACE"
-_ERROR_PROBE_LEVEL_ENVIRONMENT_VARIABLE_NAME: str = "FONT_CATALOG_ERROR_PROBE_LEVEL"
-
-"""
-$env:FONT_CATALOG_TRACE="0"
-$env:FONT_CATALOG_ERROR_PROBE_LEVEL="ERROR"
-fastapi dev app/main.py
-"""
 
 _TRACE_PROBE_KIND: str = "TRACE_PROBE"
 _ERROR_PROBE_KIND: str = "ERROR_PROBE"
@@ -26,13 +16,6 @@ _ERROR_PROBE_KIND: str = "ERROR_PROBE"
 
 _traceLogger: logging.Logger = logging.getLogger(_TRACE_LOGGER_NAME)
 _errorProbeLogger: logging.Logger = logging.getLogger(_ERROR_PROBE_LOGGER_NAME)
-
-
-class ProbeLevel(Enum):
-    DEBUG = logging.DEBUG
-    WARNING = logging.WARNING
-    ERROR = logging.ERROR
-
 
 _ANSI_RESET: str = "\033[0m"
 _ANSI_TRACE: str = "\033[36m"
@@ -88,8 +71,8 @@ def configure_probes(application_configuration: ApplicationConfiguration) -> Non
     global _probeConfiguration
 
     _probeConfiguration = ProbeConfiguration(
-        fTraceProbeEnabled=_is_environment_flag_enabled(_TRACE_ENVIRONMENT_VARIABLE_NAME),
-        errorProbeMinimumLevel=_read_error_probe_minimum_level(),
+        fTraceProbeEnabled=application_configuration.is_trace_enabled,
+        errorProbeMinimumLevel=application_configuration.error_probe_level,
         applicationLogFile=application_configuration.application_log,
     )
 
@@ -175,32 +158,3 @@ def _get_probe_configuration() -> ProbeConfiguration:
         raise RuntimeError("Probes have not been configured.")
 
     return _probeConfiguration
-
-
-def _read_error_probe_minimum_level() -> ProbeLevel:
-    raw_value: str = os.getenv(
-        _ERROR_PROBE_LEVEL_ENVIRONMENT_VARIABLE_NAME,
-        "ERROR",
-    )
-
-    normalized_value: str = raw_value.strip().upper()
-
-    if normalized_value == "DEBUG":
-        probe_level: ProbeLevel = ProbeLevel.DEBUG
-
-    elif normalized_value == "WARNING":
-        probe_level = ProbeLevel.WARNING
-
-    else:
-        probe_level = ProbeLevel.ERROR
-
-    return probe_level
-
-
-def _is_environment_flag_enabled(environment_variable_name: str) -> bool:
-    raw_value: str = os.getenv(environment_variable_name, "")
-    normalized_value: str = raw_value.strip().lower()
-
-    fEnabled: bool = normalized_value in ("1", "true", "yes", "on")
-
-    return fEnabled

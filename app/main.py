@@ -8,8 +8,6 @@ from app.font_catalog_app import FontCatalogApp
 """
 Runtime powershell commands:
 
-$env:FONT_CATALOG_TRACE="1"
-$env:FONT_CATALOG_ERROR_PROBES="1"
 fastapi dev app/main.py
 """
 
