@@ -19,7 +19,7 @@ def read_build_info() -> dict[str, Any]:
             "buildTimeUtc": "",
         }
 
-    build_info_text: str = build_info_path.read_text(encoding="utf-8")
+    build_info_text: str = build_info_path.read_text(encoding="utf-8-sig")
     build_info: dict[str, Any] = json.loads(build_info_text)
 
     return build_info
