@@ -13,6 +13,10 @@ Welcome to Fontopia, a desktop font exploration and comparison tool.
 Your default web browser will automatically open the application.
 
 ## Version History
+### v0.1.1
+- BUG: unable to parse build_info for about box (5b4b71f)
+- Consolidate trace/probe settings into application configuration. (2ec75f1)
+
 ### v0.1.0
 * initial distribution
 
