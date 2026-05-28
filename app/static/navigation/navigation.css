@@ -11,6 +11,12 @@
     cursor: pointer;
 }
 
+.app-menu-divider {
+    height: 1px;
+    margin: 4px 0;
+    background: #3a3a3a;
+}
+
 .app-menu-panel {
     display: none;
     position: absolute;

@@ -1,4 +1,4 @@
-# Fontopia
+# Fontopia {{VERSION}}
 
 Welcome to Fontopia, a desktop font exploration and comparison tool.
 
@@ -11,6 +11,10 @@ Welcome to Fontopia, a desktop font exploration and comparison tool.
    Fontopia.exe
 
 Your default web browser will automatically open the application.
+
+## Version History
+### v0.1.0
+* initial distribution
 
 ## Notes
 

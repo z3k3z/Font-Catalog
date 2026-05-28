@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api_models.font_response import FontResponse
 from app.application_configuration import ApplicationConfiguration
 from app.discovery.local_discovery import LocalDiscovery
+from app.foundation.build_info import read_build_info
 from app.foundation.runtime_paths import get_static_root_path
 from app.models.font_info import FontInfo
 from catalog.font_catalog import CatalogFontRecord, FontCatalog
@@ -104,6 +105,18 @@ class FontCatalogApp:
             },
         )
 
+        fastapi_app.add_api_route(
+            path="/api/about",
+            endpoint=self._read_about,
+            methods=["GET"],
+            summary="Return application build information",
+            description=(
+                "Returns application identity and build metadata generated during "
+                "the desktop packaging process. Development builds return default "
+                "development metadata."
+            ),
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -147,3 +160,8 @@ class FontCatalogApp:
         )
 
         return response
+
+    def _read_about(self) -> dict[str, object]:
+        about_info: dict[str, object] = read_build_info()
+
+        return about_info
