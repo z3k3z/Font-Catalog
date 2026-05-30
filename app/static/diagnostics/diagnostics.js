@@ -15,7 +15,7 @@ export class FrontendDiagnostics {
     };
 
     static DEBUG = new FrontendDiagnostics.ProbeLevel(10, "DEBUG");
-    static WARNING = new FrontendDiagnostics.ProbeLevel(30, "WARNING");
+    static WARNING = new FrontendDiagnostics.ProbeLevel("WARNING");
     static ERROR = new FrontendDiagnostics.ProbeLevel(40, "ERROR");
 
     constructor(minimumProbeLevel) {

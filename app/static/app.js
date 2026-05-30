@@ -1,5 +1,7 @@
 import { FontApiClient } from "./api/font-api-client.js";
 import { _diags } from "./diagnostics/diagnostics.js";
+import { FrontendDiagnosticReporter } from "./diagnostics/frontend-diagnostic-reporter.js";
+import { FrontendDiagnosticSession } from "./diagnostics/frontend-diagnostic-session.js";
 import { FontDetailView } from "./font-detail/font-detail-view.js";
 import { FontGridView } from "./font-grid/font-grid-view.js";
 import { FontLoader } from "./font-grid/font-loader.js";
@@ -36,6 +38,10 @@ const fontDetailElements = new RequiredDomElementSet({
 
 /* stand up and wire-in all our modules */
 const _fontApiClient = new FontApiClient("");
+const _frontendDiagnosticSession = new FrontendDiagnosticSession();
+const _frontendDiagnosticReporter = new FrontendDiagnosticReporter(_frontendDiagnosticSession);
+_frontendDiagnosticReporter.reportSessionStarted();
+
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 const _fontSearch = new FontSearch();
@@ -75,6 +81,15 @@ _fontDetailView.setListeners({
 _fontGridView.setListeners({
     onFontSelected: (font) => {
         _fontDetailView.open(font);
+    },
+
+    onFontLoadFailed: (font, message) => {
+        _frontendDiagnosticReporter.reportWarningEvent({
+            eventType: "font_load_failed",
+            subjectKey: `font:${font.id}`,
+            variantKey: normalizeDiagnosticVariantKey(message),
+            message,
+        });
     },
 });
 /* liked fonts */
@@ -133,4 +148,16 @@ function _applySearch() {
     _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());
 
     _fontGridView.renderFonts(filteredFonts);
+}
+
+/*
+ * Diagnostics helper
+ */
+function normalizeDiagnosticVariantKey(message) {
+    const normalizedKey = message
+        .toLowerCase()
+        .replaceAll(/[^a-z0-9]+/g, "_")
+        .replaceAll(/^_+|_+$/g, "");
+
+    return normalizedKey;
 }

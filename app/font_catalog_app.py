@@ -7,12 +7,16 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api_models.font_response import FontResponse
+from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
 from app.application_configuration import ApplicationConfiguration
+from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
 from app.foundation.build_info import read_build_info
 from app.foundation.runtime_paths import get_static_root_path
 from app.models.font_info import FontInfo
 from catalog.font_catalog import CatalogFontRecord, FontCatalog
+
+_FRONTEND_DIAGNOSTIC_PREFIX: str = "[FRONTEND]"
 
 
 class FontCatalogApp:
@@ -117,6 +121,18 @@ class FontCatalogApp:
             ),
         )
 
+        fastapi_app.add_api_route(
+            path="/api/diagnostics/frontend",
+            endpoint=self._receive_frontend_diagnostic_event,
+            methods=["POST"],
+            summary="Receive frontend diagnostic event",
+            description=(
+                "Receives selected frontend diagnostic events and records them through "
+                "the backend probe system. Frontend events are deduplicated before being "
+                "sent; the backend records what it receives."
+            ),
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -165,3 +181,25 @@ class FontCatalogApp:
         about_info: dict[str, object] = read_build_info()
 
         return about_info
+
+    def _receive_frontend_diagnostic_event(
+        self,
+        event: FrontendDiagnosticEvent,
+    ) -> dict[str, str]:
+        probe_level: ProbeLevel = ProbeLevel.from_string(event.probe_level)
+        emit_error_probe(
+            probe_level,
+            lambda: (
+                f"{_FRONTEND_DIAGNOSTIC_PREFIX} "
+                f"session_id={event.session_id} "
+                f"started_utc={event.session_started_at_utc} "
+                f"event_type={event.event_type} "
+                f"subject={event.subject_key} "
+                f"variant={event.variant_key} "
+                f"count={event.occurrence_count} "
+                f"message={event.message!r}"
+                f"frontend_call_site={event.frontend_call_site!r} "
+            ),
+        )
+
+        return {"status": "accepted"}

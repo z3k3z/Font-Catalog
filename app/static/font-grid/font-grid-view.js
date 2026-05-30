@@ -8,6 +8,7 @@ export class FontGridView {
         this._fontObserver = this._createFontObserver();
         this._onFontSelected = null;
         this._selectedCard = null;
+        this._onFontLoadFailed = null;
     }
 
     renderFonts(fonts) {
@@ -23,6 +24,7 @@ export class FontGridView {
 
     setListeners(listeners) {
         this._onFontSelected = listeners.onFontSelected ?? null;
+        this._onFontLoadFailed = listeners.onFontLoadFailed ?? null;
     }
 
     _createFontObserver() {
@@ -56,6 +58,10 @@ export class FontGridView {
                 this._applyLoadedFontToCard(card, font);
             } else {
                 this._markCardFontLoadFailed(card);
+
+                if (this._onFontLoadFailed !== null) {
+                    this._onFontLoadFailed(font, "Font failed to load in browser.");
+                }
             }
         }
         this._fontObserver.unobserve(card);
