@@ -56,7 +56,7 @@ export class FrontendDiagnosticReporter {
                 subjectKey: event.subjectKey,
                 variantKey: event.variantKey,
                 message: event.message,
-                frontend_call_site: event.callSite ?? "",
+                callSite: event.callSite ?? "",
                 occurrenceCount: 1,
             });
 
@@ -71,7 +71,7 @@ export class FrontendDiagnosticReporter {
                 subjectKey: event.subjectKey,
                 variantKey: event.variantKey,
                 message: `Suppressed repeated frontend diagnostic event: ${event.message}`,
-                frontend_call_site: event.callSite ?? "",
+                callSite: event.callSite ?? "",
                 occurrenceCount: this._getSuppressedCount(dedupeKey),
                 callSite: event.callSite,
             });
@@ -136,7 +136,7 @@ export class FrontendDiagnosticReporter {
                 variant_key: event.variantKey,
                 message: event.message,
                 occurrence_count: event.occurrenceCount,
-                frontend_call_site: event.frontend_call_site ?? "",
+                frontend_call_site: event.callSite ?? "",
                 user_agent: this._session.userAgent,
                 page_url: this._session.pageUrl,
                 probe_level: probeLevel,
