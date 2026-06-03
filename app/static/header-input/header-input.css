@@ -1,0 +1,32 @@
+.header-input-panel {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.35fr) minmax(260px, 1fr);
+    gap: 12px;
+    max-width: 980px;
+    margin-top: 8px;
+}
+
+.header-input-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #999;
+    font-size: 12px;
+}
+
+.card-sample-text-control,
+.search-panel {
+    display: block;
+    min-width: 0;
+}
+
+#cardSampleTextInput,
+#searchInput {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px 12px;
+    background: #222;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 15px;
+}

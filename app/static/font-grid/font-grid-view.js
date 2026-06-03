@@ -11,12 +11,12 @@ export class FontGridView {
         this._onFontLoadFailed = null;
     }
 
-    renderFonts(fonts) {
+    renderFonts(fonts, sampleText) {
         this._fontGridElement.innerHTML = "";
         this._fontCountElement.textContent = `${fonts.length} fonts shown`;
 
         for (const font of fonts) {
-            const card = this._buildFontCard(font);
+            const card = this._buildFontCard(font, sampleText);
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
@@ -81,7 +81,7 @@ export class FontGridView {
         sample.style.fontFamily = `"${this._fontLoader.buildFontCssFamily(font)}", sans-serif`;
     }
 
-    _buildFontCard(font) {
+    _buildFontCard(font, sampleText) {
         const card = document.createElement("article");
         card.className = "font-card";
         card.dataset.fontId = String(font.id);
@@ -89,7 +89,7 @@ export class FontGridView {
 
         const sample = document.createElement("div");
         sample.className = "font-sample";
-        sample.textContent = "The quick brown fox 123";
+        sample.textContent = sampleText;
         if (this._fontLoader.hasFontFaceRegistered(font)) {
             sample.style.fontFamily = `"${this._fontLoader.buildFontCssFamily(font)}", sans-serif`;
         } else {

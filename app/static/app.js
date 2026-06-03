@@ -1,4 +1,5 @@
 import { FontApiClient } from "./api/font-api-client.js";
+import { CardSampleTextController } from "./card-sample-text/card-sample-text-controller.js";
 import { _diags } from "./diagnostics/diagnostics.js";
 import { FrontendDiagnosticReporter } from "./diagnostics/frontend-diagnostic-reporter.js";
 import { FrontendDiagnosticSession } from "./diagnostics/frontend-diagnostic-session.js";
@@ -35,6 +36,9 @@ const fontDetailElements = new RequiredDomElementSet({
     darkPreviewButton: "fontDetailDarkPreviewButton",
     lightPreviewButton: "fontDetailLightPreviewButton",
 }).elements;
+const cardSampleTextElements = new RequiredDomElementSet({
+    input: "cardSampleTextInput",
+}).elements;
 
 /* stand up and wire-in all our modules */
 const _fontApiClient = new FontApiClient("");
@@ -45,6 +49,8 @@ _frontendDiagnosticReporter.reportSessionStarted();
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 const _fontSearch = new FontSearch();
+const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
+
 /* wire-in the search chip bar */
 const _searchChipBar = new SearchChipBar(searchInputElement, searchChipContainerElement);
 _searchChipBar.setListeners({
@@ -80,7 +86,9 @@ _fontDetailView.setListeners({
 /* hook the card selection to the font detail panel */
 _fontGridView.setListeners({
     onFontSelected: (font) => {
-        _fontDetailView.open(font);
+        const sampleText = _cardSampleTextController.getSampleText();
+
+        _fontDetailView.open(font, sampleText);
     },
 
     onFontLoadFailed: (font, message) => {
@@ -92,6 +100,14 @@ _fontGridView.setListeners({
         });
     },
 });
+
+/* card sample text */
+_cardSampleTextController.setListeners({
+    onSampleTextChanged: () => {
+        _applySearch();
+    },
+});
+
 /* liked fonts */
 const _likedFontSet = new LikedFontSet();
 const likedFontsButtonElements = new RequiredDomElementSet({
@@ -144,10 +160,11 @@ function removeSearchConstraint(searchConstraint) {
  */
 function _applySearch() {
     const filteredFonts = _fontSearch.filterFonts(_fonts);
+    const sampleText = _cardSampleTextController.getSampleText();
 
     _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());
 
-    _fontGridView.renderFonts(filteredFonts);
+    _fontGridView.renderFonts(filteredFonts, sampleText);
 }
 
 /*

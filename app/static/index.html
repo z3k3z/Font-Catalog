@@ -10,10 +10,33 @@
     <body>
         <header class="app-header">
             <h1 class="app-title">Fontopia-9000 McFonterson!</h1>
-            <div class="search-panel">
-                <div id="searchChipContainer" class="search-chip-container"></div>
-                <input id="searchInput" type="search" placeholder="Add search term and press Enter..." />
+            <div class="header-input-panel">
+                <label class="card-sample-text-control">
+                    <span class="header-input-label">Card sample</span>
+                    <input
+                        id="cardSampleTextInput"
+                        type="text"
+                        value="The quick brown fox 123"
+                        placeholder="Sample text shown on font cards..."
+                    />
+                </label>
+
+                <div class="search-panel">
+                    <label>
+                        <span class="header-input-label">Search</span>
+                        <input
+                            id="searchInput"
+                            type="search"
+                            placeholder="Add search term and press Enter..."
+                        />
+                    </label>
+
+                    <div id="searchChipContainer" class="search-chip-container"></div>
+                    <div id="fontCount" class="font-count"></div>
+                </div>
             </div>
+
+            <div id="searchChipContainer" class="search-chip-container"></div>
             <div id="fontCount" class="font-count"></div>
             <div class="app-header-controls">
                 <button id="likedFontsButton" class="liked-fonts-button" type="button" title="Liked fonts">

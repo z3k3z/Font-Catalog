@@ -18,8 +18,9 @@ export class FontDetailView {
         this._onClosed = listeners.onClosed ?? null;
     }
 
-    async open(font) {
+    async open(font, sampleText) {
         this._selectedFont = font;
+        this._elements.sampleInput.value = sampleText;
 
         _diags.emitDebugProbe(() => `Opening detail view for font id ${font.id}.`);
 
