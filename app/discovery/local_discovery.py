@@ -1,13 +1,14 @@
 from fontTools.ttLib import TTFont
-from fontTools.ttLib.tables._n_a_m_e import NameRecord, table__n_a_m_e
 
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe, emit_trace_probe
 from app.discovery.file_discovery import FileDiscovery
 from app.discovery.font_candidate import FontCandidate
 from app.discovery.registry_discovery import RegistryDiscovery
+from app.font_parsing.font_metadata_extractor import FontMetadataExtractor
 from app.models.font_info import FontInfo
 from app.models.font_info_collection import FontInfoCollection
+from app.models.font_metadata import FontMetadata
 from app.models.result import Result
 
 
@@ -150,71 +151,18 @@ class LocalDiscovery:
         font: TTFont,
         font_candidate: FontCandidate,
     ) -> FontInfo:
-        family_name: str = self._extract_name(font, 1)
-        style_name: str = self._extract_name(font, 2)
-        full_name: str = self._extract_name(font, 4)
+        font_metadata_extractor: FontMetadataExtractor = FontMetadataExtractor()
+        font_metadata: FontMetadata = font_metadata_extractor.extract(font)
 
         font_info: FontInfo = FontInfo(
-            family_name=family_name,
-            style_name=style_name,
-            full_name=full_name,
+            family_name=font_metadata.family_name,
+            style_name=font_metadata.style_name,
+            full_name=font_metadata.full_name,
             font_candidate=font_candidate,
+            metadata=font_metadata,
         )
 
         return font_info
-
-    def _extract_name(
-        self,
-        font: TTFont,
-        name_id: int,
-    ) -> str:
-        matching_records: list[NameRecord] = self._collect_matching_name_records(font, name_id)
-
-        extracted_name: str = self._extract_first_decodable_name(matching_records)
-
-        return extracted_name
-
-    def _collect_matching_name_records(
-        self,
-        font: TTFont,
-        name_id: int,
-    ) -> list[NameRecord]:
-        name_table: table__n_a_m_e = font["name"]
-
-        matching_records: list[NameRecord] = []
-
-        for record in name_table.names:
-            if record.nameID == name_id:
-                matching_records.append(record)
-
-        return matching_records
-
-    def _extract_first_decodable_name(
-        self,
-        records: list[NameRecord],
-    ) -> str:
-        extracted_name: str = ""
-
-        for record in records:
-            if extracted_name == "":
-                decoded_name: str = self._try_decode_name_record(record)
-
-                if decoded_name != "":
-                    extracted_name = decoded_name
-
-        return extracted_name
-
-    def _try_decode_name_record(
-        self,
-        record: NameRecord,
-    ) -> str:
-        try:
-            decoded_name: str = str(record.toUnicode())
-
-        except Exception:
-            decoded_name = ""
-
-        return decoded_name
 
     def _build_font_identity_key(
         self,
