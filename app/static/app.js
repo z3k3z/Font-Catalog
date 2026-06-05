@@ -1,4 +1,5 @@
 import { FontApiClient } from "./api/font-api-client.js";
+import { CardGridPresentationController } from "./card-grid-presentation/card-grid-presentation-controller.js";
 import { CardSampleTextController } from "./card-sample-text/card-sample-text-controller.js";
 import { _diags } from "./diagnostics/diagnostics.js";
 import { FrontendDiagnosticReporter } from "./diagnostics/frontend-diagnostic-reporter.js";
@@ -39,6 +40,11 @@ const fontDetailElements = new RequiredDomElementSet({
 const cardSampleTextElements = new RequiredDomElementSet({
     input: "cardSampleTextInput",
 }).elements;
+const cardGridPresentationElements = new RequiredDomElementSet({
+    smallButton: "cardGridSizeSmallButton",
+    mediumButton: "cardGridSizeMediumButton",
+    largeButton: "cardGridSizeLargeButton",
+}).elements;
 
 /* stand up and wire-in all our modules */
 const _fontApiClient = new FontApiClient("");
@@ -47,6 +53,7 @@ const _frontendDiagnosticReporter = new FrontendDiagnosticReporter(_frontendDiag
 _frontendDiagnosticReporter.reportSessionStarted();
 
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
+const _cardGridPresentationController = new CardGridPresentationController(cardGridPresentationElements);
 const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
 const _fontSearch = new FontSearch();
 const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
@@ -83,6 +90,7 @@ _fontDetailView.setListeners({
         _diags.emitDebugProbe(() => "Font detail view closed.");
     },
 });
+
 /* hook the card selection to the font detail panel */
 _fontGridView.setListeners({
     onFontSelected: (font) => {
@@ -118,6 +126,14 @@ const _likedFontsButton = new LikedFontsButton(likedFontsButtonElements);
 _likedFontsButton.setListeners({
     onClicked: () => {
         _diags.emitDebugProbe(() => `Liked fonts subsystem requested. Count: ${_likedFontSet.getCount()}.`);
+    },
+});
+
+/* card-size buttons */
+_fontGridView.setCardSize(_cardGridPresentationController.getCardSize());
+_cardGridPresentationController.setListeners({
+    onCardSizeChanged: (cardSize) => {
+        _fontGridView.setCardSize(cardSize);
     },
 });
 
