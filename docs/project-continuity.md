@@ -726,3 +726,72 @@ The frontend architecture is intentionally beginning to mirror backend subsystem
 
 This is considered desirable and should continue where practical.
 
+
+
+---
+
+# Continuity Update — 2026-06-05
+
+## Current Project State
+
+Metadata extraction is COMPLETE on the backend.
+
+Implemented:
+- FontMetadataExtractor
+- Centralized OpenType name-table parsing
+- Family/Style/Full Name extraction moved into metadata extraction ownership
+- Glyph-count extraction
+- Platform/language selection policy
+- Metadata diagnostics/probe reporting
+
+Important:
+- Metadata presentation in the frontend is intentionally deferred.
+- Metadata search integration is intentionally deferred.
+- Metadata remains available through backend models for future use.
+
+## User Preference Features
+
+Implemented:
+- Global sample text control
+- Font detail view initialized from global sample text
+- Card-size presentation control (Small / Medium / Large)
+
+Persistence of preferences is deferred.
+
+## Frontend Status
+
+Implemented:
+- Detail view
+- Editable sample text
+- Card-size control
+- Search chips
+- Include/exclude search semantics
+
+Deferred:
+- Header layout refresh
+- Metadata inspector UI
+- Metadata-driven search enhancements
+
+## New Active Priority
+
+User-assigned tagging.
+
+Font ↔ many-to-many ↔ Tag
+
+Requirements:
+- A font may have zero or more tags.
+- A tag may be associated with zero or more fonts.
+- Users may add/remove tags from fonts.
+- Users may rename tags.
+- Tags appear on font cards.
+- Tags appear in font detail view.
+- Search supports tag inclusion and exclusion.
+
+## Persistence Direction
+
+Initial persistence should remain lightweight:
+- Backend-owned file
+- JSON or equivalent
+- Keyed using the same semantic font key used by FontInfoCollection
+
+Tags are user data and are intentionally separate from FontMetadata.

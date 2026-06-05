@@ -18,14 +18,36 @@ Updated: 2026-05-24
 
 ## UI — Font Rendering / Inspection
 
-- [ ] Add clickable font-card detail view
-- [ ] Render full character set for selected font
-- [ ] Add editable custom sample text field
-- [ ] Ensure sample text updates responsively while typing
-- [ ] Add point-size adjustment control
-- [ ] Add scalable preview rendering
-- [ ] Add large-format typography preview area
-- [ ] Add close/back interaction for detail mode
+- [x] Add clickable font-card detail view
+- [x] Render full character set for selected font
+- [x] Add editable custom sample text field# Windows Font Catalog — Backlog
+
+Updated: 2026-05-24
+
+---
+
+# Active / Near-Term
+
+## UI — Search Experience
+
+- [x] Implement multi-layered / stacked search terms
+- [x] Allow user to add multiple independent search chips
+- [x] Support removable search chips via inline `x`
+- [x] Keep search chips visually adjacent to search field
+- [x] Search should AND-combine active chips by default
+- [ ] Add local-session search state persistence
+- [ ] Add keyboard-friendly search-chip navigation
+
+## UI — Font Rendering / Inspection
+
+- [x] Add clickable font-card detail view
+- [x] Render full character set for selected font
+- [x] Add editable custom sample text field
+- [x] Ensure sample text updates responsively while typing
+- [x] Add point-size adjustment control
+- [x] Add scalable preview rendering
+- [x] Add large-format typography preview area
+- [x] Add close/back interaction for detail mode
 
 ## UI — Search Defaults
 
@@ -40,7 +62,7 @@ Updated: 2026-05-24
 - [x] Add lightweight hamburger-style navigation menu
 - [x] Add navigation links to Swagger Docs and ReDoc
 - [x] Implement CSS-only hover/dropdown interaction
-- [ ] Improve visual card density tuning
+- [x] Improve visual card density tuning
 - [ ] Improve scrolling ergonomics
 - [ ] Improve visual hierarchy between sample and metadata
 - [ ] Keep metadata hidden/minimized during exploration workflows
@@ -48,7 +70,7 @@ Updated: 2026-05-24
 
 ## UI — Uncategorized
 
-- [ ] Add some type of navigation to docs and logs
+- [x] Add some type of navigation to docs and logs
 - [ ] Add endpoint to render log file view
 - [x] Add hover-over card animation
 - [ ] Track font selection. Show/highlight counts on card
@@ -73,7 +95,7 @@ Updated: 2026-05-24
 - [x] Establish validated DOM dependency injection pattern
 - [x] Establish frontend dependency ownership boundaries
 - [ ] Continue reducing orchestration sprawl in `app.js`
-- [ ] Introduce detail-view subsystem architecture
+- [x] Introduce detail-view subsystem architecture
 - [ ] Introduce comparative-selection subsystem architecture
 - [ ] Evaluate future Web Components transition
 
@@ -84,8 +106,8 @@ Updated: 2026-05-24
 - [x] Add lazy frontend probe message construction
 - [x] Add nested `ProbeLevel` ownership semantics
 - [x] Add frontend singleton diagnostics instance
-- [ ] Add frontend probe categories/taxonomy
-- [ ] Add optional frontend stack/caller extraction
+- [x] Add frontend probe categories/taxonomy
+- [x] Add optional frontend stack/caller extraction
 - [ ] Add frontend probe persistence strategy
 
 ---
@@ -94,11 +116,11 @@ Updated: 2026-05-24
 
 ## Discovery
 
-- [ ] Properly support `.ttc` font collections
-- [ ] Enumerate TTC fontNumber entries
-- [ ] Support multiple FontInfo entries per physical path
-- [ ] Revisit path uniqueness assumptions
-- [ ] Improve path normalization semantics
+- [x] Properly support `.ttc` font collections
+- [x] Enumerate TTC fontNumber entries
+- [x] Support multiple FontInfo entries per physical path
+- [x] Revisit path uniqueness assumptions
+- [x] Improve path normalization semantics
 - [ ] Investigate recursive discovery expansion
 - [ ] Investigate per-user/local-user font discovery
 
@@ -115,7 +137,7 @@ Updated: 2026-05-24
 - [x] Add `/api/fonts/{font_id}/file` endpoint
 - [x] Add OpenAPI documentation for font-file endpoint
 - [x] Introduce frontend-safe font transport model
-- [ ] Keep Swagger/OpenAPI documentation aligned with implementation
+- [x] Keep Swagger/OpenAPI documentation aligned with implementation
 - [ ] Continue expanding field-level response descriptions
 - [ ] Continue expanding endpoint-level semantic descriptions
 - [ ] Add richer API response models
@@ -225,6 +247,69 @@ Updated: 2026-05-24
 - [x] VS Code clickable source paths
 - [x] Probe persistence to file
 - [x] Startup probe log reset behavior
+
+## Tooling
+
+- [x] Black integration
+- [x] isort integration
+- [x] Strict pyright typing
+- [x] Format-on-save workflow
+- [x] 108-column formatting standard
+
+## Frontend
+
+- [x] Initial frontend static hosting
+- [x] Lightweight header navigation/dropdown menu
+- [x] Initial font rendering grid
+- [x] Initial search filtering
+- [x] Minimal metadata presentation
+- [x] Initial Swagger/OpenAPI integration
+
+
+
+---
+
+# Backlog Update — 2026-06-05
+
+## Active Priority — User Tagging
+
+- [ ] Design tag persistence subsystem
+- [ ] Define persisted tag file format
+- [ ] Define semantic font-key ownership strategy
+- [ ] Add API endpoint to retrieve tags
+- [ ] Add API endpoint to add tag to font
+- [ ] Add API endpoint to remove tag from font
+- [ ] Add API endpoint to rename tag
+- [ ] Display tags on font cards
+- [ ] Display tags in font detail view
+- [ ] Support tag include search
+- [ ] Support tag exclude search
+
+## Deferred
+
+### Metadata UI
+- Backend metadata extraction complete
+- Metadata presentation deferred
+- Metadata inspector deferred
+- Metadata search enhancements deferred
+
+### Header Layout Refresh
+- Deferred pending stabilization of search/tagging workflows
+
+## Recently Completed
+
+- [x] Backend metadata extraction
+- [x] FontMetadataExtractor ownership consolidation
+- [x] Global sample text control
+- [x] Card-size presentation control
+- [x] Font detail initialization from global sample text
+
+## Diagnostics Ideas
+
+- [ ] Log-view UI
+- [ ] Acknowledged warning suppression
+- [ ] User-maintained reviewed-probe filters
+
 
 ## Tooling
 
