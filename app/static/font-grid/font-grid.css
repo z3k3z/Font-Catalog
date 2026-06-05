@@ -22,6 +22,10 @@
     grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
 }
 
+.font-grid--huge {
+    grid-template-columns: repeat(auto-fill, minmax(720px, 1fr));
+}
+
 .font-card {
     padding: 16px;
     background: #181818;
@@ -77,6 +81,10 @@
 
 .font-grid--large .font-sample {
     font-size: 52px;
+}
+
+.font-grid--huge .font-sample {
+    font-size: 86px;
 }
 
 .font-name {

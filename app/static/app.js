@@ -44,6 +44,7 @@ const cardGridPresentationElements = new RequiredDomElementSet({
     smallButton: "cardGridSizeSmallButton",
     mediumButton: "cardGridSizeMediumButton",
     largeButton: "cardGridSizeLargeButton",
+    hugeButton: "cardGridSizeHugeButton",
 }).elements;
 
 /* stand up and wire-in all our modules */

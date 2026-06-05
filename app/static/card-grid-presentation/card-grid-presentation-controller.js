@@ -3,6 +3,7 @@ export class CardGridPresentationController {
         SMALL: "small",
         MEDIUM: "medium",
         LARGE: "large",
+        HUGE: "huge",
     });
 
     constructor(elements) {
@@ -34,6 +35,10 @@ export class CardGridPresentationController {
         this._elements.largeButton.addEventListener("click", () => {
             this._setCardSize(CardGridPresentationController.CardSize.LARGE);
         });
+
+        this._elements.hugeButton.addEventListener("click", () => {
+            this._setCardSize(CardGridPresentationController.CardSize.HUGE);
+        });
     }
 
     _setCardSize(cardSize) {
@@ -63,6 +68,11 @@ export class CardGridPresentationController {
         this._elements.largeButton.classList.toggle(
             "card-grid-size-button--selected",
             this._cardSize === CardGridPresentationController.CardSize.LARGE
+        );
+
+        this._elements.hugeButton.classList.toggle(
+            "card-grid-size-button--selected",
+            this._cardSize === CardGridPresentationController.CardSize.HUGE
         );
     }
 }

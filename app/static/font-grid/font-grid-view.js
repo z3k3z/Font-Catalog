@@ -23,7 +23,12 @@ export class FontGridView {
     }
 
     setCardSize(cardSize) {
-        this._fontGridElement.classList.remove("font-grid--small", "font-grid--medium", "font-grid--large");
+        this._fontGridElement.classList.remove(
+            "font-grid--small",
+            "font-grid--medium",
+            "font-grid--large",
+            "font-grid--huge"
+        );
 
         this._fontGridElement.classList.add(`font-grid--${cardSize}`);
     }
