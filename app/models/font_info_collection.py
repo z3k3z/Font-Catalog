@@ -1,28 +1,25 @@
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
 from app.discovery.font_source_reference import FontSourceReference
 from app.models.font_info import FontInfo
-
-FontInfoKeyBuilder = Callable[[FontInfo], tuple[str, str, str]]
+from app.models.font_semantic_key import FontSemanticKey
 
 
 @dataclass
 class FontInfoCollection:
-    _keyBuilder: FontInfoKeyBuilder
     _fontInfos: list[FontInfo]
-    _keyedIndex: dict[tuple[str, str, str], FontInfo]
+    _keyedIndex: dict[FontSemanticKey, FontInfo]
     _fontInfosBySourceKey: dict[tuple[Path, int | None], list[FontInfo]]
 
-    def __init__(self, key_builder: FontInfoKeyBuilder) -> None:
-        self._keyBuilder = key_builder
+    def __init__(self) -> None:
         self._fontInfos = []
         self._keyedIndex = {}
         self._fontInfosBySourceKey = {}
 
     def insert(self, font_info: FontInfo) -> bool:
-        key: tuple[str, str, str] = self._keyBuilder(font_info)
+        key: FontSemanticKey = FontSemanticKey.from_font_info(font_info)
 
         fInserted: bool = False
 
@@ -55,7 +52,7 @@ class FontInfoCollection:
         return count
 
     def contains(self, font_info: FontInfo) -> bool:
-        key: tuple[str, str, str] = self._keyBuilder(font_info)
+        key: FontSemanticKey = FontSemanticKey.from_font_info(font_info)
         fContains: bool = key in self._keyedIndex
 
         return fContains
@@ -70,7 +67,7 @@ class FontInfoCollection:
         return fContains
 
     def get(self, font_info: FontInfo) -> FontInfo | None:
-        key: tuple[str, str, str] = self._keyBuilder(font_info)
+        key: FontSemanticKey = FontSemanticKey.from_font_info(font_info)
         existingFontInfo: FontInfo | None = self._keyedIndex.get(key)
 
         return existingFontInfo

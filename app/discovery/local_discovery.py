@@ -15,9 +15,7 @@ from app.models.result import Result
 class LocalDiscovery:
     def __init__(self, application_configuration: ApplicationConfiguration) -> None:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
-        self._fontCollection: FontInfoCollection = FontInfoCollection(
-            key_builder=self._build_font_identity_key
-        )
+        self._fontCollection: FontInfoCollection = FontInfoCollection()
 
     def discover_fonts(self) -> list[FontInfo]:
         count: int = 0
@@ -163,15 +161,3 @@ class LocalDiscovery:
         )
 
         return font_info
-
-    def _build_font_identity_key(
-        self,
-        font_info: FontInfo,
-    ) -> tuple[str, str, str]:
-        identity_key: tuple[str, str, str] = (
-            font_info.family_name.strip().casefold(),
-            font_info.style_name.strip().casefold(),
-            font_info.full_name.strip().casefold(),
-        )
-
-        return identity_key
