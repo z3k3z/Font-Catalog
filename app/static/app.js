@@ -80,6 +80,17 @@ _fontDetailView.setListeners({
 
         if (wasAdded) {
             _diags.emitDebugProbe(() => `Font liked: ${font.full_name}.`);
+            const url = `/api/fonts/${font.id}/tags`;
+            _diags.emitDebugProbe(() => `Target url: ${url}`);
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    tag_name: "Liked",
+                }),
+            });
         } else {
             _diags.emitDebugProbe(() => `Font already liked: ${font.full_name}.`);
         }

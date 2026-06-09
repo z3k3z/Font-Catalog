@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api_models.add_font_tag_request import AddFontTagRequest
 from app.api_models.font_response import FontResponse
 from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
 from app.application_configuration import ApplicationConfiguration
@@ -14,6 +15,9 @@ from app.discovery.local_discovery import LocalDiscovery
 from app.foundation.build_info import read_build_info
 from app.foundation.runtime_paths import get_static_root_path
 from app.models.font_info import FontInfo
+from app.models.font_semantic_key import FontSemanticKey
+from app.tags.font_tag_service import FontTagService
+from app.tags.font_tag_store import FontTagStore
 from catalog.font_catalog import CatalogFontRecord, FontCatalog
 
 _FRONTEND_DIAGNOSTIC_PREFIX: str = "[FRONTEND]"
@@ -24,6 +28,9 @@ class FontCatalogApp:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
         self._fontCatalog: FontCatalog = FontCatalog()
         self._staticRootPath: Path = get_static_root_path()
+        self._fontTagService: FontTagService = FontTagService(
+            FontTagStore(file_path=Path("./data/tags.json"))
+        )
 
     def create_fastapi_app(self) -> FastAPI:
         lifespan = self._create_lifespan_handler()
@@ -133,6 +140,14 @@ class FontCatalogApp:
             ),
         )
 
+        fastapi_app.add_api_route(
+            path="/api/fonts/{font_id}/tags",
+            endpoint=self._add_font_tag,
+            methods=["POST"],
+            summary="Assign a tag to a font",
+            description=("Associate a tag to the identified font."),
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -203,3 +218,14 @@ class FontCatalogApp:
         )
 
         return {"status": "accepted"}
+
+    def _add_font_tag(self, font_id: int, request: AddFontTagRequest) -> dict[str, str]:
+        font_record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
+        if font_record is None:
+            raise HTTPException(status_code=404, detail="Font id not found.")
+
+        font_key: FontSemanticKey = FontSemanticKey.from_font_info(font_record.font_info)
+
+        self._fontTagService.add_tag_to_font(tag_name=request.tag_name, font_key=font_key)
+
+        return {"status": "ok"}
