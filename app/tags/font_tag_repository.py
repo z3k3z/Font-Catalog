@@ -37,6 +37,8 @@ class TagRepositoryKey:
 
 
 class FontTagRepository:
+    _tags: dict[str, Tag]
+
     def __init__(self) -> None:
         # a dictionary of tags, keyed from the name of the tag, normalized.  Each Tag holds the font keys assigned to it
         self._tags: dict[str, Tag] = {}
