@@ -30,7 +30,7 @@ class NameRecordResult:
 
     def __init__(self, value: NameValue | None) -> None:
         self._has_value = False
-        if value != None:
+        if value is not None:
             self._value = value
             self._has_value = True
 
@@ -184,7 +184,7 @@ class FontMetadataExtractor:
             selected_mode = "first decodable fallback"
             result = self._read_first_available_value(nameRecordLookup)
 
-        if result.hasValue() and selected_mode != None:
+        if result.hasValue() and selected_mode is not None:
             emit_error_probe(
                 ProbeLevel.DEBUG,
                 lambda: (

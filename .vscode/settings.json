@@ -34,7 +34,14 @@
         "isort",
         "Likey",
         "Ñáéíóúüñ",
+        "pytest",
         "subkey",
+        "testpaths",
         "Þßæœøðþ"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
