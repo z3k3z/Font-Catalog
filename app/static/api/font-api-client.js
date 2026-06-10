@@ -38,4 +38,14 @@ export class FontApiClient {
 
         return fontFileUrl;
     }
+
+    async readFontTags(fontId) {
+        const response = await fetch(`/api/fonts/${fontId}/tags`);
+
+        if (!response.ok) {
+            throw new Error(`Failed to read font tags for ${fontId}: ${response.status}`);
+        }
+
+        return await response.json();
+    }
 }

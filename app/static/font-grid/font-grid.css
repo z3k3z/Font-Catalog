@@ -62,6 +62,15 @@
     transform: scale(1.025);
 }
 
+.font-card-tag-summary {
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.45rem;
+}
+
 .font-sample {
     margin-bottom: 12px;
     line-height: 1.2;

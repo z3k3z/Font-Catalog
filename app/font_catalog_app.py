@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api_models.add_font_tag_request import AddFontTagRequest
 from app.api_models.font_response import FontResponse
+from app.api_models.font_tag_response import FontTagResponse, FontTagsResponse
 from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
@@ -18,6 +19,7 @@ from app.models.font_info import FontInfo
 from app.models.font_semantic_key import FontSemanticKey
 from app.tags.font_tag_service import FontTagService
 from app.tags.font_tag_store import FontTagStore
+from app.tags.tag import Tag
 from catalog.font_catalog import CatalogFontRecord, FontCatalog
 
 _FRONTEND_DIAGNOSTIC_PREFIX: str = "[FRONTEND]"
@@ -148,6 +150,10 @@ class FontCatalogApp:
             description=("Associate a tag to the identified font."),
         )
 
+        fastapi_app.add_api_route(
+            path="/api/fonts/{font_id}/tags", endpoint=self._read_font_tags, methods=["GET"]
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -229,3 +235,14 @@ class FontCatalogApp:
         self._fontTagService.add_tag_to_font(tag_name=request.tag_name, font_key=font_key)
 
         return {"status": "ok"}
+
+    def _read_font_tags(self, font_id: int) -> FontTagsResponse:
+        font_record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
+        if font_record is None:
+            raise HTTPException(status_code=404, detail="Font id not found.")
+
+        font_key: FontSemanticKey = FontSemanticKey.from_font_info(font_record.font_info)
+
+        tags: list[Tag] = self._fontTagService.get_tags_for_font(font_key=font_key)
+
+        return FontTagsResponse(tags=[FontTagResponse(name=tag.name) for tag in tags])

@@ -17,6 +17,7 @@ export class FontGridView {
 
         for (const font of fonts) {
             const card = this._buildFontCard(font, sampleText);
+            this._hydrateCardTags(card, font);
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
@@ -126,6 +127,13 @@ export class FontGridView {
                 this._onFontSelected(font);
             }
         });
+
+        const tagSummaryElement = document.createElement("button");
+        tagSummaryElement.className = "font-card-tag-summary";
+        tagSummaryElement.textContent = "Tags 0";
+        tagSummaryElement.type = "button";
+
+        card.appendChild(tagSummaryElement);
         return card;
     }
 
@@ -152,5 +160,23 @@ export class FontGridView {
 
     _unmarkCardSelected(card) {
         card.classList.remove("font-card--selected");
+    }
+
+    async _hydrateCardTags(cardElement, font) {
+        const tagSummaryElement = cardElement.querySelector(".font-card-tag-summary");
+
+        if (tagSummaryElement === null) {
+            return;
+        }
+
+        try {
+            const response = await this._fontLoader._fontApiClient.readFontTags(font.id);
+            const tagNames = response.tags.map((tag) => tag.name);
+
+            tagSummaryElement.textContent = `Tags ${tagNames.length}`;
+            tagSummaryElement.title = tagNames.join("\n");
+        } catch (error) {
+            this._diags.error(() => `Failed to hydrate card tags: ${error}`);
+        }
     }
 }
