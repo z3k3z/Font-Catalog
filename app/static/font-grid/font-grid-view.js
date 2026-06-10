@@ -93,11 +93,26 @@ export class FontGridView {
                 const tags = await this._tagLoader.loadTagsForFont(font.id);
                 const tagNames = tags.map((tag) => tag.name);
 
-                tagSummaryElement.textContent = `Tags ${tagNames.length}`;
-                tagSummaryElement.title = tagNames.join("\n");
+                this._updateCardTagSummary(tagSummaryElement, tagNames);
             } catch (error) {
                 _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
             }
+        }
+    }
+
+    _updateCardTagSummary(tagSummaryElement, tagNames) {
+        const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
+
+        if (tagCountElement === null) {
+            _diags.emitWarningProbe(() => "Font card tag summary did not contain a tag count element.");
+        } else if (tagNames.length === 0) {
+            tagSummaryElement.classList.remove("has-tags");
+            tagSummaryElement.title = "No tags assigned";
+            tagCountElement.textContent = "";
+        } else {
+            tagSummaryElement.classList.add("has-tags");
+            tagSummaryElement.title = tagNames.join("\n");
+            tagCountElement.textContent = `${tagNames.length}`;
         }
     }
 
@@ -152,10 +167,20 @@ export class FontGridView {
 
         const tagSummaryElement = document.createElement("button");
         tagSummaryElement.className = "font-card-tag-summary";
-        tagSummaryElement.textContent = "Tags 0";
         tagSummaryElement.type = "button";
+        tagSummaryElement.title = "No tags assigned";
 
+        const tagIconElement = document.createElement("span");
+        tagIconElement.className = "font-card-tag-icon";
+        tagIconElement.textContent = "🏷";
+
+        const tagCountElement = document.createElement("span");
+        tagCountElement.className = "font-card-tag-count";
+
+        tagSummaryElement.appendChild(tagIconElement);
+        tagSummaryElement.appendChild(tagCountElement);
         card.appendChild(tagSummaryElement);
+
         return card;
     }
 

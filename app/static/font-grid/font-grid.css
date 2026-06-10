@@ -63,12 +63,34 @@
 }
 
 .font-card-tag-summary {
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
+    align-items: center;
     background: transparent;
+    border: none;
+    color: inherit;
     cursor: pointer;
+    display: inline-flex;
+    gap: 0.25rem;
+    line-height: 1;
+    opacity: 0.35;
+    padding: 0.15rem 0.25rem;
+}
+
+.font-card-tag-summary.has-tags {
+    opacity: 1;
+}
+
+.font-card-tag-summary:hover {
+    opacity: 1;
+}
+
+.font-card-tag-icon {
+    font-size: 1.5rem;
+}
+
+.font-card-tag-count {
+    color: inherit;
     font-size: 0.75rem;
-    padding: 0.15rem 0.45rem;
+    font-weight: 600;
 }
 
 .font-sample {
