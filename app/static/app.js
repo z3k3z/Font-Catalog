@@ -7,6 +7,7 @@ import { FrontendDiagnosticSession } from "./diagnostics/frontend-diagnostic-ses
 import { FontDetailView } from "./font-detail/font-detail-view.js";
 import { FontGridView } from "./font-grid/font-grid-view.js";
 import { FontLoader } from "./font-grid/font-loader.js";
+import { TagLoader } from "./font-grid/tag-loader.js";
 import { RequiredDomElementSet } from "./foundation/required-dom-element-set.js";
 import { RequiredDomElement } from "./foundation/required-dom-element.js";
 import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
@@ -54,8 +55,9 @@ const _frontendDiagnosticReporter = new FrontendDiagnosticReporter(_frontendDiag
 _frontendDiagnosticReporter.reportSessionStarted();
 
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
+const _tagLoader = new TagLoader(_fontApiClient);
 const _cardGridPresentationController = new CardGridPresentationController(cardGridPresentationElements);
-const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader);
+const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader, _tagLoader);
 const _fontSearch = new FontSearch();
 const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
 

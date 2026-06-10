@@ -1,10 +1,11 @@
 import { _diags } from "../diagnostics/diagnostics.js";
 
 export class FontGridView {
-    constructor(fontGridElement, fontCountElement, fontLoader) {
+    constructor(fontGridElement, fontCountElement, fontLoader, tagLoader) {
         this._fontGridElement = fontGridElement;
         this._fontCountElement = fontCountElement;
         this._fontLoader = fontLoader;
+        this._tagLoader = tagLoader;
         this._fontObserver = this._createFontObserver();
         this._onFontSelected = null;
         this._selectedCard = null;
@@ -17,7 +18,7 @@ export class FontGridView {
 
         for (const font of fonts) {
             const card = this._buildFontCard(font, sampleText);
-            this._hydrateCardTags(card, font);
+            this._loadTagsForCard(card);
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
@@ -77,6 +78,27 @@ export class FontGridView {
             }
         }
         this._fontObserver.unobserve(card);
+    }
+
+    async _loadTagsForCard(card) {
+        const font = card._fontRecord;
+        const tagSummaryElement = card.querySelector(".font-card-tag-summary");
+
+        if (font === undefined) {
+            _diags.emitWarningProbe(() => "Visible font card did not have an associated font record.");
+        } else if (tagSummaryElement == undefined) {
+            _diags.emitWarningProbe(() => "Visible font card did not have a tagSummaryElement.");
+        } else {
+            try {
+                const tags = await this._tagLoader.loadTagsForFont(font.id);
+                const tagNames = tags.map((tag) => tag.name);
+
+                tagSummaryElement.textContent = `Tags ${tagNames.length}`;
+                tagSummaryElement.title = tagNames.join("\n");
+            } catch (error) {
+                _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
+            }
+        }
     }
 
     _applyLoadedFontToCard(card, font) {
@@ -160,23 +182,5 @@ export class FontGridView {
 
     _unmarkCardSelected(card) {
         card.classList.remove("font-card--selected");
-    }
-
-    async _hydrateCardTags(cardElement, font) {
-        const tagSummaryElement = cardElement.querySelector(".font-card-tag-summary");
-
-        if (tagSummaryElement === null) {
-            return;
-        }
-
-        try {
-            const response = await this._fontLoader._fontApiClient.readFontTags(font.id);
-            const tagNames = response.tags.map((tag) => tag.name);
-
-            tagSummaryElement.textContent = `Tags ${tagNames.length}`;
-            tagSummaryElement.title = tagNames.join("\n");
-        } catch (error) {
-            this._diags.error(() => `Failed to hydrate card tags: ${error}`);
-        }
     }
 }
