@@ -139,6 +139,12 @@
     text-transform: uppercase;
 }
 
+.font-card-tag-popover-empty {
+    color: #888;
+    font-style: italic;
+    padding: 2px 0;
+}
+
 .font-card-tag-add-editor {
     border-top: 1px solid #3a3a3a;
     display: flex;

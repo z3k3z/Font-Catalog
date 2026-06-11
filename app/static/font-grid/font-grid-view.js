@@ -109,31 +109,29 @@ export class FontGridView {
             return;
         }
 
-        if (tagNames.length === 0) {
-            tagSummaryElement.classList.remove("has-tags");
-            tagSummaryElement.title = "";
-            tagCountElement.textContent = "";
-            tagPopoverElement.textContent = "No tags assigned";
-            return;
-        }
-
-        const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
-
-        tagSummaryElement.classList.add("has-tags");
-        tagSummaryElement.title = "";
-        tagCountElement.textContent = `${sortedTagNames.length}`;
-        tagPopoverElement.innerHTML = "";
-
         const titleElement = document.createElement("div");
         titleElement.className = "font-card-tag-popover-title";
         titleElement.textContent = "Tags";
+        tagPopoverElement.innerHTML = "";
         tagPopoverElement.appendChild(titleElement);
 
-        for (const tagName of sortedTagNames) {
-            const tagElement = document.createElement("div");
-            tagElement.className = "font-card-tag-popover-item";
-            tagElement.textContent = tagName;
-            tagPopoverElement.appendChild(tagElement);
+        if (tagNames.length > 0) {
+            const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
+            tagSummaryElement.classList.add("has-tags");
+            tagSummaryElement.title = "";
+            tagCountElement.textContent = `${sortedTagNames.length}`;
+
+            for (const tagName of sortedTagNames) {
+                const tagElement = document.createElement("div");
+                tagElement.className = "font-card-tag-popover-item";
+                tagElement.textContent = tagName;
+                tagPopoverElement.appendChild(tagElement);
+            }
+        } else {
+            const emptyElement = document.createElement("div");
+            emptyElement.className = "font-card-tag-popover-empty";
+            emptyElement.textContent = "(none assigned)";
+            tagPopoverElement.appendChild(emptyElement);
         }
 
         const addTagEditorElement = document.createElement("div");
