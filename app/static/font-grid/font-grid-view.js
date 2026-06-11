@@ -126,18 +126,7 @@ export class FontGridView {
 
         const titleElement = document.createElement("div");
         titleElement.className = "font-card-tag-popover-title";
-
-        const titleTextElement = document.createElement("span");
-        titleTextElement.textContent = "Tags";
-
-        const addTagButton = document.createElement("button");
-        addTagButton.className = "font-card-tag-add-button";
-        addTagButton.type = "button";
-        addTagButton.textContent = "+";
-        addTagButton.title = "Add tag";
-
-        titleElement.appendChild(titleTextElement);
-        titleElement.appendChild(addTagButton);
+        titleElement.textContent = "Tags";
         tagPopoverElement.appendChild(titleElement);
 
         for (const tagName of sortedTagNames) {
@@ -163,13 +152,6 @@ export class FontGridView {
         addTagEditorElement.appendChild(addTagInputElement);
         addTagEditorElement.appendChild(addTagCommitButton);
         tagPopoverElement.appendChild(addTagEditorElement);
-
-        addTagButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-
-            addTagEditorElement.classList.remove("hidden");
-            addTagInputElement.focus();
-        });
 
         const commitTagAdd = async () => {
             const tagName = addTagInputElement.value.trim();

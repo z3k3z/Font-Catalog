@@ -126,12 +126,9 @@
 }
 
 .font-card-tag-popover-title {
-    align-items: center;
     border-bottom: 1px solid #3a3a3a;
     color: #aaa;
-    display: flex;
     font-size: 11px;
-    justify-content: space-between;
     margin-bottom: 6px;
     padding-bottom: 4px;
     text-transform: uppercase;
@@ -143,35 +140,6 @@
     position: absolute;
     right: -10px;
     z-index: 20;
-}
-
-.font-card-tag-add-button {
-    align-items: center;
-    background: transparent;
-    border: 1px solid #555;
-    border-radius: 999px;
-    border-color: #3d7a3d;
-    color: #72c472;
-    cursor: pointer;
-    display: inline-flex;
-    font-size: 12px;
-    font-weight: 600;
-    height: 18px;
-    justify-content: center;
-    line-height: 1;
-    padding: 0;
-    width: 18px;
-
-    transition:
-        border-color 140ms ease,
-        color 140ms ease,
-        background-color 140ms ease;
-}
-
-.font-card-tag-add-button:hover {
-    background-color: rgba(114, 196, 114, 0.12);
-    border-color: #8ad88a;
-    color: #a0f0a0;
 }
 
 .font-card-tag-add-editor {
