@@ -142,6 +142,7 @@ export class FontGridView {
 
         addTagButton.addEventListener("click", (event) => {
             event.stopPropagation();
+            _diags.emitTraceProbe(() => "Add tag requested.");
             // later: open add-tag editor
         });
 
@@ -217,6 +218,10 @@ export class FontGridView {
         );
 
         tagPopoverZoneElement.addEventListener("click", (event) => {
+            event.stopPropagation();
+        });
+
+        tagSummaryElement.addEventListener("click", (event) => {
             event.stopPropagation();
         });
 

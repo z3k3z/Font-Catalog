@@ -142,19 +142,32 @@
 }
 
 .font-card-tag-add-button {
+    align-items: center;
     background: transparent;
     border: 1px solid #555;
     border-radius: 999px;
-    color: inherit;
+    border-color: #3d7a3d;
+    color: #72c472;
     cursor: pointer;
+    display: inline-flex;
     font-size: 12px;
+    font-weight: 600;
+    height: 18px;
+    justify-content: center;
     line-height: 1;
-    padding: 0 5px;
+    padding: 0;
+    width: 18px;
+
+    transition:
+        border-color 140ms ease,
+        color 140ms ease,
+        background-color 140ms ease;
 }
 
 .font-card-tag-add-button:hover {
-    border-color: #888;
-    color: #eee;
+    background-color: rgba(114, 196, 114, 0.12);
+    border-color: #8ad88a;
+    color: #a0f0a0;
 }
 
 .font-card-tag-popover-item {
