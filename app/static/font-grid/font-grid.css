@@ -113,6 +113,11 @@
     padding: 8px;
     text-align: left;
     white-space: nowrap;
+    bottom: -8px;
+    padding: 8px;
+    position: absolute;
+    right: -8px;
+    z-index: 20;
 
     opacity: 0;
     pointer-events: none;
@@ -132,14 +137,6 @@
     margin-bottom: 6px;
     padding-bottom: 4px;
     text-transform: uppercase;
-}
-
-.font-card-tag-popover-zone {
-    bottom: -8px;
-    padding: 8px;
-    position: absolute;
-    right: -8px;
-    z-index: 20;
 }
 
 .font-card-tag-add-editor {
@@ -177,7 +174,7 @@
     opacity: 0.35;
 }
 
-.font-card-tag-add-commit-button:hover {
+.font-card-tag-add-commit-button:hover:not(.font-card-tag-add-commit-button:disabled) {
     background-color: rgba(114, 196, 114, 0.18);
     border-color: #8ad88a;
     color: #a0f0a0;
