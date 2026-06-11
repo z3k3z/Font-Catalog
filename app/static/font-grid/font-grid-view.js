@@ -136,21 +136,40 @@ export class FontGridView {
         card.dataset.fontId = String(font.id);
         card._fontRecord = font;
 
-        const sample = document.createElement("div");
-        sample.className = "font-sample";
-        sample.textContent = sampleText;
+        const sampleElement = document.createElement("div");
+        sampleElement.className = "font-sample";
+        sampleElement.textContent = sampleText;
         if (this._fontLoader.hasFontFaceRegistered(font)) {
-            sample.style.fontFamily = `"${this._fontLoader.buildFontCssFamily(font)}", sans-serif`;
+            sampleElement.style.fontFamily = `"${this._fontLoader.buildFontCssFamily(font)}", sans-serif`;
         } else {
-            sample.style.fontFamily = "system-ui, sans-serif";
+            sampleElement.style.fontFamily = "system-ui, sans-serif";
         }
 
-        const name = document.createElement("div");
-        name.className = "font-name";
-        name.textContent = `${font.id} — ${font.full_name}`;
+        const nameElement = document.createElement("div");
+        nameElement.className = "font-name";
+        nameElement.textContent = `${font.id} — ${font.full_name}`;
 
-        card.appendChild(sample);
-        card.appendChild(name);
+        const tagSummaryElement = document.createElement("button");
+        tagSummaryElement.className = "font-card-tag-summary";
+        tagSummaryElement.type = "button";
+        tagSummaryElement.title = "No tags assigned";
+
+        const tagIconElement = document.createElement("span");
+        tagIconElement.className = "font-card-tag-icon";
+        tagIconElement.textContent = "🏷";
+
+        const tagCountElement = document.createElement("span");
+        tagCountElement.className = "font-card-tag-count";
+
+        this._placeCardElements(
+            card,
+            sampleElement,
+            nameElement,
+            tagSummaryElement,
+            tagIconElement,
+            tagCountElement
+        );
+
         card.addEventListener("click", () => {
             if (this._isCardFontLoadFailed(card)) {
                 return;
@@ -165,23 +184,32 @@ export class FontGridView {
             }
         });
 
-        const tagSummaryElement = document.createElement("button");
-        tagSummaryElement.className = "font-card-tag-summary";
-        tagSummaryElement.type = "button";
-        tagSummaryElement.title = "No tags assigned";
+        return card;
+    }
 
-        const tagIconElement = document.createElement("span");
-        tagIconElement.className = "font-card-tag-icon";
-        tagIconElement.textContent = "🏷";
+    _placeCardElements(
+        card,
+        sampleElement,
+        nameElement,
+        tagSummaryElement,
+        tagIconElement,
+        tagCountElement
+    ) {
+        const sampleRegion = document.createElement("div");
+        sampleRegion.className = "font-card-sample-region";
+        sampleRegion.appendChild(sampleElement);
 
-        const tagCountElement = document.createElement("span");
-        tagCountElement.className = "font-card-tag-count";
+        const footer = document.createElement("div");
+        footer.className = "font-card-footer";
+
+        footer.appendChild(nameElement);
 
         tagSummaryElement.appendChild(tagIconElement);
         tagSummaryElement.appendChild(tagCountElement);
-        card.appendChild(tagSummaryElement);
+        footer.appendChild(tagSummaryElement);
 
-        return card;
+        card.appendChild(sampleRegion);
+        card.appendChild(footer);
     }
 
     _markCardFontLoadFailed(card) {
