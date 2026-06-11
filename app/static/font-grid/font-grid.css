@@ -148,6 +148,7 @@
     gap: 6px;
     margin-top: 8px;
     padding-top: 8px;
+    align-items: center;
 }
 
 .font-card-tag-add-input {
@@ -158,6 +159,7 @@
     font-size: 12px;
     min-width: 120px;
     padding: 4px 6px;
+    flex: 1 1 auto;
 }
 
 .font-card-tag-add-commit-button {

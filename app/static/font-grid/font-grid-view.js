@@ -137,6 +137,7 @@ export class FontGridView {
         }
 
         const addTagEditorElement = document.createElement("div");
+        addTagEditorElement.className = "font-card-tag-add-editor";
         const addTagInputElement = document.createElement("input");
         addTagInputElement.className = "font-card-tag-add-input";
         addTagInputElement.type = "text";
