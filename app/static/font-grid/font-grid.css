@@ -170,6 +170,11 @@
     padding: 4px 8px;
 }
 
+.font-card-tag-add-commit-button:disabled {
+    cursor: default;
+    opacity: 0.35;
+}
+
 .font-card-tag-add-commit-button:hover {
     background-color: rgba(114, 196, 114, 0.18);
     border-color: #8ad88a;

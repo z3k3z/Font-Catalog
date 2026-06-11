@@ -137,8 +137,6 @@ export class FontGridView {
         }
 
         const addTagEditorElement = document.createElement("div");
-        addTagEditorElement.className = "font-card-tag-add-editor hidden";
-
         const addTagInputElement = document.createElement("input");
         addTagInputElement.className = "font-card-tag-add-input";
         addTagInputElement.type = "text";
@@ -169,7 +167,6 @@ export class FontGridView {
             this._updateCardTagSummary(tagSummaryElement, tagNames);
 
             addTagInputElement.value = "";
-            addTagEditorElement.classList.add("hidden");
         };
 
         addTagCommitButton.addEventListener("click", async (event) => {
@@ -183,6 +180,13 @@ export class FontGridView {
                 await commitTagAdd();
             }
         });
+
+        const updateAddButtonState = () => {
+            addTagCommitButton.disabled = addTagInputElement.value.trim() === "";
+        };
+
+        addTagInputElement.addEventListener("input", updateAddButtonState);
+        updateAddButtonState();
     }
 
     _applyLoadedFontToCard(card, font) {
