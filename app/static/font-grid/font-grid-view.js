@@ -126,8 +126,24 @@ export class FontGridView {
 
         const titleElement = document.createElement("div");
         titleElement.className = "font-card-tag-popover-title";
-        titleElement.textContent = "Tags";
+
+        const titleTextElement = document.createElement("span");
+        titleTextElement.textContent = "Tags";
+
+        const addTagButton = document.createElement("button");
+        addTagButton.className = "font-card-tag-add-button";
+        addTagButton.type = "button";
+        addTagButton.textContent = "+";
+        addTagButton.title = "Add tag";
+
+        titleElement.appendChild(titleTextElement);
+        titleElement.appendChild(addTagButton);
         tagPopoverElement.appendChild(titleElement);
+
+        addTagButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+            // later: open add-tag editor
+        });
 
         for (const tagName of sortedTagNames) {
             const tagElement = document.createElement("div");

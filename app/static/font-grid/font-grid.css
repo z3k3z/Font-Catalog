@@ -127,12 +127,31 @@
 }
 
 .font-card-tag-popover-title {
+    align-items: center;
     border-bottom: 1px solid #3a3a3a;
     color: #aaa;
+    display: flex;
     font-size: 11px;
+    justify-content: space-between;
     margin-bottom: 6px;
     padding-bottom: 4px;
     text-transform: uppercase;
+}
+
+.font-card-tag-add-button {
+    background: transparent;
+    border: 1px solid #555;
+    border-radius: 999px;
+    color: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.font-card-tag-add-button:hover {
+    border-color: #888;
+    color: #eee;
 }
 
 .font-card-tag-popover-item {
