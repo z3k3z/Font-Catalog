@@ -195,6 +195,9 @@ export class FontGridView {
         tagPopoverElement.className = "font-card-tag-popover";
         tagPopoverElement.textContent = "No tags assigned";
 
+        const tagPopoverZoneElement = document.createElement("div");
+        tagPopoverZoneElement.className = "font-card-tag-popover-zone";
+
         const tagIconElement = document.createElement("span");
         tagIconElement.className = "font-card-tag-icon";
         tagIconElement.textContent = "🏷";
@@ -207,10 +210,15 @@ export class FontGridView {
             sampleElement,
             nameElement,
             tagSummaryElement,
+            tagPopoverZoneElement,
             tagPopoverElement,
             tagIconElement,
             tagCountElement
         );
+
+        tagPopoverZoneElement.addEventListener("click", (event) => {
+            event.stopPropagation();
+        });
 
         card.addEventListener("click", () => {
             if (this._isCardFontLoadFailed(card)) {
@@ -234,6 +242,7 @@ export class FontGridView {
         sampleElement,
         nameElement,
         tagSummaryElement,
+        tagPopoverZoneElement,
         tagPopoverElement,
         tagIconElement,
         tagCountElement
@@ -249,7 +258,8 @@ export class FontGridView {
 
         tagSummaryElement.appendChild(tagIconElement);
         tagSummaryElement.appendChild(tagCountElement);
-        tagSummaryElement.appendChild(tagPopoverElement);
+        tagSummaryElement.appendChild(tagPopoverZoneElement);
+        tagPopoverZoneElement.appendChild(tagPopoverElement);
         footer.appendChild(tagSummaryElement);
 
         card.appendChild(sampleRegion);
