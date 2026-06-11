@@ -102,17 +102,38 @@ export class FontGridView {
 
     _updateCardTagSummary(tagSummaryElement, tagNames) {
         const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
+        const tagPopoverElement = tagSummaryElement.querySelector(".font-card-tag-popover");
 
-        if (tagCountElement === null) {
-            _diags.emitWarningProbe(() => "Font card tag summary did not contain a tag count element.");
-        } else if (tagNames.length === 0) {
+        if (tagCountElement === null || tagPopoverElement === null) {
+            _diags.emitWarningProbe(() => "Font card tag summary did not contain expected child elements.");
+            return;
+        }
+
+        if (tagNames.length === 0) {
             tagSummaryElement.classList.remove("has-tags");
-            tagSummaryElement.title = "No tags assigned";
+            tagSummaryElement.title = "";
             tagCountElement.textContent = "";
-        } else {
-            tagSummaryElement.classList.add("has-tags");
-            tagSummaryElement.title = tagNames.join("\n");
-            tagCountElement.textContent = `${tagNames.length}`;
+            tagPopoverElement.textContent = "No tags assigned";
+            return;
+        }
+
+        const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
+
+        tagSummaryElement.classList.add("has-tags");
+        tagSummaryElement.title = "";
+        tagCountElement.textContent = `${sortedTagNames.length}`;
+        tagPopoverElement.innerHTML = "";
+
+        const titleElement = document.createElement("div");
+        titleElement.className = "font-card-tag-popover-title";
+        titleElement.textContent = "Tags";
+        tagPopoverElement.appendChild(titleElement);
+
+        for (const tagName of sortedTagNames) {
+            const tagElement = document.createElement("div");
+            tagElement.className = "font-card-tag-popover-item";
+            tagElement.textContent = tagName;
+            tagPopoverElement.appendChild(tagElement);
         }
     }
 
@@ -154,6 +175,10 @@ export class FontGridView {
         tagSummaryElement.type = "button";
         tagSummaryElement.title = "No tags assigned";
 
+        const tagPopoverElement = document.createElement("div");
+        tagPopoverElement.className = "font-card-tag-popover";
+        tagPopoverElement.textContent = "No tags assigned";
+
         const tagIconElement = document.createElement("span");
         tagIconElement.className = "font-card-tag-icon";
         tagIconElement.textContent = "🏷";
@@ -166,6 +191,7 @@ export class FontGridView {
             sampleElement,
             nameElement,
             tagSummaryElement,
+            tagPopoverElement,
             tagIconElement,
             tagCountElement
         );
@@ -192,6 +218,7 @@ export class FontGridView {
         sampleElement,
         nameElement,
         tagSummaryElement,
+        tagPopoverElement,
         tagIconElement,
         tagCountElement
     ) {
@@ -206,6 +233,7 @@ export class FontGridView {
 
         tagSummaryElement.appendChild(tagIconElement);
         tagSummaryElement.appendChild(tagCountElement);
+        tagSummaryElement.appendChild(tagPopoverElement);
         footer.appendChild(tagSummaryElement);
 
         card.appendChild(sampleRegion);
