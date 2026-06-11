@@ -93,14 +93,14 @@ export class FontGridView {
                 const tags = await this._tagLoader.loadTagsForFont(font.id);
                 const tagNames = tags.map((tag) => tag.name);
 
-                this._updateCardTagSummary(tagSummaryElement, tagNames);
+                this._updateCardTagSummary(tagSummaryElement, tagNames, font);
             } catch (error) {
                 _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
             }
         }
     }
 
-    _updateCardTagSummary(tagSummaryElement, tagNames) {
+    _updateCardTagSummary(tagSummaryElement, tagNames, font) {
         const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
         const tagPopoverElement = tagSummaryElement.querySelector(".font-card-tag-popover");
 
@@ -140,18 +140,67 @@ export class FontGridView {
         titleElement.appendChild(addTagButton);
         tagPopoverElement.appendChild(titleElement);
 
-        addTagButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-            _diags.emitDebugProbe(() => "Add tag requested.");
-            // later: open add-tag editor
-        });
-
         for (const tagName of sortedTagNames) {
             const tagElement = document.createElement("div");
             tagElement.className = "font-card-tag-popover-item";
             tagElement.textContent = tagName;
             tagPopoverElement.appendChild(tagElement);
         }
+
+        const addTagEditorElement = document.createElement("div");
+        addTagEditorElement.className = "font-card-tag-add-editor hidden";
+
+        const addTagInputElement = document.createElement("input");
+        addTagInputElement.className = "font-card-tag-add-input";
+        addTagInputElement.type = "text";
+        addTagInputElement.placeholder = "Tag name";
+
+        const addTagCommitButton = document.createElement("button");
+        addTagCommitButton.className = "font-card-tag-add-commit-button";
+        addTagCommitButton.type = "button";
+        addTagCommitButton.textContent = "Add";
+
+        addTagEditorElement.appendChild(addTagInputElement);
+        addTagEditorElement.appendChild(addTagCommitButton);
+        tagPopoverElement.appendChild(addTagEditorElement);
+
+        addTagButton.addEventListener("click", (event) => {
+            event.stopPropagation();
+
+            addTagEditorElement.classList.remove("hidden");
+            addTagInputElement.focus();
+        });
+
+        const commitTagAdd = async () => {
+            const tagName = addTagInputElement.value.trim();
+
+            if (tagName === "") {
+                return;
+            }
+
+            await this._tagLoader.addTagToFont(font.id, tagName);
+            this._tagLoader.invalidateFont(font.id);
+
+            const tags = await this._tagLoader.loadTagsForFont(font.id);
+            const tagNames = tags.map((tag) => tag.name);
+
+            this._updateCardTagSummary(tagSummaryElement, tagNames);
+
+            addTagInputElement.value = "";
+            addTagEditorElement.classList.add("hidden");
+        };
+
+        addTagCommitButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            await commitTagAdd();
+        });
+
+        addTagInputElement.addEventListener("keydown", async (event) => {
+            if (event.key === "Enter") {
+                event.stopPropagation();
+                await commitTagAdd();
+            }
+        });
     }
 
     _applyLoadedFontToCard(card, font) {

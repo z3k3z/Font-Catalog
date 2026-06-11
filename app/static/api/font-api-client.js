@@ -48,4 +48,16 @@ export class FontApiClient {
 
         return await response.json();
     }
+
+    async addTagToFont(fontId, tagName) {
+        const response = await fetch(`/api/fonts/${fontId}/tags`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tag_name: tagName }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to add tag '${tagName}' to font ${fontId}: ${response.status}`);
+        }
+    }
 }

@@ -19,6 +19,11 @@ export class TagLoader {
         return tags;
     }
 
+    async addTagToFont(fontId, tagName) {
+        await this._fontApiClient.addTagToFont(fontId, tagName);
+        this.invalidateFont(fontId);
+    }
+
     invalidateFont(fontId) {
         this._tagCacheByFontId.delete(fontId);
     }
