@@ -8,7 +8,7 @@ export class CardGridPresentationController {
 
     constructor(elements) {
         this._elements = elements;
-        this._cardSize = CardGridPresentationController.CardSize.MEDIUM;
+        this._cardSize = CardGridPresentationController.CardSize.LARGE;
         this._onCardSizeChanged = null;
 
         this._configureEvents();
