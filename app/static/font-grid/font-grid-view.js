@@ -113,26 +113,29 @@ export class FontGridView {
         titleElement.className = "font-card-tag-popover-title";
         titleElement.textContent = "Tags";
         tagPopoverElement.innerHTML = "";
-        tagPopoverElement.appendChild(titleElement);
 
-        if (tagNames.length > 0) {
+        const tagChipContainer = document.createElement("div");
+        tagChipContainer.className = "font-card-tag-chip-container";
+
+        if (tagNames.length === 0) {
+            const emptyChip = document.createElement("span");
+            emptyChip.className = "font-card-tag-chip font-card-tag-chip--empty";
+            emptyChip.textContent = "(none assigned)";
+            tagChipContainer.appendChild(emptyChip);
+        } else {
             const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
             tagSummaryElement.classList.add("has-tags");
             tagSummaryElement.title = "";
             tagCountElement.textContent = `${sortedTagNames.length}`;
 
             for (const tagName of sortedTagNames) {
-                const tagElement = document.createElement("div");
-                tagElement.className = "font-card-tag-popover-item";
-                tagElement.textContent = tagName;
-                tagPopoverElement.appendChild(tagElement);
+                const tagChip = document.createElement("span");
+                tagChip.className = "font-card-tag-chip";
+                tagChip.textContent = tagName;
+                tagChipContainer.appendChild(tagChip);
             }
-        } else {
-            const emptyElement = document.createElement("div");
-            emptyElement.className = "font-card-tag-popover-empty";
-            emptyElement.textContent = "(none assigned)";
-            tagPopoverElement.appendChild(emptyElement);
         }
+        tagPopoverElement.appendChild(tagChipContainer);
 
         const addTagEditorElement = document.createElement("div");
         addTagEditorElement.className = "font-card-tag-add-editor";
