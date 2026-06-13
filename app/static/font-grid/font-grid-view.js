@@ -93,14 +93,14 @@ export class FontGridView {
                 const tags = await this._tagLoader.loadTagsForFont(font.id);
                 const tagNames = tags.map((tag) => tag.name);
 
-                this._updateCardTagSummary(tagSummaryElement, tagNames, font);
+                this._updateCardTagSummary(tagSummaryElement, tagNames, font.id);
             } catch (error) {
                 _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
             }
         }
     }
 
-    _updateCardTagSummary(tagSummaryElement, tagNames, font) {
+    _updateCardTagSummary(tagSummaryElement, tagNames, fontId) {
         const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
         const tagPopoverElement = tagSummaryElement.querySelector(".font-card-tag-popover");
 
@@ -160,13 +160,13 @@ export class FontGridView {
                 return;
             }
 
-            await this._tagLoader.addTagToFont(font.id, tagName);
-            this._tagLoader.invalidateFont(font.id);
+            await this._tagLoader.addTagToFont(fontId, tagName);
+            this._tagLoader.invalidateFont(fontId);
 
-            const tags = await this._tagLoader.loadTagsForFont(font.id);
+            const tags = await this._tagLoader.loadTagsForFont(fontId);
             const tagNames = tags.map((tag) => tag.name);
 
-            this._updateCardTagSummary(tagSummaryElement, tagNames);
+            this._updateCardTagSummary(tagSummaryElement, tagNames, fontId);
 
             addTagInputElement.value = "";
         };
