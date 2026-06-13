@@ -60,4 +60,13 @@ export class FontApiClient {
             throw new Error(`Failed to add tag '${tagName}' to font ${fontId}: ${response.status}`);
         }
     }
+
+    async removeTagFromFont(fontId, tagName) {
+        const encodedTagName = encodeURIComponent(tagName);
+        const response = await fetch(`/api/fonts/${fontId}/tags/${encodedTagName}`, { method: "DELETE" });
+
+        if (!response.ok) {
+            throw new Error(`Failed to remove tag '${tagName}' from font ${fontId}: ${response.status}`);
+        }
+    }
 }

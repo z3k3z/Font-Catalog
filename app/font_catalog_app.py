@@ -154,6 +154,10 @@ class FontCatalogApp:
             path="/api/fonts/{font_id}/tags", endpoint=self._read_font_tags, methods=["GET"]
         )
 
+        fastapi_app.add_api_route(
+            path="/api/fonts/{font_id}/tags/{tag_name}", endpoint=self._remove_font_tag, methods=["DELETE"]
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -246,3 +250,14 @@ class FontCatalogApp:
         tags: list[Tag] = self._fontTagService.get_tags_for_font(font_key=font_key)
 
         return FontTagsResponse(tags=[FontTagResponse(name=tag.name) for tag in tags])
+
+    def _remove_font_tag(self, font_id: int, tag_name: str) -> dict[str, str]:
+        font_record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
+        if font_record is None:
+            raise HTTPException(status_code=404, detail="Font id not found.")
+
+        font_key: FontSemanticKey = FontSemanticKey.from_font_info(font_record.font_info)
+
+        self._fontTagService.remove_tag_from_font(tag_name=tag_name, font_key=font_key)
+
+        return {"status": "ok"}

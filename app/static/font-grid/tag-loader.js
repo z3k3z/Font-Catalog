@@ -27,4 +27,9 @@ export class TagLoader {
     invalidateFont(fontId) {
         this._tagCacheByFontId.delete(fontId);
     }
+
+    async removeTagFromFont(fontId, tagName) {
+        await this._fontApiClient.removeTagFromFont(fontId, tagName);
+        this.invalidateFont(fontId);
+    }
 }

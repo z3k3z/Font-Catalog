@@ -131,7 +131,29 @@ export class FontGridView {
             for (const tagName of sortedTagNames) {
                 const tagChip = document.createElement("span");
                 tagChip.className = "font-card-tag-chip";
-                tagChip.textContent = tagName;
+
+                const tagNameElement = document.createElement("span");
+                tagNameElement.textContent = tagName;
+
+                const removeButton = document.createElement("button");
+                removeButton.className = "font-card-tag-chip-remove";
+                removeButton.type = "button";
+                removeButton.textContent = "×";
+                removeButton.title = `Remove ${tagName}`;
+
+                removeButton.addEventListener("click", async (event) => {
+                    event.stopPropagation();
+
+                    await this._tagLoader.removeTagFromFont(fontId, tagName);
+
+                    const tags = await this._tagLoader.loadTagsForFont(fontId);
+                    const tagNames = tags.map((tag) => tag.name);
+
+                    this._updateCardTagSummary(tagSummaryElement, tagNames, fontId);
+                });
+
+                tagChip.appendChild(tagNameElement);
+                tagChip.appendChild(removeButton);
                 tagChipContainer.appendChild(tagChip);
             }
         }
