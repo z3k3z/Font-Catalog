@@ -14,10 +14,12 @@ import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
 import { SearchChipBar } from "./search/search-chip-bar.js";
+import { ToastView } from "./toast/toast-view.js";
 
 let _fonts = [];
 
 /* locate and catalog required html elements */
+const toastRootElement = new RequiredDomElement("toast-root").element;
 const fontGridElement = new RequiredDomElement("fontGrid").element;
 const fontCountElement = new RequiredDomElement("fontCount").element;
 const fontFaceStyleElement = new RequiredDomElement("fontCatalogDynamicFontFaces").element;
@@ -49,6 +51,7 @@ const cardGridPresentationElements = new RequiredDomElementSet({
 }).elements;
 
 /* stand up and wire-in all our modules */
+const _toastView = new ToastView(toastRootElement);
 const _fontApiClient = new FontApiClient("");
 const _frontendDiagnosticSession = new FrontendDiagnosticSession();
 const _frontendDiagnosticReporter = new FrontendDiagnosticReporter(_frontendDiagnosticSession);
@@ -57,7 +60,13 @@ _frontendDiagnosticReporter.reportSessionStarted();
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _tagLoader = new TagLoader(_fontApiClient);
 const _cardGridPresentationController = new CardGridPresentationController(cardGridPresentationElements);
-const _fontGridView = new FontGridView(fontGridElement, fontCountElement, _fontLoader, _tagLoader);
+const _fontGridView = new FontGridView(
+    fontGridElement,
+    fontCountElement,
+    _fontLoader,
+    _tagLoader,
+    _toastView
+);
 const _fontSearch = new FontSearch();
 const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
 

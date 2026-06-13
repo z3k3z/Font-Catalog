@@ -1,11 +1,12 @@
 import { _diags } from "../diagnostics/diagnostics.js";
 
 export class FontGridView {
-    constructor(fontGridElement, fontCountElement, fontLoader, tagLoader) {
+    constructor(fontGridElement, fontCountElement, fontLoader, tagLoader, toastView) {
         this._fontGridElement = fontGridElement;
         this._fontCountElement = fontCountElement;
         this._fontLoader = fontLoader;
         this._tagLoader = tagLoader;
+        this._toastView = toastView;
         this._fontObserver = this._createFontObserver();
         this._onFontSelected = null;
         this._selectedCard = null;
@@ -145,11 +146,22 @@ export class FontGridView {
                     event.stopPropagation();
 
                     await this._tagLoader.removeTagFromFont(fontId, tagName);
-
                     const tags = await this._tagLoader.loadTagsForFont(fontId);
-                    const tagNames = tags.map((tag) => tag.name);
+                    this._updateCardTagSummary(
+                        tagSummaryElement,
+                        tags.map((tag) => tag.name),
+                        fontId
+                    );
 
-                    this._updateCardTagSummary(tagSummaryElement, tagNames, fontId);
+                    this._toastView.showUndoToast(`Removed tag "${tagName}"`, "Undo", async () => {
+                        await this._tagLoader.addTagToFont(fontId, tagName);
+                        const restoredTags = await this._tagLoader.loadTagsForFont(fontId);
+                        this._updateCardTagSummary(
+                            tagSummaryElement,
+                            restoredTags.map((tag) => tag.name),
+                            fontId
+                        );
+                    });
                 });
 
                 tagChip.appendChild(tagNameElement);

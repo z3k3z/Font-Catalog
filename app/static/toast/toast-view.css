@@ -1,0 +1,94 @@
+.toast-root {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: fixed;
+    right: 24px;
+    top: 56px;
+    z-index: 1000;
+}
+
+@keyframes toast-slide-wiggle-in {
+    0% {
+        opacity: 0;
+        transform: translateX(120%);
+    }
+
+    65% {
+        opacity: 1;
+        transform: translateX(-10px);
+    }
+
+    82% {
+        transform: translateX(5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    background: #2c2c2c;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    color: #f0f0f0;
+    pointer-events: auto;
+    min-width: 320px;
+    padding: 8px 12px;
+
+    animation: toast-slide-wiggle-in 420ms ease-out forwards;
+    opacity: 0;
+    transform: translateX(120%);
+
+    transition:
+        opacity 180ms ease,
+        transform 180ms ease;
+}
+
+.toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes toast-slide-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(150%);
+    }
+}
+
+.toast.toast--dismissed {
+    animation: toast-slide-out 220ms ease-in forwards;
+}
+
+.toast-message {
+    color: #ddd;
+    font-size: 13px;
+    flex: 1 1 auto;
+}
+
+.toast-undo-button {
+    background: rgba(138, 168, 255, 0.15);
+    border: 1px solid #8aa8ff;
+    border-radius: 4px;
+    color: #b9cbff;
+    cursor: pointer;
+    padding: 4px 10px;
+    margin-left: auto;
+}
+
+.toast-undo-button:hover {
+    border-color: #8aa8ff;
+}
