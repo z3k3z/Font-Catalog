@@ -123,6 +123,9 @@ export class FontGridView {
             emptyChip.className = "font-card-tag-chip font-card-tag-chip--empty";
             emptyChip.textContent = "(none assigned)";
             tagChipContainer.appendChild(emptyChip);
+            tagSummaryElement.classList.remove("has-tags");
+            tagSummaryElement.title = "No tags assigned";
+            tagCountElement.textContent = "";
         } else {
             const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
             tagSummaryElement.classList.add("has-tags");
