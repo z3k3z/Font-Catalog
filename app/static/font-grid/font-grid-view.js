@@ -1,4 +1,5 @@
 import { _diags } from "../diagnostics/diagnostics.js";
+import { FontGridCardTagsView } from "./font-grid-card-tags-view.js";
 
 export class FontGridView {
     constructor(fontGridElement, fontCountElement, fontLoader, tagLoader, toastView) {
@@ -6,7 +7,7 @@ export class FontGridView {
         this._fontCountElement = fontCountElement;
         this._fontLoader = fontLoader;
         this._tagLoader = tagLoader;
-        this._toastView = toastView;
+        this._cardTagsView = new FontGridCardTagsView(tagLoader, toastView);
         this._fontObserver = this._createFontObserver();
         this._onFontSelected = null;
         this._selectedCard = null;
@@ -19,7 +20,7 @@ export class FontGridView {
 
         for (const font of fonts) {
             const card = this._buildFontCard(font, sampleText);
-            this._loadTagsForCard(card);
+            this._cardTagsView.loadTags(font.id, card._tagSummaryElement);
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
@@ -81,153 +82,6 @@ export class FontGridView {
         this._fontObserver.unobserve(card);
     }
 
-    async _loadTagsForCard(card) {
-        const font = card._fontRecord;
-        const tagSummaryElement = card.querySelector(".font-card-tag-summary");
-
-        if (font === undefined) {
-            _diags.emitWarningProbe(() => "Visible font card did not have an associated font record.");
-        } else if (tagSummaryElement == undefined) {
-            _diags.emitWarningProbe(() => "Visible font card did not have a tagSummaryElement.");
-        } else {
-            try {
-                const tags = await this._tagLoader.loadTagsForFont(font.id);
-                const tagNames = tags.map((tag) => tag.name);
-
-                this._updateCardTagSummary(tagSummaryElement, tagNames, font.id);
-            } catch (error) {
-                _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
-            }
-        }
-    }
-
-    _updateCardTagSummary(tagSummaryElement, tagNames, fontId) {
-        const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
-        const tagPopoverElement = tagSummaryElement.querySelector(".font-card-tag-popover");
-
-        if (tagCountElement === null || tagPopoverElement === null) {
-            _diags.emitWarningProbe(() => "Font card tag summary did not contain expected child elements.");
-            return;
-        }
-
-        const titleElement = document.createElement("div");
-        titleElement.className = "font-card-tag-popover-title";
-        titleElement.textContent = "Tags";
-        tagPopoverElement.innerHTML = "";
-
-        const tagChipContainer = document.createElement("div");
-        tagChipContainer.className = "font-card-tag-chip-container";
-
-        if (tagNames.length === 0) {
-            const emptyChip = document.createElement("span");
-            emptyChip.className = "font-card-tag-chip font-card-tag-chip--empty";
-            emptyChip.textContent = "(none assigned)";
-            tagChipContainer.appendChild(emptyChip);
-            tagSummaryElement.classList.remove("has-tags");
-            tagSummaryElement.title = "No tags assigned";
-            tagCountElement.textContent = "";
-        } else {
-            const sortedTagNames = [...tagNames].sort((a, b) => a.localeCompare(b));
-            tagSummaryElement.classList.add("has-tags");
-            tagSummaryElement.title = "";
-            tagCountElement.textContent = `${sortedTagNames.length}`;
-
-            for (const tagName of sortedTagNames) {
-                const tagChip = document.createElement("span");
-                tagChip.className = "font-card-tag-chip";
-
-                const tagNameElement = document.createElement("span");
-                tagNameElement.textContent = tagName;
-
-                const removeButton = document.createElement("button");
-                removeButton.className = "font-card-tag-chip-remove";
-                removeButton.type = "button";
-                removeButton.textContent = "×";
-                removeButton.title = `Remove ${tagName}`;
-
-                removeButton.addEventListener("click", async (event) => {
-                    event.stopPropagation();
-
-                    await this._tagLoader.removeTagFromFont(fontId, tagName);
-                    const tags = await this._tagLoader.loadTagsForFont(fontId);
-                    this._updateCardTagSummary(
-                        tagSummaryElement,
-                        tags.map((tag) => tag.name),
-                        fontId
-                    );
-
-                    this._toastView.showUndoToast(`Removed tag "${tagName}"`, "Undo", async () => {
-                        await this._tagLoader.addTagToFont(fontId, tagName);
-                        const restoredTags = await this._tagLoader.loadTagsForFont(fontId);
-                        this._updateCardTagSummary(
-                            tagSummaryElement,
-                            restoredTags.map((tag) => tag.name),
-                            fontId
-                        );
-                    });
-                });
-
-                tagChip.appendChild(tagNameElement);
-                tagChip.appendChild(removeButton);
-                tagChipContainer.appendChild(tagChip);
-            }
-        }
-        tagPopoverElement.appendChild(tagChipContainer);
-
-        const addTagEditorElement = document.createElement("div");
-        addTagEditorElement.className = "font-card-tag-add-editor";
-        const addTagInputElement = document.createElement("input");
-        addTagInputElement.className = "font-card-tag-add-input";
-        addTagInputElement.type = "text";
-        addTagInputElement.placeholder = "Tag name";
-
-        const addTagCommitButton = document.createElement("button");
-        addTagCommitButton.className = "font-card-tag-add-commit-button";
-        addTagCommitButton.type = "button";
-        addTagCommitButton.textContent = "Add";
-
-        addTagEditorElement.appendChild(addTagInputElement);
-        addTagEditorElement.appendChild(addTagCommitButton);
-        tagPopoverElement.appendChild(addTagEditorElement);
-
-        const commitTagAdd = async () => {
-            const tagName = addTagInputElement.value.trim();
-
-            if (tagName === "") {
-                return;
-            }
-
-            await this._tagLoader.addTagToFont(fontId, tagName);
-            this._tagLoader.invalidateFont(fontId);
-
-            const tags = await this._tagLoader.loadTagsForFont(fontId);
-            const tagNames = tags.map((tag) => tag.name);
-
-            this._updateCardTagSummary(tagSummaryElement, tagNames, fontId);
-
-            addTagInputElement.value = "";
-        };
-
-        addTagCommitButton.addEventListener("click", async (event) => {
-            event.stopPropagation();
-            await commitTagAdd();
-        });
-
-        addTagInputElement.addEventListener("keydown", async (event) => {
-            if (event.key === "Enter") {
-                event.stopPropagation();
-                await commitTagAdd();
-            }
-        });
-
-        const updateAddButtonState = () => {
-            addTagCommitButton.disabled = addTagInputElement.value.trim() === "";
-        };
-
-        addTagInputElement.addEventListener("input", updateAddButtonState);
-        updateAddButtonState();
-    }
-
     _applyLoadedFontToCard(card, font) {
         const sample = card.querySelector(".font-sample");
 
@@ -261,33 +115,10 @@ export class FontGridView {
         nameElement.className = "font-name";
         nameElement.textContent = `${font.id} — ${font.full_name}`;
 
-        const tagSummaryElement = document.createElement("button");
-        tagSummaryElement.className = "font-card-tag-summary";
-        tagSummaryElement.type = "button";
-        tagSummaryElement.title = "No tags assigned";
+        card._tagSummaryElement = this._cardTagsView.build(font.id);
+        this._placeCardElements(card, sampleElement, nameElement);
 
-        const tagPopoverElement = document.createElement("div");
-        tagPopoverElement.className = "font-card-tag-popover";
-        tagPopoverElement.textContent = "No tags assigned";
-
-        const tagIconElement = document.createElement("span");
-        tagIconElement.className = "font-card-tag-icon";
-        tagIconElement.textContent = "🏷";
-
-        const tagCountElement = document.createElement("span");
-        tagCountElement.className = "font-card-tag-count";
-
-        this._placeCardElements(
-            card,
-            sampleElement,
-            nameElement,
-            tagSummaryElement,
-            tagPopoverElement,
-            tagIconElement,
-            tagCountElement
-        );
-
-        tagSummaryElement.addEventListener("click", (event) => {
+        card._tagSummaryElement.addEventListener("click", (event) => {
             event.stopPropagation();
         });
 
@@ -308,15 +139,7 @@ export class FontGridView {
         return card;
     }
 
-    _placeCardElements(
-        card,
-        sampleElement,
-        nameElement,
-        tagSummaryElement,
-        tagPopoverElement,
-        tagIconElement,
-        tagCountElement
-    ) {
+    _placeCardElements(card, sampleElement, nameElement) {
         const sampleRegion = document.createElement("div");
         sampleRegion.className = "font-card-sample-region";
         sampleRegion.appendChild(sampleElement);
@@ -325,11 +148,7 @@ export class FontGridView {
         footer.className = "font-card-footer";
 
         footer.appendChild(nameElement);
-
-        tagSummaryElement.appendChild(tagIconElement);
-        tagSummaryElement.appendChild(tagCountElement);
-        tagSummaryElement.appendChild(tagPopoverElement);
-        footer.appendChild(tagSummaryElement);
+        footer.appendChild(card._tagSummaryElement);
 
         card.appendChild(sampleRegion);
         card.appendChild(footer);
