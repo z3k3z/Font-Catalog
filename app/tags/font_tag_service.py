@@ -23,3 +23,6 @@ class FontTagService:
     def remove_tag_from_font(self, tag_name: str, font_key: FontSemanticKey) -> None:
         self._repository.remove_font_from_tag(tag_name=tag_name, font_key=font_key)
         self._save()
+
+    def list_tags(self) -> list[Tag]:
+        return self._repository.list_tags()

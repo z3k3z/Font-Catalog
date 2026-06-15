@@ -150,6 +150,35 @@
     flex: 1 1 auto;
 }
 
+.font-card-tag-add-wrapper {
+    position: relative;
+}
+
+.font-card-tag-suggestion-container {
+    background: #202020;
+    border: 1px solid #444;
+    border-radius: 6px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.font-card-tag-suggestion {
+    background: transparent;
+    border: none;
+    color: #ddd;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px 8px;
+    text-align: left;
+}
+
+.font-card-tag-suggestion:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .font-card-tag-add-commit-button {
     background: rgba(114, 196, 114, 0.12);
     border: 1px solid #3d7a3d;

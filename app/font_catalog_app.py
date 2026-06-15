@@ -10,6 +10,7 @@ from app.api_models.add_font_tag_request import AddFontTagRequest
 from app.api_models.font_response import FontResponse
 from app.api_models.font_tag_response import FontTagResponse, FontTagsResponse
 from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
+from app.api_models.TagResponse import TagResponse, TagsResponse
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
@@ -158,6 +159,8 @@ class FontCatalogApp:
             path="/api/fonts/{font_id}/tags/{tag_name}", endpoint=self._remove_font_tag, methods=["DELETE"]
         )
 
+        fastapi_app.add_api_route(path="/api/tags", endpoint=self._read_tags, methods=["GET"])
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -261,3 +264,7 @@ class FontCatalogApp:
         self._fontTagService.remove_tag_from_font(tag_name=tag_name, font_key=font_key)
 
         return {"status": "ok"}
+
+    def _read_tags(self) -> TagsResponse:
+        tags: list[Tag] = self._fontTagService.list_tags()
+        return TagsResponse(tags=[TagResponse(name=tag.name) for tag in tags])

@@ -87,7 +87,7 @@ export class FontGridCardTagsView {
         }
 
         tagPopoverElement.appendChild(tagChipContainer);
-        tagPopoverElement.appendChild(this._buildAddEditor(tagSummaryElement, fontId));
+        tagPopoverElement.appendChild(this._buildAddEditor(tagSummaryElement, fontId, tagNames));
     }
 
     _buildTagChip(tagSummaryElement, fontId, tagName) {
@@ -114,7 +114,7 @@ export class FontGridCardTagsView {
         return tagChip;
     }
 
-    _buildAddEditor(tagSummaryElement, fontId) {
+    _buildAddEditor(tagSummaryElement, fontId, assignedTagNames) {
         const addTagEditorElement = document.createElement("div");
         addTagEditorElement.className = "font-card-tag-add-editor";
 
@@ -122,6 +122,9 @@ export class FontGridCardTagsView {
         addTagInputElement.className = "font-card-tag-add-input";
         addTagInputElement.type = "text";
         addTagInputElement.placeholder = "Tag name";
+
+        const suggestionContainer = document.createElement("div");
+        suggestionContainer.className = "font-card-tag-suggestion-container hidden";
 
         const addTagCommitButton = document.createElement("button");
         addTagCommitButton.className = "font-card-tag-add-commit-button";
@@ -143,10 +146,15 @@ export class FontGridCardTagsView {
             await this._addTag(tagSummaryElement, fontId, tagName);
 
             addTagInputElement.value = "";
+            suggestionContainer.innerHTML = "";
+            suggestionContainer.classList.add("hidden");
             updateAddButtonState();
         };
 
-        addTagInputElement.addEventListener("input", updateAddButtonState);
+        addTagInputElement.addEventListener("input", () => {
+            updateAddButtonState();
+            updateSuggestions();
+        });
 
         addTagInputElement.addEventListener("keydown", async (event) => {
             if (event.key === "Enter") {
@@ -163,7 +171,57 @@ export class FontGridCardTagsView {
         addTagEditorElement.appendChild(addTagInputElement);
         addTagEditorElement.appendChild(addTagCommitButton);
 
-        return addTagEditorElement;
+        const wrapper = document.createElement("div");
+        wrapper.className = "font-card-tag-add-wrapper";
+        wrapper.appendChild(addTagEditorElement);
+        wrapper.appendChild(suggestionContainer);
+
+        const updateSuggestions = async () => {
+            const inputText = addTagInputElement.value.trim().toLocaleLowerCase();
+
+            suggestionContainer.innerHTML = "";
+
+            if (inputText === "") {
+                suggestionContainer.classList.add("hidden");
+                return;
+            }
+
+            const allTags = await this._tagLoader.loadAllTags();
+
+            const assignedKeys = new Set(
+                assignedTagNames.map((tagName) => tagName.trim().toLocaleLowerCase())
+            );
+
+            const matchingTags = allTags
+                .map((tag) => tag.name)
+                .filter((tagName) => !assignedKeys.has(tagName.trim().toLocaleLowerCase()))
+                .filter((tagName) => tagName.trim().toLocaleLowerCase().includes(inputText))
+                .sort((a, b) => a.localeCompare(b))
+                .slice(0, 6);
+
+            if (matchingTags.length === 0) {
+                suggestionContainer.classList.add("hidden");
+                return;
+            }
+
+            for (const tagName of matchingTags) {
+                const suggestionButton = document.createElement("button");
+                suggestionButton.className = "font-card-tag-suggestion";
+                suggestionButton.type = "button";
+                suggestionButton.textContent = tagName;
+
+                suggestionButton.addEventListener("click", async (event) => {
+                    event.stopPropagation();
+                    addTagInputElement.value = tagName;
+                    await commitTagAdd();
+                });
+
+                suggestionContainer.appendChild(suggestionButton);
+            }
+
+            suggestionContainer.classList.remove("hidden");
+        };
+        return wrapper;
     }
 
     async _addTag(tagSummaryElement, fontId, tagName) {

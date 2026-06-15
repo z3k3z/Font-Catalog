@@ -40,9 +40,12 @@ export class FontApiClient {
     }
 
     async readFontTags(fontId) {
+        _diags.emitDebugProbe(() => `Requesting tags for font ${fontId}.`);
+
         const response = await fetch(`/api/fonts/${fontId}/tags`);
 
         if (!response.ok) {
+            _diags.emitErrorProbe(() => `Failed to read font tags for ${fontId}: ${response.status}`);
             throw new Error(`Failed to read font tags for ${fontId}: ${response.status}`);
         }
 
@@ -50,6 +53,8 @@ export class FontApiClient {
     }
 
     async addTagToFont(fontId, tagName) {
+        _diags.emitDebugProbe(() => `Requesting to add tag ${tagName} to font ${fontId}.`);
+
         const response = await fetch(`/api/fonts/${fontId}/tags`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -57,16 +62,37 @@ export class FontApiClient {
         });
 
         if (!response.ok) {
+            _diags.emitErrorProbe(
+                () => `Failed to add tag '${tagName}' to font ${fontId}: ${response.status}`
+            );
             throw new Error(`Failed to add tag '${tagName}' to font ${fontId}: ${response.status}`);
         }
     }
 
     async removeTagFromFont(fontId, tagName) {
         const encodedTagName = encodeURIComponent(tagName);
+        _diags.emitDebugProbe(() => `Requesting to remove tag ${tagName} from font ${fontId}.`);
+
         const response = await fetch(`/api/fonts/${fontId}/tags/${encodedTagName}`, { method: "DELETE" });
 
         if (!response.ok) {
+            _diags.emitErrorProbe(
+                () => `Failed to remove tag '${tagName}' from font ${fontId}: ${response.status}`
+            );
             throw new Error(`Failed to remove tag '${tagName}' from font ${fontId}: ${response.status}`);
         }
+    }
+
+    async readTags() {
+        _diags.emitDebugProbe(() => `Requesting all tags.`);
+
+        const response = await fetch("/api/tags");
+
+        if (!response.ok) {
+            _diags.emitErrorProbe(() => `Failed to read tags: ${response.status}`);
+            throw new Error(`Failed to read tags: ${response.status}`);
+        }
+
+        return await response.json();
     }
 }
