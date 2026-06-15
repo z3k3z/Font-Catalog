@@ -12,6 +12,7 @@ export class FontGridCardTagsView {
         tagSummaryElement.className = "font-card-tag-summary";
         tagSummaryElement.type = "button";
         tagSummaryElement.title = "No tags assigned";
+        tagSummaryElement.removeAttribute("title");
 
         const tagIconElement = document.createElement("span");
         tagIconElement.className = "font-card-tag-icon";
@@ -55,13 +56,12 @@ export class FontGridCardTagsView {
             return;
         }
 
+        tagSummaryElement.removeAttribute("title");
         if (tagNames.length === 0) {
             tagSummaryElement.classList.remove("has-tags");
-            tagSummaryElement.title = "No tags assigned";
             tagCountElement.textContent = "";
         } else {
             tagSummaryElement.classList.add("has-tags");
-            tagSummaryElement.title = tagNames.join("\n");
             tagCountElement.textContent = `${tagNames.length}`;
         }
 
