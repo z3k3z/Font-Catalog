@@ -1,5 +1,5 @@
 import { _diags } from "../diagnostics/diagnostics.js";
-import { MostRecentRequestTracker } from "../foundation/most-recent-request-tracker.js";
+import { SuggestionDecorator } from "../foundation/suggestion-decorator.js";
 
 export class FontGridCardTagsView {
     constructor(tagLoader, toastView) {
@@ -157,6 +157,11 @@ export class FontGridCardTagsView {
             addTagCommitButton.disabled = addTagInputElement.value.trim() === "";
         };
 
+        const hideSuggestions = () => {
+            suggestionContainer.innerHTML = "";
+            suggestionContainer.classList.add("hidden");
+        };
+
         const commitTagAdd = async () => {
             const tagName = addTagInputElement.value.trim();
 
@@ -164,17 +169,32 @@ export class FontGridCardTagsView {
                 return;
             }
 
+            hideSuggestions();
             await this._addTag(tagSummaryElement, fontId, tagName);
 
-            addTagInputElement.value = "";
-            suggestionContainer.innerHTML = "";
-            suggestionContainer.classList.add("hidden");
-            updateAddButtonState();
+            const newInputElement = tagSummaryElement.querySelector(".font-card-tag-add-input");
+
+            if (newInputElement !== null) {
+                newInputElement.focus();
+            }
         };
+
+        const suggestionDecorator = new SuggestionDecorator({
+            inputElement: addTagInputElement,
+            suggestionContainerElement: suggestionContainer,
+            loadSuggestions: async (inputText) =>
+                await this._loadTagSuggestions(inputText, assignedTagNames),
+            getSuggestionText: (tagName) => tagName,
+            onSuggestionAccepted: (tagName) => {
+                addTagInputElement.value = tagName;
+                updateAddButtonState();
+            },
+        });
+
+        suggestionDecorator.attach();
 
         addTagInputElement.addEventListener("input", () => {
             updateAddButtonState();
-            updateSuggestions();
         });
 
         addTagInputElement.addEventListener("keydown", async (event) => {
@@ -197,87 +217,6 @@ export class FontGridCardTagsView {
         wrapper.appendChild(addTagEditorElement);
         wrapper.appendChild(suggestionContainer);
 
-        const suggestionRequestTracker = new MostRecentRequestTracker();
-
-        const updateSuggestions = async () => {
-            const request = suggestionRequestTracker.start();
-            const inputText = addTagInputElement.value.trim();
-
-            suggestionContainer.innerHTML = "";
-
-            if (inputText === "") {
-                suggestionContainer.classList.add("hidden");
-                return;
-            }
-
-            const allTags = await this._tagLoader.loadAllTags();
-
-            if (!request.isCurrent()) {
-                _diags.emitDebugProbe(() => `Stale request for tags, discarded.`);
-                return;
-            }
-
-            const assignedKeys = new Set(
-                assignedTagNames.map((tagName) => tagName.trim().toLocaleLowerCase())
-            );
-
-            const matchingTags = allTags
-                .map((tag) => tag.name)
-                .filter((tagName) => !assignedKeys.has(tagName.trim().toLocaleLowerCase()))
-                .filter((tagName) =>
-                    tagName.trim().toLocaleLowerCase().includes(inputText.toLocaleLowerCase())
-                )
-                .sort((left, right) => {
-                    const leftScore = this._scoreSuggestion(inputText, left);
-                    const rightScore = this._scoreSuggestion(inputText, right);
-
-                    if (leftScore !== rightScore) {
-                        return leftScore - rightScore;
-                    }
-
-                    return left.localeCompare(right);
-                })
-                .slice(0, 6);
-
-            if (matchingTags.length === 0) {
-                suggestionContainer.classList.add("hidden");
-                return;
-            }
-
-            const acceptSuggestion = (tagName) => {
-                addTagInputElement.value = tagName;
-                updateAddButtonState();
-
-                suggestionContainer.innerHTML = "";
-                suggestionContainer.classList.add("hidden");
-
-                addTagInputElement.focus();
-            };
-
-            for (const tagName of matchingTags) {
-                const suggestionButton = document.createElement("button");
-                suggestionButton.className = "font-card-tag-suggestion";
-                suggestionButton.type = "button";
-                suggestionButton.tabIndex = 0;
-                suggestionButton.textContent = tagName;
-
-                suggestionButton.addEventListener("click", (event) => {
-                    event.stopPropagation();
-                    acceptSuggestion(tagName);
-                });
-
-                suggestionButton.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        acceptSuggestion(tagName);
-                    }
-                });
-                suggestionContainer.appendChild(suggestionButton);
-            }
-
-            suggestionContainer.classList.remove("hidden");
-        };
         return wrapper;
     }
 
@@ -303,5 +242,28 @@ export class FontGridCardTagsView {
         const tagNames = tags.map((tag) => tag.name);
 
         this._updateTagSummary(tagSummaryElement, fontId, tagNames);
+    }
+
+    async _loadTagSuggestions(inputText, assignedTagNames) {
+        const normalizedInputText = inputText.trim().toLocaleLowerCase();
+        const allTags = await this._tagLoader.loadAllTags();
+
+        const assignedKeys = new Set(assignedTagNames.map((tagName) => tagName.trim().toLocaleLowerCase()));
+
+        return allTags
+            .map((tag) => tag.name)
+            .filter((tagName) => !assignedKeys.has(tagName.trim().toLocaleLowerCase()))
+            .filter((tagName) => tagName.trim().toLocaleLowerCase().includes(normalizedInputText))
+            .sort((left, right) => {
+                const leftScore = this._scoreSuggestion(inputText, left);
+                const rightScore = this._scoreSuggestion(inputText, right);
+
+                if (leftScore !== rightScore) {
+                    return leftScore - rightScore;
+                }
+
+                return left.localeCompare(right);
+            })
+            .slice(0, 6);
     }
 }
