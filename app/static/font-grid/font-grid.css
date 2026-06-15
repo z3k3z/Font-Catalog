@@ -165,6 +165,7 @@
     overflow: hidden;
 }
 
+.suggestion-decorator-item,
 .font-card-tag-suggestion {
     background: transparent;
     border: none;
@@ -175,8 +176,10 @@
     text-align: left;
 }
 
-.font-card-tag-suggestion:hover {
+.suggestion-decorator-item:hover,
+.suggestion-decorator-item:focus {
     background: rgba(255, 255, 255, 0.08);
+    outline: none;
 }
 
 .font-card-tag-add-commit-button {
