@@ -1,9 +1,13 @@
+import { MostRecentValueCache } from "../foundation/most-recent-request-value-cache.js";
+
 export class TagLoader {
     constructor(fontApiClient) {
         this._fontApiClient = fontApiClient;
         this._tagCacheByFontId = new Map();
-        this._allTags = undefined;
-        this._allTagsPromise = undefined;
+        this._allTagsCache = new MostRecentValueCache(async () => {
+            const response = await this._fontApiClient.readTags();
+            return response.tags;
+        });
     }
 
     async loadTagsForFont(fontId) {
@@ -37,31 +41,10 @@ export class TagLoader {
     }
 
     async loadAllTags() {
-        if (this._allTags !== undefined) {
-            return this._allTags;
-        }
-
-        if (this._allTagsPromise !== undefined) {
-            return await this._allTagsPromise;
-        }
-
-        this._allTagsPromise = this._loadAllTagsFromApi();
-
-        try {
-            this._allTags = await this._allTagsPromise;
-            return this._allTags;
-        } finally {
-            this._allTagsPromise = undefined;
-        }
+        return await this._allTagsCache.get();
     }
 
     invalidateAllTags() {
-        this._allTags = undefined;
-        this._allTagsPromise = undefined;
-    }
-
-    async _loadAllTagsFromApi() {
-        const response = await this._fontApiClient.readTags();
-        return response.tags;
+        this._allTagsCache.invalidate();
     }
 }
