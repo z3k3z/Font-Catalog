@@ -210,12 +210,17 @@ export class FontGridCardTagsView {
                 suggestionButton.type = "button";
                 suggestionButton.textContent = tagName;
 
-                suggestionButton.addEventListener("click", async (event) => {
+                suggestionButton.addEventListener("click", (event) => {
                     event.stopPropagation();
-                    addTagInputElement.value = tagName;
-                    await commitTagAdd();
-                });
 
+                    addTagInputElement.value = tagName;
+                    updateAddButtonState();
+
+                    suggestionContainer.innerHTML = "";
+                    suggestionContainer.classList.add("hidden");
+
+                    addTagInputElement.focus();
+                });
                 suggestionContainer.appendChild(suggestionButton);
             }
 
