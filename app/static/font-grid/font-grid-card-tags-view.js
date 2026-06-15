@@ -115,6 +115,26 @@ export class FontGridCardTagsView {
         return tagChip;
     }
 
+    _scoreSuggestion(inputText, tagName) {
+        const candidate = tagName;
+
+        if (candidate === inputText) {
+            return 0;
+        }
+
+        if (candidate.startsWith(inputText)) {
+            return 100 + (candidate.length - inputText.length);
+        }
+
+        const position = candidate.indexOf(inputText);
+
+        if (position >= 0) {
+            return 1000 + position;
+        }
+
+        return Number.MAX_SAFE_INTEGER;
+    }
+
     _buildAddEditor(tagSummaryElement, fontId, assignedTagNames) {
         const addTagEditorElement = document.createElement("div");
         addTagEditorElement.className = "font-card-tag-add-editor";
@@ -181,7 +201,7 @@ export class FontGridCardTagsView {
 
         const updateSuggestions = async () => {
             const request = suggestionRequestTracker.start();
-            const inputText = addTagInputElement.value.trim().toLocaleLowerCase();
+            const inputText = addTagInputElement.value.trim();
 
             suggestionContainer.innerHTML = "";
 
@@ -204,8 +224,19 @@ export class FontGridCardTagsView {
             const matchingTags = allTags
                 .map((tag) => tag.name)
                 .filter((tagName) => !assignedKeys.has(tagName.trim().toLocaleLowerCase()))
-                .filter((tagName) => tagName.trim().toLocaleLowerCase().includes(inputText))
-                .sort((a, b) => a.localeCompare(b))
+                .filter((tagName) =>
+                    tagName.trim().toLocaleLowerCase().includes(inputText.toLocaleLowerCase())
+                )
+                .sort((left, right) => {
+                    const leftScore = this._scoreSuggestion(inputText, left);
+                    const rightScore = this._scoreSuggestion(inputText, right);
+
+                    if (leftScore !== rightScore) {
+                        return leftScore - rightScore;
+                    }
+
+                    return left.localeCompare(right);
+                })
                 .slice(0, 6);
 
             if (matchingTags.length === 0) {
