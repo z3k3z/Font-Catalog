@@ -204,22 +204,34 @@ export class FontGridCardTagsView {
                 return;
             }
 
+            const acceptSuggestion = (tagName) => {
+                addTagInputElement.value = tagName;
+                updateAddButtonState();
+
+                suggestionContainer.innerHTML = "";
+                suggestionContainer.classList.add("hidden");
+
+                addTagInputElement.focus();
+            };
+
             for (const tagName of matchingTags) {
                 const suggestionButton = document.createElement("button");
                 suggestionButton.className = "font-card-tag-suggestion";
                 suggestionButton.type = "button";
+                suggestionButton.tabIndex = 0;
                 suggestionButton.textContent = tagName;
 
                 suggestionButton.addEventListener("click", (event) => {
                     event.stopPropagation();
+                    acceptSuggestion(tagName);
+                });
 
-                    addTagInputElement.value = tagName;
-                    updateAddButtonState();
-
-                    suggestionContainer.innerHTML = "";
-                    suggestionContainer.classList.add("hidden");
-
-                    addTagInputElement.focus();
+                suggestionButton.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        acceptSuggestion(tagName);
+                    }
                 });
                 suggestionContainer.appendChild(suggestionButton);
             }
