@@ -3,6 +3,7 @@ export class TagLoader {
         this._fontApiClient = fontApiClient;
         this._tagCacheByFontId = new Map();
         this._allTags = undefined;
+        this._allTagsPromise = undefined;
     }
 
     async loadTagsForFont(fontId) {
@@ -40,13 +41,27 @@ export class TagLoader {
             return this._allTags;
         }
 
-        const response = await this._fontApiClient.readTags();
-        this._allTags = response.tags;
+        if (this._allTagsPromise !== undefined) {
+            return await this._allTagsPromise;
+        }
 
-        return this._allTags;
+        this._allTagsPromise = this._loadAllTagsFromApi();
+
+        try {
+            this._allTags = await this._allTagsPromise;
+            return this._allTags;
+        } finally {
+            this._allTagsPromise = undefined;
+        }
     }
 
     invalidateAllTags() {
         this._allTags = undefined;
+        this._allTagsPromise = undefined;
+    }
+
+    async _loadAllTagsFromApi() {
+        const response = await this._fontApiClient.readTags();
+        return response.tags;
     }
 }

@@ -1,4 +1,5 @@
 import { _diags } from "../diagnostics/diagnostics.js";
+import { MostRecentRequestTracker } from "../foundation/most-recent-request-tracker.js";
 
 export class FontGridCardTagsView {
     constructor(tagLoader, toastView) {
@@ -176,7 +177,10 @@ export class FontGridCardTagsView {
         wrapper.appendChild(addTagEditorElement);
         wrapper.appendChild(suggestionContainer);
 
+        const suggestionRequestTracker = new MostRecentRequestTracker();
+
         const updateSuggestions = async () => {
+            const request = suggestionRequestTracker.start();
             const inputText = addTagInputElement.value.trim().toLocaleLowerCase();
 
             suggestionContainer.innerHTML = "";
@@ -187,6 +191,11 @@ export class FontGridCardTagsView {
             }
 
             const allTags = await this._tagLoader.loadAllTags();
+
+            if (!request.isCurrent()) {
+                _diags.emitDebugProbe(() => `Stale request for tags, discarded.`);
+                return;
+            }
 
             const assignedKeys = new Set(
                 assignedTagNames.map((tagName) => tagName.trim().toLocaleLowerCase())
