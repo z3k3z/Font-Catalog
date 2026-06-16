@@ -4,8 +4,14 @@ export class SearchConstraint {
         EXCLUDE: "EXCLUDE",
     };
 
-    constructor(searchTerm, mode) {
+    static Kind = {
+        TEXT: "TEXT",
+        TAG: "TAG",
+    };
+
+    constructor(searchTerm, kind, mode) {
         this._searchTerm = searchTerm;
+        this._kind = kind;
         this._mode = mode;
     }
 
@@ -17,22 +23,23 @@ export class SearchConstraint {
         return this._mode;
     }
 
+    get kind() {
+        return this._kind;
+    }
+
+    isTagConstraint() {
+        return this._kind === SearchConstraint.Kind.TAG;
+    }
+
+    isTextConstraint() {
+        return this._kind === SearchConstraint.Kind.TEXT;
+    }
+
     isRequireConstraint() {
         return this._mode === SearchConstraint.Mode.REQUIRE;
     }
 
     isExcludeConstraint() {
         return this._mode === SearchConstraint.Mode.EXCLUDE;
-    }
-
-    isTagConstraint() {
-        return this._searchTerm.startsWith("#") && this._searchTerm.length > 1;
-    }
-
-    getTagName() {
-        if (this.isTagConstraint()) {
-            return this._searchTerm.slice(1);
-        }
-        return "";
     }
 }

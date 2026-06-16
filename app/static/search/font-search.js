@@ -6,8 +6,8 @@ export class FontSearch {
         this._searchConstraints = [];
     }
 
-    addSearchConstraint(rawSearchTerm, mode) {
-        const normalizedSearchTerm = rawSearchTerm.trim().toLowerCase();
+    addSearchConstraint(rawSearchTerm, kind, mode) {
+        const normalizedSearchTerm = this._normalizeSearchTerm(rawSearchTerm, kind);
 
         if (normalizedSearchTerm.length === 0) {
             return;
@@ -21,9 +21,16 @@ export class FontSearch {
             return;
         }
 
-        const searchConstraint = new SearchConstraint(normalizedSearchTerm, mode);
+        const searchConstraint = new SearchConstraint(normalizedSearchTerm, kind, mode);
 
         this._searchConstraints.push(searchConstraint);
+    }
+
+    _normalizeSearchTerm(rawSearchTerm, kind) {
+        if (SearchConstraint.Kind.TEXT == kind) {
+            return rawSearchTerm.trim().toLowerCase();
+        }
+        return rawSearchTerm.trim();
     }
 
     removeSearchConstraint(searchConstraintToRemove) {
@@ -72,7 +79,7 @@ export class FontSearch {
     }
 
     _fontMatchesTagConstraint(font, constraint, tagSnapshot) {
-        const matches = tagSnapshot.hasFontForTag(font.id, constraint.getTagName());
+        const matches = tagSnapshot.hasFontForTag(font.id, constraint.searchTerm);
 
         if (constraint.isRequireConstraint()) {
             return matches;

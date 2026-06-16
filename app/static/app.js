@@ -73,8 +73,8 @@ const _cardSampleTextController = new CardSampleTextController(cardSampleTextEle
 /* wire-in the search chip bar */
 const _searchChipBar = new SearchChipBar(searchInputElement, searchChipContainerElement);
 _searchChipBar.setListeners({
-    onSearchConstraintAdded: (searchTerm, mode) => {
-        addSearchConstraint(searchTerm, mode);
+    onSearchConstraintAdded: (searchTerm, kind, mode) => {
+        addSearchConstraint(searchTerm, kind, mode);
     },
 
     onSearchConstraintRemoved: (searchConstraint) => {
@@ -180,8 +180,8 @@ async function loadFonts() {
 /*
  * Search bar listeners
  */
-function addSearchConstraint(searchTerm, mode) {
-    _fontSearch.addSearchConstraint(searchTerm, mode);
+function addSearchConstraint(searchTerm, kind, mode) {
+    _fontSearch.addSearchConstraint(searchTerm, kind, mode);
 
     _searchChipBar.clearSearchInput();
 

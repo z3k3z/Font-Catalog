@@ -37,13 +37,18 @@ export class SearchChipBar {
 
             if (this._onSearchConstraintAdded !== null) {
                 let mode = SearchConstraint.Mode.REQUIRE;
+                let kind = SearchConstraint.Kind.TEXT;
                 let searchTerm = event.target.value.trim();
 
                 if (searchTerm.startsWith("-")) {
                     mode = SearchConstraint.Mode.EXCLUDE;
                     searchTerm = searchTerm.slice(1).trim();
                 }
-                this._onSearchConstraintAdded(searchTerm, mode);
+                if (searchTerm.startsWith("#")) {
+                    kind = SearchConstraint.Kind.TAG;
+                    searchTerm = searchTerm.slice(1).trim();
+                }
+                this._onSearchConstraintAdded(searchTerm, kind, mode);
             }
         });
     }
