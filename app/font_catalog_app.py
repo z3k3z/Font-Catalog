@@ -10,7 +10,7 @@ from app.api_models.add_font_tag_request import AddFontTagRequest
 from app.api_models.font_response import FontResponse
 from app.api_models.font_tag_response import FontTagResponse, FontTagsResponse
 from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
-from app.api_models.TagResponse import TagResponse, TagsResponse
+from app.api_models.tag_response import TagResponse, TagsResponse
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
