@@ -67,7 +67,7 @@ const _fontGridView = new FontGridView(
     _tagLoader,
     _toastView
 );
-const _fontSearch = new FontSearch();
+const _fontSearch = new FontSearch(_tagLoader);
 const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
 
 /* wire-in the search chip bar */
@@ -197,8 +197,8 @@ function removeSearchConstraint(searchConstraint) {
 /*
  * Search support
  */
-function _applySearch() {
-    const filteredFonts = _fontSearch.filterFonts(_fonts);
+async function _applySearch() {
+    const filteredFonts = await _fontSearch.filterFonts(_fonts);
     const sampleText = _cardSampleTextController.getSampleText();
 
     _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());

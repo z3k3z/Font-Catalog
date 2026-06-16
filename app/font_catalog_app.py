@@ -11,6 +11,10 @@ from app.api_models.font_response import FontResponse
 from app.api_models.font_tag_response import FontTagResponse, FontTagsResponse
 from app.api_models.frontend_diagnostic_event import FrontendDiagnosticEvent
 from app.api_models.tag_response import TagResponse, TagsResponse
+from app.api_models.tag_snapshot_response import (
+    TagSnapshotItemResponse,
+    TagSnapshotResponse,
+)
 from app.application_configuration import ApplicationConfiguration
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
@@ -161,6 +165,10 @@ class FontCatalogApp:
 
         fastapi_app.add_api_route(path="/api/tags", endpoint=self._read_tags, methods=["GET"])
 
+        fastapi_app.add_api_route(
+            path="/api/tags/snapshot", endpoint=self._read_tag_snapshot, methods=["GET"]
+        )
+
     def _read_index(self) -> FileResponse:
         index_path: Path = self._staticRootPath / "index.html"
         response: FileResponse = FileResponse(index_path)
@@ -268,3 +276,20 @@ class FontCatalogApp:
     def _read_tags(self) -> TagsResponse:
         tags: list[Tag] = self._fontTagService.list_tags()
         return TagsResponse(tags=[TagResponse(name=tag.name) for tag in tags])
+
+    def _read_tag_snapshot(self) -> TagSnapshotResponse:
+        tags: list[Tag] = self._fontTagService.list_tags()
+        snapshot_items: list[TagSnapshotItemResponse] = []
+
+        for tag in tags:
+            font_ids: list[str] = []
+
+            for font_semantic_key in tag.associated_font_keys:
+                catalog_record = self._fontCatalog.get_record_by_key(font_semantic_key.asString())
+
+                if catalog_record is not None:
+                    font_ids.append(str(catalog_record.font_id))
+
+            snapshot_items.append(TagSnapshotItemResponse(name=tag.name, font_ids=sorted(font_ids)))
+
+        return TagSnapshotResponse(tags=snapshot_items)

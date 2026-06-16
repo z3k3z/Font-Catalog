@@ -1,7 +1,8 @@
 import { SearchConstraint } from "./search-constraint.js";
 
 export class FontSearch {
-    constructor() {
+    constructor(tagLoader) {
+        this._tagLoader = tagLoader;
         this._searchConstraints = [];
     }
 
@@ -35,32 +36,53 @@ export class FontSearch {
         return this._searchConstraints;
     }
 
-    filterFonts(fonts) {
+    async filterFonts(fonts) {
+        const tagSnapshot = await this._tagLoader.loadTagSnapshot();
         const filteredFonts = fonts.filter((font) => {
-            return this._fontMatchesAllSearchConstraints(font);
+            return this._fontMatchesAllSearchConstraints(font, tagSnapshot);
         });
 
         return filteredFonts;
     }
 
-    _fontMatchesAllSearchConstraints(font) {
+    _fontMatchesAllSearchConstraints(font, tagSnapshot) {
         const searchableText = this._buildSearchableText(font);
 
-        const satisfiesConstraints = this._searchConstraints.every((constraint) => {
-            const matches = searchableText.includes(constraint.searchTerm);
-
-            if (constraint.isRequireConstraint()) {
-                return matches;
+        return this._searchConstraints.every((constraint) => {
+            if (constraint.isTagConstraint()) {
+                return this._fontMatchesTagConstraint(font, constraint, tagSnapshot);
             }
 
-            if (constraint.isExcludeConstraint()) {
-                return !matches;
-            }
-
-            return true;
+            return this._fontMatchesTextConstraint(searchableText, constraint);
         });
+    }
 
-        return satisfiesConstraints;
+    _fontMatchesTextConstraint(searchableText, constraint) {
+        const matches = searchableText.includes(constraint.searchTerm);
+
+        if (constraint.isRequireConstraint()) {
+            return matches;
+        }
+
+        if (constraint.isExcludeConstraint()) {
+            return !matches;
+        }
+
+        return true;
+    }
+
+    _fontMatchesTagConstraint(font, constraint, tagSnapshot) {
+        const matches = tagSnapshot.hasFontForTag(font.id, constraint.getTagName());
+
+        if (constraint.isRequireConstraint()) {
+            return matches;
+        }
+
+        if (constraint.isExcludeConstraint()) {
+            return !matches;
+        }
+
+        return true;
     }
 
     _buildSearchableText(font) {

@@ -95,4 +95,15 @@ export class FontApiClient {
 
         return await response.json();
     }
+
+    async readTagSnapshot() {
+        const response = await fetch("/api/tags/snapshot");
+
+        if (!response.ok) {
+            _diags.emitErrorProbe(() => `Failed to read tag snapshot: ${response.status}`);
+            throw new Error(`Failed to read tag snapshot: ${response.status}`);
+        }
+
+        return await response.json();
+    }
 }

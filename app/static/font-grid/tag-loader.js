@@ -1,4 +1,5 @@
 import { MostRecentValueCache } from "../foundation/most-recent-request-value-cache.js";
+import { TagSnapshot } from "../tags/tag-snapshot.js";
 
 export class TagLoader {
     constructor(fontApiClient) {
@@ -7,6 +8,10 @@ export class TagLoader {
         this._allTagsCache = new MostRecentValueCache(async () => {
             const response = await this._fontApiClient.readTags();
             return response.tags;
+        });
+        this._tagSnapshotCache = new MostRecentValueCache(async () => {
+            const response = await this._fontApiClient.readTagSnapshot();
+            return new TagSnapshot(response.tags);
         });
     }
 
@@ -29,6 +34,7 @@ export class TagLoader {
         await this._fontApiClient.addTagToFont(fontId, tagName);
         this.invalidateFont(fontId);
         this.invalidateAllTags();
+        this.invalidateTagSnapshot();
     }
 
     invalidateFont(fontId) {
@@ -38,13 +44,23 @@ export class TagLoader {
     async removeTagFromFont(fontId, tagName) {
         await this._fontApiClient.removeTagFromFont(fontId, tagName);
         this.invalidateFont(fontId);
+        this.invalidateAllTags();
+        this.invalidateTagSnapshot();
     }
 
     async loadAllTags() {
         return await this._allTagsCache.get();
     }
 
+    async loadTagSnapshot() {
+        return await this._tagSnapshotCache.get();
+    }
+
     invalidateAllTags() {
         this._allTagsCache.invalidate();
+    }
+
+    invalidateTagSnapshot() {
+        this._tagSnapshotCache.invalidate();
     }
 }

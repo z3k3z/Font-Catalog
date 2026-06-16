@@ -24,4 +24,15 @@ export class SearchConstraint {
     isExcludeConstraint() {
         return this._mode === SearchConstraint.Mode.EXCLUDE;
     }
+
+    isTagConstraint() {
+        return this._searchTerm.startsWith("#") && this._searchTerm.length > 1;
+    }
+
+    getTagName() {
+        if (this.isTagConstraint()) {
+            return this._searchTerm.slice(1);
+        }
+        return "";
+    }
 }
