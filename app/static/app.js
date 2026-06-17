@@ -10,10 +10,12 @@ import { FontLoader } from "./font-grid/font-loader.js";
 import { TagLoader } from "./font-grid/tag-loader.js";
 import { RequiredDomElementSet } from "./foundation/required-dom-element-set.js";
 import { RequiredDomElement } from "./foundation/required-dom-element.js";
+import { SuggestionDecorator } from "./foundation/suggestion-decorator.js";
 import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
 import { SearchChipBar } from "./search/search-chip-bar.js";
+import { TagSuggestionProvider } from "./tags/tag-suggestion-provider.js";
 import { ToastView } from "./toast/toast-view.js";
 
 let _fonts = [];
@@ -81,6 +83,33 @@ _searchChipBar.setListeners({
         removeSearchConstraint(searchConstraint);
     },
 });
+
+/* wire-in the tag-related search suggestions */
+const _tagSuggestionProvider = new TagSuggestionProvider(_tagLoader);
+const _searchSuggestionContainer = document.createElement("div");
+_searchSuggestionContainer.className = "search-input-suggestion-container hidden";
+searchInputElement.parentElement.appendChild(_searchSuggestionContainer);
+const _searchSuggestionDecorator = new SuggestionDecorator({
+    inputElement: searchInputElement,
+    suggestionContainerElement: _searchSuggestionContainer,
+
+    loadSuggestions: async (inputText) => {
+        if (!inputText.startsWith("#") || inputText.length <= 1) {
+            return [];
+        }
+
+        return await _tagSuggestionProvider.loadSuggestions(inputText.slice(1));
+    },
+
+    getSuggestionText: (tagName) => `#${tagName}`,
+
+    onSuggestionAccepted: (tagName) => {
+        searchInputElement.value = `#${tagName}`;
+        searchInputElement.focus();
+    },
+});
+_searchSuggestionDecorator.attach();
+
 /* wire-in the font detail view */
 const _fontDetailView = new FontDetailView(fontDetailElements, _fontLoader);
 _fontDetailView.setListeners({
@@ -182,7 +211,7 @@ async function loadFonts() {
  */
 function addSearchConstraint(searchTerm, kind, mode) {
     _fontSearch.addSearchConstraint(searchTerm, kind, mode);
-
+    _searchSuggestionDecorator.hideSuggestions();
     _searchChipBar.clearSearchInput();
 
     _applySearch();
