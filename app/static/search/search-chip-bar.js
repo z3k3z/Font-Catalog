@@ -57,6 +57,10 @@ export class SearchChipBar {
         const chip = document.createElement("span");
         chip.className = "search-chip";
 
+        const icon = document.createElement("span");
+        icon.classList.add("search-chip-tag-icon");
+        icon.textContent = this._buildChipAdornment(searchConstraint);
+
         const label = document.createElement("span");
         label.textContent = searchConstraint.isExcludeConstraint()
             ? `Hide: ${searchConstraint.searchTerm}`
@@ -76,9 +80,17 @@ export class SearchChipBar {
             chip.classList.add("search-chip--exclude");
         }
 
+        chip.appendChild(icon);
         chip.appendChild(label);
         chip.appendChild(removeButton);
 
         return chip;
+    }
+
+    _buildChipAdornment(searchConstraint) {
+        if (searchConstraint.isTagConstraint()) {
+            return "🏷  ";
+        }
+        return "";
     }
 }

@@ -18,6 +18,11 @@
     font-size: 13px;
 }
 
+.search-chip-tag-icon {
+    position: relative;
+    top: -2px;
+}
+
 .search-chip button {
     padding: 0;
     background: transparent;
