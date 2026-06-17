@@ -10,13 +10,11 @@ import { FontLoader } from "./font-grid/font-loader.js";
 import { TagLoader } from "./font-grid/tag-loader.js";
 import { RequiredDomElementSet } from "./foundation/required-dom-element-set.js";
 import { RequiredDomElement } from "./foundation/required-dom-element.js";
-import { SuggestionDecorator } from "./foundation/suggestion-decorator.js";
 import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
 import { SearchChipBar } from "./search/search-chip-bar.js";
-import { SearchConstraint } from "./search/search-constraint.js";
-import { TagSuggestionProvider } from "./tags/tag-suggestion-provider.js";
+import { SearchTagSuggestionController } from "./search/search-tag-suggestion-controller.js";
 import { ToastView } from "./toast/toast-view.js";
 
 let _fonts = [];
@@ -86,64 +84,12 @@ _searchChipBar.setListeners({
 });
 
 /* wire-in the tag-related search suggestions */
-const _tagSuggestionProvider = new TagSuggestionProvider(_tagLoader);
-const _searchSuggestionContainer = document.createElement("div");
-_searchSuggestionContainer.className = "search-input-suggestion-container hidden";
-searchInputElement.parentElement.appendChild(_searchSuggestionContainer);
-const getTagSearchPrefix = (inputText) => {
-    if (inputText.startsWith("-#")) {
-        return "-#";
-    }
-
-    if (inputText.startsWith("#")) {
-        return "#";
-    }
-
-    return "";
-};
-const getExistingTagConstraintNames = (prefix) => {
-    const targetMode = prefix === "-#" ? SearchConstraint.Mode.EXCLUDE : SearchConstraint.Mode.REQUIRE;
-
-    return new Set(
-        _fontSearch.searchConstraints
-            .filter((constraint) => constraint.isTagConstraint())
-            .filter((constraint) => constraint.mode === targetMode)
-            .map((constraint) => constraint.searchTerm)
-    );
-};
-const _searchSuggestionDecorator = new SuggestionDecorator({
-    inputElement: searchInputElement,
-    suggestionContainerElement: _searchSuggestionContainer,
-
-    loadSuggestions: async (inputText) => {
-        const prefix = getTagSearchPrefix(inputText);
-
-        if (prefix === "") {
-            return [];
-        }
-
-        const tagSearchText = inputText.slice(prefix.length);
-
-        if (tagSearchText.length === 0) {
-            return [];
-        }
-
-        const existingTagNames = getExistingTagConstraintNames(prefix);
-        const suggestions = await _tagSuggestionProvider.loadSuggestions(tagSearchText);
-
-        return suggestions.filter((tagName) => !existingTagNames.has(tagName));
-    },
-
-    getSuggestionText: (tagName) => `${getTagSearchPrefix(searchInputElement.value)}${tagName}`,
-
-    onSuggestionAccepted: (tagName) => {
-        const prefix = getTagSearchPrefix(searchInputElement.value);
-
-        searchInputElement.value = `${prefix}${tagName}`;
-        searchInputElement.focus();
-    },
-});
-_searchSuggestionDecorator.attach();
+const _searchTagSuggestionController = new SearchTagSuggestionController(
+    searchInputElement,
+    _fontSearch,
+    _tagLoader
+);
+_searchTagSuggestionController.attach();
 
 /* wire-in the font detail view */
 const _fontDetailView = new FontDetailView(fontDetailElements, _fontLoader);
@@ -246,7 +192,7 @@ async function loadFonts() {
  */
 function addSearchConstraint(searchTerm, kind, mode) {
     _fontSearch.addSearchConstraint(searchTerm, kind, mode);
-    _searchSuggestionDecorator.hideSuggestions();
+    _searchTagSuggestionController.hideSuggestions();
     _searchChipBar.clearSearchInput();
 
     _applySearch();
