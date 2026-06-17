@@ -89,22 +89,43 @@ const _tagSuggestionProvider = new TagSuggestionProvider(_tagLoader);
 const _searchSuggestionContainer = document.createElement("div");
 _searchSuggestionContainer.className = "search-input-suggestion-container hidden";
 searchInputElement.parentElement.appendChild(_searchSuggestionContainer);
+const getTagSearchPrefix = (inputText) => {
+    if (inputText.startsWith("-#")) {
+        return "-#";
+    }
+
+    if (inputText.startsWith("#")) {
+        return "#";
+    }
+
+    return "";
+};
 const _searchSuggestionDecorator = new SuggestionDecorator({
     inputElement: searchInputElement,
     suggestionContainerElement: _searchSuggestionContainer,
 
     loadSuggestions: async (inputText) => {
-        if (!inputText.startsWith("#") || inputText.length <= 1) {
+        const prefix = getTagSearchPrefix(inputText);
+
+        if (prefix === "") {
             return [];
         }
 
-        return await _tagSuggestionProvider.loadSuggestions(inputText.slice(1));
+        const tagSearchText = inputText.slice(prefix.length);
+
+        if (tagSearchText.length === 0) {
+            return [];
+        }
+
+        return await _tagSuggestionProvider.loadSuggestions(tagSearchText);
     },
 
-    getSuggestionText: (tagName) => `#${tagName}`,
+    getSuggestionText: (tagName) => `${getTagSearchPrefix(searchInputElement.value)}${tagName}`,
 
     onSuggestionAccepted: (tagName) => {
-        searchInputElement.value = `#${tagName}`;
+        const prefix = getTagSearchPrefix(searchInputElement.value);
+
+        searchInputElement.value = `${prefix}${tagName}`;
         searchInputElement.focus();
     },
 });
