@@ -109,7 +109,7 @@ _fontDetailView.setListeners({
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    tag_name: "Liked",
+                    tag_name: "Likey",
                 }),
             });
         } else {
