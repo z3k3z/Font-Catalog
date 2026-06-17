@@ -15,6 +15,7 @@ import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
 import { SearchChipBar } from "./search/search-chip-bar.js";
+import { SearchConstraint } from "./search/search-constraint.js";
 import { TagSuggestionProvider } from "./tags/tag-suggestion-provider.js";
 import { ToastView } from "./toast/toast-view.js";
 
@@ -100,6 +101,16 @@ const getTagSearchPrefix = (inputText) => {
 
     return "";
 };
+const getExistingTagConstraintNames = (prefix) => {
+    const targetMode = prefix === "-#" ? SearchConstraint.Mode.EXCLUDE : SearchConstraint.Mode.REQUIRE;
+
+    return new Set(
+        _fontSearch.searchConstraints
+            .filter((constraint) => constraint.isTagConstraint())
+            .filter((constraint) => constraint.mode === targetMode)
+            .map((constraint) => constraint.searchTerm)
+    );
+};
 const _searchSuggestionDecorator = new SuggestionDecorator({
     inputElement: searchInputElement,
     suggestionContainerElement: _searchSuggestionContainer,
@@ -117,7 +128,10 @@ const _searchSuggestionDecorator = new SuggestionDecorator({
             return [];
         }
 
-        return await _tagSuggestionProvider.loadSuggestions(tagSearchText);
+        const existingTagNames = getExistingTagConstraintNames(prefix);
+        const suggestions = await _tagSuggestionProvider.loadSuggestions(tagSearchText);
+
+        return suggestions.filter((tagName) => !existingTagNames.has(tagName));
     },
 
     getSuggestionText: (tagName) => `${getTagSearchPrefix(searchInputElement.value)}${tagName}`,
@@ -251,7 +265,7 @@ async function _applySearch() {
     const filteredFonts = await _fontSearch.filterFonts(_fonts);
     const sampleText = _cardSampleTextController.getSampleText();
 
-    _searchChipBar.renderSearchConstraints(_fontSearch.getSearchConstraints());
+    _searchChipBar.renderSearchConstraints(_fontSearch.searchConstraints);
 
     _fontGridView.renderFonts(filteredFonts, sampleText);
 }

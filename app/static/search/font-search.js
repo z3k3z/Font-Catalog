@@ -39,7 +39,7 @@ export class FontSearch {
         });
     }
 
-    getSearchConstraints() {
+    get searchConstraints() {
         return this._searchConstraints;
     }
 
