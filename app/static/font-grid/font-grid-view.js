@@ -2,11 +2,12 @@ import { FontGridCardTagsView } from "./font-grid-card-tags-view.js";
 import { FontGridCardView } from "./font-grid-card-view.js";
 
 export class FontGridView {
-    constructor(fontGridElement, fontCountElement, fontLoader, tagLoader, toastView) {
+    constructor(fontGridElement, fontCountElement, fontLoader, tagLoader, toastView, fontSearch) {
         this._fontGridElement = fontGridElement;
         this._fontCountElement = fontCountElement;
         this._fontLoader = fontLoader;
         this._tagLoader = tagLoader;
+        this._fontSearch = fontSearch;
         this._cardTagsView = new FontGridCardTagsView(tagLoader, toastView);
         this._cardView = new FontGridCardView(fontLoader, this._cardTagsView);
         this._fontObserver = this._createFontObserver();
@@ -47,6 +48,13 @@ export class FontGridView {
 
                     if (card !== null) {
                         this._cardView.updatePreferenceButtons(card, tagNames);
+                    }
+
+                    const remainsVisible =
+                        this._fontSearch.fontSatisfiesEveryTagConstraintFromTagNames(tagNames);
+
+                    if (!remainsVisible) {
+                        card.remove();
                     }
                 },
             });

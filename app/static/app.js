@@ -61,14 +61,15 @@ _frontendDiagnosticReporter.reportSessionStarted();
 const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _tagLoader = new TagLoader(_fontApiClient);
 const _cardGridPresentationController = new CardGridPresentationController(cardGridPresentationElements);
+const _fontSearch = new FontSearch(_tagLoader);
 const _fontGridView = new FontGridView(
     fontGridElement,
     fontCountElement,
     _fontLoader,
     _tagLoader,
-    _toastView
+    _toastView,
+    _fontSearch
 );
-const _fontSearch = new FontSearch(_tagLoader);
 const _cardSampleTextController = new CardSampleTextController(cardSampleTextElements);
 
 /* wire-in the search chip bar */
