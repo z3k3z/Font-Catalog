@@ -54,7 +54,7 @@ export class FontGridView {
                         this._fontSearch.fontSatisfiesEveryTagConstraintFromTagNames(tagNames);
 
                     if (!remainsVisible) {
-                        card.remove();
+                        this._cardView.removeCardWithFade(card);
                     }
                 },
             });

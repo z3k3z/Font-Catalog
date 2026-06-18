@@ -128,6 +128,14 @@ export class FontGridCardView {
         noLikeyButton.classList.toggle("is-selected", tagNames.includes("No-Likey"));
     }
 
+    removeCardWithFade(card) {
+        card.classList.add("font-card--removing");
+
+        window.setTimeout(() => {
+            card.remove();
+        }, 200);
+    }
+
     _buildSample(font, sampleText) {
         const sample = document.createElement("div");
         sample.className = "font-sample";
