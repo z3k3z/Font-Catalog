@@ -128,11 +128,15 @@ export class FontGridCardView {
         noLikeyButton.classList.toggle("is-selected", tagNames.includes("No-Likey"));
     }
 
-    removeCardWithFade(card) {
+    removeCardWithFade(card, onRemoved) {
         card.classList.add("font-card--removing");
 
         window.setTimeout(() => {
             card.remove();
+
+            if (onRemoved !== undefined) {
+                onRemoved();
+            }
         }, 200);
     }
 

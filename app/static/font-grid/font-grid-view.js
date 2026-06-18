@@ -54,7 +54,7 @@ export class FontGridView {
                         this._fontSearch.fontSatisfiesEveryTagConstraintFromTagNames(tagNames);
 
                     if (!remainsVisible) {
-                        this._cardView.removeCardWithFade(card);
+                        this.removeCardWithGridAnimation(card);
                     }
                 },
             });
@@ -124,5 +124,45 @@ export class FontGridView {
             this._cardView.unmarkSelected(this._selectedCard);
             this._selectedCard = null;
         }
+    }
+
+    removeCardWithGridAnimation(card) {
+        const cards = [...this._fontGridElement.querySelectorAll(".font-card")];
+        const firstRects = new Map(cards.map((gridCard) => [gridCard, gridCard.getBoundingClientRect()]));
+
+        this._cardView.removeCardWithFade(card, () => {
+            const remainingCards = cards.filter((gridCard) => gridCard !== card);
+
+            const lastRects = new Map(
+                remainingCards.map((gridCard) => [gridCard, gridCard.getBoundingClientRect()])
+            );
+
+            for (const gridCard of remainingCards) {
+                const firstRect = firstRects.get(gridCard);
+                const lastRect = lastRects.get(gridCard);
+
+                if (firstRect === undefined || lastRect === undefined) {
+                    continue;
+                }
+
+                const deltaX = firstRect.left - lastRect.left;
+                const deltaY = firstRect.top - lastRect.top;
+
+                if (deltaX === 0 && deltaY === 0) {
+                    continue;
+                }
+
+                gridCard.animate(
+                    [
+                        { transform: `translate(${deltaX}px, ${deltaY}px)` },
+                        { transform: "translate(0, 0)" },
+                    ],
+                    {
+                        duration: 180,
+                        easing: "ease",
+                    }
+                );
+            }
+        });
     }
 }
