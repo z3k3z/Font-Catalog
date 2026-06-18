@@ -8,6 +8,16 @@
     font-size: 13px;
 }
 
+.font-count-container {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+.font-count-separator {
+    opacity: 0.6;
+}
+
 .font-grid {
     display: grid;
     gap: 14px;

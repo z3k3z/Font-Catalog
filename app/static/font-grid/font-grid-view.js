@@ -5,7 +5,6 @@ export class FontGridView {
     constructor(fontGridElement, fontCountElement, fontLoader, tagLoader, toastView, fontSearch) {
         this._fontGridElement = fontGridElement;
         this._fontCountElement = fontCountElement;
-        this._fontLoader = fontLoader;
         this._tagLoader = tagLoader;
         this._fontSearch = fontSearch;
         this._cardTagsView = new FontGridCardTagsView(tagLoader, toastView);

@@ -23,6 +23,7 @@ let _fonts = [];
 /* locate and catalog required html elements */
 const toastRootElement = new RequiredDomElement("toast-root").element;
 const fontGridElement = new RequiredDomElement("fontGrid").element;
+const fontTotalElement = new RequiredDomElement("fontTotal").element;
 const fontCountElement = new RequiredDomElement("fontCount").element;
 const fontFaceStyleElement = new RequiredDomElement("fontCatalogDynamicFontFaces").element;
 const searchInputElement = new RequiredDomElement("searchInput").element;
@@ -190,7 +191,7 @@ loadFonts();
  */
 async function loadFonts() {
     _fonts = await _fontApiClient.getFonts();
-
+    fontTotalElement.textContent = `${_fonts.length} fonts total`;
     _applySearch();
 }
 
