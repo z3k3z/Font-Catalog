@@ -29,6 +29,8 @@ export class FontGridCardView {
         const preferenceActions = document.createElement("div");
         preferenceActions.className = "font-card-preference-actions";
 
+        const LIKEY_TAG_NAME = "Likey";
+        const NO_LIKEY_TAG_NAME = "No-Likey";
         const likeyButton = this._buildPreferenceButton("font-card-likey-button", "🥰", "Likey");
         const noLikeyButton = this._buildPreferenceButton("font-card-no-likey-button", "🤮", "No-Likey");
 
@@ -48,6 +50,16 @@ export class FontGridCardView {
             }
 
             listeners.onCardSelected(card, font);
+        });
+
+        likeyButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            await listeners.onPreferenceSelected(card, font, LIKEY_TAG_NAME, NO_LIKEY_TAG_NAME);
+        });
+
+        noLikeyButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            await listeners.onPreferenceSelected(card, font, NO_LIKEY_TAG_NAME, LIKEY_TAG_NAME);
         });
 
         return card;

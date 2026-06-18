@@ -30,6 +30,15 @@ export class FontGridView {
                         this._onFontSelected(selectedFont);
                     }
                 },
+                onPreferenceSelected: async (card, font, selectedTagName, opposingTagName) => {
+                    await this._cardTagsView.setExclusiveTag(
+                        card._tagSummaryElement,
+                        font.id,
+                        selectedTagName,
+                        opposingTagName,
+                        font.full_name
+                    );
+                },
             });
 
             this._cardTagsView.loadTags(font.id, card._tagSummaryElement);

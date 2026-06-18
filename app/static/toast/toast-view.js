@@ -51,4 +51,26 @@ export class ToastView {
             toastElement.classList.add("toast--visible");
         }, 0);
     }
+
+    showSimpleToast(message, durationMs = 1800) {
+        const toastElement = document.createElement("div");
+        toastElement.className = "toast";
+
+        const messageElement = document.createElement("span");
+        messageElement.className = "toast-message";
+        messageElement.textContent = message;
+
+        toastElement.appendChild(messageElement);
+        this._toastRootElement.appendChild(toastElement);
+
+        const dismiss = () => {
+            toastElement.classList.add("toast--dismissed");
+
+            window.setTimeout(() => {
+                toastElement.remove();
+            }, 240);
+        };
+
+        window.setTimeout(dismiss, durationMs);
+    }
 }

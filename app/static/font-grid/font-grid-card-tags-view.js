@@ -47,6 +47,14 @@ export class FontGridCardTagsView {
         }
     }
 
+    async setExclusiveTag(tagSummaryElement, fontId, selectedTagName, opposingTagName, fontName) {
+        await this._tagLoader.addTagToFont(fontId, selectedTagName);
+        await this._tagLoader.removeTagFromFont(fontId, opposingTagName);
+        await this._refreshTags(tagSummaryElement, fontId);
+
+        this._toastView.showSimpleToast(`You ${selectedTagName} ${fontName}!`, 1800);
+    }
+
     _updateTagSummary(tagSummaryElement, fontId, tagNames) {
         const tagCountElement = tagSummaryElement.querySelector(".font-card-tag-count");
         const tagPopoverElement = tagSummaryElement.querySelector(".font-card-tag-popover");
