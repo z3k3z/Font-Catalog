@@ -5,6 +5,7 @@ export class FontGridCardTagsView {
     constructor(tagLoader, toastView) {
         this._tagLoader = tagLoader;
         this._toastView = toastView;
+        this._onTagsChanged = null;
     }
 
     build(fontId) {
@@ -37,15 +38,26 @@ export class FontGridCardTagsView {
         return tagSummaryElement;
     }
 
+    setListeners(listeners) {
+        this._onTagsChanged = listeners.onTagsChanged ?? null;
+    }
+
     async loadTags(fontId, tagSummaryElement) {
         try {
             const tags = await this._tagLoader.loadTagsForFont(fontId);
             const tagNames = tags.map((tag) => tag.name);
             this._updateTagSummary(tagSummaryElement, fontId, tagNames);
+            this._notifyTagsChanged(fontId, tagNames);
             return tagNames;
         } catch (error) {
             _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
             return [];
+        }
+    }
+
+    _notifyTagsChanged(fontId, tagNames) {
+        if (this._onTagsChanged !== null) {
+            this._onTagsChanged(fontId, tagNames);
         }
     }
 
@@ -250,10 +262,7 @@ export class FontGridCardTagsView {
         this._tagLoader.invalidateFont(fontId);
 
         const tags = await this._tagLoader.loadTagsForFont(fontId);
-        const tagNames = tags.map((tag) => tag.name);
-
-        this._updateTagSummary(tagSummaryElement, fontId, tagNames);
-        return tagNames;
+        return await this.loadTags(fontId, tagSummaryElement);
     }
 
     async _loadTagSuggestions(inputText, assignedTagNames) {
