@@ -53,34 +53,52 @@ export class FontSearch {
     }
 
     _fontMatchesAllSearchConstraints(font, tagSnapshot) {
+        return (
+            this.fontSatisfiesEveryTextConstraint(font) &&
+            this.fontSatisfiesEveryTagConstraint(font, tagSnapshot)
+        );
+    }
+
+    fontSatisfiesEveryTextConstraint(font) {
         const searchableText = this._buildSearchableText(font);
 
-        return this._searchConstraints.every((constraint) => {
-            if (constraint.isTagConstraint()) {
-                return this._fontMatchesTagConstraint(font, constraint, tagSnapshot);
-            }
+        return this._searchConstraints
+            .filter((constraint) => !constraint.isTagConstraint())
+            .every((constraint) => this._fontMatchesTextConstraint(searchableText, constraint));
+    }
 
-            return this._fontMatchesTextConstraint(searchableText, constraint);
-        });
+    fontSatisfiesEveryTagConstraint(font, tagSnapshot) {
+        return this._searchConstraints
+            .filter((constraint) => constraint.isTagConstraint())
+            .every((constraint) => this._fontMatchesTagConstraint(font, constraint, tagSnapshot));
+    }
+
+    fontSatisfiesEveryTagConstraintFromTagNames(tagNames) {
+        const tagNameSet = new Set(tagNames);
+
+        return this._searchConstraints
+            .filter((constraint) => constraint.isTagConstraint())
+            .every((constraint) => this._tagNamesMatchTagConstraint(tagNameSet, constraint));
     }
 
     _fontMatchesTextConstraint(searchableText, constraint) {
         const matches = searchableText.includes(constraint.searchTerm);
-
-        if (constraint.isRequireConstraint()) {
-            return matches;
-        }
-
-        if (constraint.isExcludeConstraint()) {
-            return !matches;
-        }
-
-        return true;
+        return this._evaluateConstraintMatch(matches, constraint);
     }
 
     _fontMatchesTagConstraint(font, constraint, tagSnapshot) {
         const matches = tagSnapshot.hasFontForTag(font.id, constraint.searchTerm);
 
+        return this._evaluateConstraintMatch(matches, constraint);
+    }
+
+    _tagNamesMatchTagConstraint(tagNameSet, constraint) {
+        const matches = tagNameSet.has(constraint.searchTerm);
+
+        return this._evaluateConstraintMatch(matches, constraint);
+    }
+
+    _evaluateConstraintMatch(matches, constraint) {
         if (constraint.isRequireConstraint()) {
             return matches;
         }
