@@ -78,6 +78,41 @@
     padding-top: 12px;
 }
 
+.font-card-preference-actions {
+    align-items: center;
+    display: inline-flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.font-card-preference-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    filter: grayscale(1);
+    font-size: 1.2rem;
+    line-height: 1;
+    opacity: 0.28;
+    padding: 2px 3px;
+    transform: scale(1);
+
+    transition:
+        filter 120ms ease,
+        opacity 120ms ease,
+        transform 120ms ease;
+}
+
+.font-card-preference-button:hover {
+    filter: grayscale(0);
+    opacity: 0.9;
+    transform: scale(1.18) rotate(-4deg);
+}
+
+.font-card-preference-button.is-selected {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
 .font-card--selected {
     border-color: #8aa8ff;
     box-shadow: 0 0 0 1px rgba(138, 168, 255, 0.55);

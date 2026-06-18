@@ -26,8 +26,17 @@ export class FontGridCardView {
 
         const tagSummaryElement = this._cardTagsView.build(font.id);
         card._tagSummaryElement = tagSummaryElement;
+        const preferenceActions = document.createElement("div");
+        preferenceActions.className = "font-card-preference-actions";
+
+        const likeyButton = this._buildPreferenceButton("font-card-likey-button", "🥰", "Likey");
+        const noLikeyButton = this._buildPreferenceButton("font-card-no-likey-button", "🤮", "No-Likey");
+
+        preferenceActions.appendChild(likeyButton);
+        preferenceActions.appendChild(noLikeyButton);
 
         footer.appendChild(name);
+        footer.appendChild(preferenceActions);
         footer.appendChild(tagSummaryElement);
 
         card.appendChild(sampleRegion);
@@ -107,5 +116,19 @@ export class FontGridCardView {
         }
 
         return sample;
+    }
+
+    _buildPreferenceButton(className, text, title) {
+        const button = document.createElement("button");
+        button.className = `font-card-preference-button ${className}`;
+        button.type = "button";
+        button.textContent = text;
+        button.title = title;
+
+        button.addEventListener("click", (event) => {
+            event.stopPropagation();
+        });
+
+        return button;
     }
 }
