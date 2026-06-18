@@ -14,6 +14,7 @@ import { LikedFontSet } from "./liked-fonts/liked-font-set.js";
 import { LikedFontsButton } from "./liked-fonts/liked-fonts-button.js";
 import { FontSearch } from "./search/font-search.js";
 import { SearchChipBar } from "./search/search-chip-bar.js";
+import { SearchConstraint } from "./search/search-constraint.js";
 import { SearchTagSuggestionController } from "./search/search-tag-suggestion-controller.js";
 import { ToastView } from "./toast/toast-view.js";
 
@@ -62,6 +63,11 @@ const _fontLoader = new FontLoader(_fontApiClient, fontFaceStyleElement);
 const _tagLoader = new TagLoader(_fontApiClient);
 const _cardGridPresentationController = new CardGridPresentationController(cardGridPresentationElements);
 const _fontSearch = new FontSearch(_tagLoader);
+_fontSearch.addSearchConstraint(
+    "No-Likey",
+    SearchConstraint.Kind.TAG,
+    SearchConstraint.Mode.EXCLUDE
+); /* default constraint */
 const _fontGridView = new FontGridView(
     fontGridElement,
     fontCountElement,
