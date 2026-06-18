@@ -73,4 +73,54 @@ export class ToastView {
 
         window.setTimeout(dismiss, durationMs);
     }
+
+    showToastWithTrailIcon(message, durationMs = 1800, trailIcon) {
+        const toastShellElement = document.createElement("div");
+        toastShellElement.className = "toast-shell";
+
+        const trailElement = document.createElement("div");
+        trailElement.className = "toast-trail";
+
+        const toastElement = document.createElement("div");
+        toastElement.className = "toast";
+
+        const messageElement = document.createElement("span");
+        messageElement.className = "toast-message";
+        messageElement.textContent = message;
+
+        toastElement.appendChild(messageElement);
+        toastShellElement.appendChild(trailElement);
+        toastShellElement.appendChild(toastElement);
+        this._toastRootElement.appendChild(toastShellElement);
+
+        const dismiss = () => {
+            this._populateTrail(trailElement, toastElement, trailIcon);
+
+            toastElement.classList.add("toast--dismissed");
+
+            window.setTimeout(() => {
+                toastShellElement.remove();
+            }, 700);
+        };
+
+        window.setTimeout(dismiss, durationMs);
+    }
+
+    _populateTrail(trailElement, toastElement, trailIcon) {
+        trailElement.innerHTML = "";
+
+        const toastWidth = toastElement.getBoundingClientRect().width;
+        const iconSpacing = 22;
+        const iconCount = Math.max(1, Math.floor(toastWidth / iconSpacing));
+
+        for (let index = 0; index < iconCount; index += 1) {
+            const iconElement = document.createElement("span");
+            iconElement.className = "toast-trail-icon";
+            iconElement.textContent = trailIcon;
+            iconElement.style.left = `${index * iconSpacing}px`;
+            iconElement.style.animationDelay = `${index * 42}ms`;
+
+            trailElement.appendChild(iconElement);
+        }
+    }
 }

@@ -61,12 +61,12 @@ export class FontGridCardTagsView {
         }
     }
 
-    async setExclusiveTag(tagSummaryElement, fontId, selectedTagName, opposingTagName, fontName) {
+    async setExclusiveTag(tagSummaryElement, fontId, selectedTagName, opposingTagName, fontName, icon) {
         await this._tagLoader.addTagToFont(fontId, selectedTagName);
         await this._tagLoader.removeTagFromFont(fontId, opposingTagName);
         const tagNames = await this._refreshTags(tagSummaryElement, fontId);
 
-        this._toastView.showSimpleToast(`You ${selectedTagName} ${fontName}!`, 1800);
+        this._toastView.showToastWithTrailIcon(`You ${selectedTagName} ${fontName}!`, 1800, icon);
         return tagNames;
     }
 

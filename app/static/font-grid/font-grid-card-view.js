@@ -54,12 +54,12 @@ export class FontGridCardView {
 
         card._likeyButton.addEventListener("click", async (event) => {
             event.stopPropagation();
-            await listeners.onPreferenceSelected(card, font, LIKEY_TAG_NAME, NO_LIKEY_TAG_NAME);
+            await listeners.onPreferenceSelected(card, font, LIKEY_TAG_NAME, NO_LIKEY_TAG_NAME, "❤️");
         });
 
         card._noLikeyButton.addEventListener("click", async (event) => {
             event.stopPropagation();
-            await listeners.onPreferenceSelected(card, font, NO_LIKEY_TAG_NAME, LIKEY_TAG_NAME);
+            await listeners.onPreferenceSelected(card, font, NO_LIKEY_TAG_NAME, LIKEY_TAG_NAME, "💩");
         });
 
         return card;
