@@ -42,17 +42,20 @@ export class FontGridCardTagsView {
             const tags = await this._tagLoader.loadTagsForFont(fontId);
             const tagNames = tags.map((tag) => tag.name);
             this._updateTagSummary(tagSummaryElement, fontId, tagNames);
+            return tagNames;
         } catch (error) {
             _diags.emitErrorProbe(() => `Failed to hydrate card tags: ${error}`);
+            return [];
         }
     }
 
     async setExclusiveTag(tagSummaryElement, fontId, selectedTagName, opposingTagName, fontName) {
         await this._tagLoader.addTagToFont(fontId, selectedTagName);
         await this._tagLoader.removeTagFromFont(fontId, opposingTagName);
-        await this._refreshTags(tagSummaryElement, fontId);
+        const tagNames = await this._refreshTags(tagSummaryElement, fontId);
 
         this._toastView.showSimpleToast(`You ${selectedTagName} ${fontName}!`, 1800);
+        return tagNames;
     }
 
     _updateTagSummary(tagSummaryElement, fontId, tagNames) {
@@ -250,6 +253,7 @@ export class FontGridCardTagsView {
         const tagNames = tags.map((tag) => tag.name);
 
         this._updateTagSummary(tagSummaryElement, fontId, tagNames);
+        return tagNames;
     }
 
     async _loadTagSuggestions(inputText, assignedTagNames) {

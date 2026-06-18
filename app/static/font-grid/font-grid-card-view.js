@@ -31,11 +31,11 @@ export class FontGridCardView {
 
         const LIKEY_TAG_NAME = "Likey";
         const NO_LIKEY_TAG_NAME = "No-Likey";
-        const likeyButton = this._buildPreferenceButton("font-card-likey-button", "🥰", "Likey");
-        const noLikeyButton = this._buildPreferenceButton("font-card-no-likey-button", "🤮", "No-Likey");
+        card._likeyButton = this._buildPreferenceButton("font-card-likey-button", "🥰", "Likey");
+        card._noLikeyButton = this._buildPreferenceButton("font-card-no-likey-button", "🤮", "No-Likey");
 
-        preferenceActions.appendChild(likeyButton);
-        preferenceActions.appendChild(noLikeyButton);
+        preferenceActions.appendChild(card._likeyButton);
+        preferenceActions.appendChild(card._noLikeyButton);
 
         footer.appendChild(name);
         footer.appendChild(preferenceActions);
@@ -52,12 +52,12 @@ export class FontGridCardView {
             listeners.onCardSelected(card, font);
         });
 
-        likeyButton.addEventListener("click", async (event) => {
+        card._likeyButton.addEventListener("click", async (event) => {
             event.stopPropagation();
             await listeners.onPreferenceSelected(card, font, LIKEY_TAG_NAME, NO_LIKEY_TAG_NAME);
         });
 
-        noLikeyButton.addEventListener("click", async (event) => {
+        card._noLikeyButton.addEventListener("click", async (event) => {
             event.stopPropagation();
             await listeners.onPreferenceSelected(card, font, NO_LIKEY_TAG_NAME, LIKEY_TAG_NAME);
         });
@@ -114,6 +114,18 @@ export class FontGridCardView {
 
     isFontLoadFailed(card) {
         return card.classList.contains("font-card--load-failed");
+    }
+
+    updatePreferenceButtons(card, tagNames) {
+        const likeyButton = card._likeyButton;
+        const noLikeyButton = card._noLikeyButton;
+
+        if (likeyButton === undefined || noLikeyButton === undefined) {
+            return;
+        }
+
+        likeyButton.classList.toggle("is-selected", tagNames.includes("Likey"));
+        noLikeyButton.classList.toggle("is-selected", tagNames.includes("No-Likey"));
     }
 
     _buildSample(font, sampleText) {

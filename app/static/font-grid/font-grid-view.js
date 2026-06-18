@@ -31,17 +31,21 @@ export class FontGridView {
                     }
                 },
                 onPreferenceSelected: async (card, font, selectedTagName, opposingTagName) => {
-                    await this._cardTagsView.setExclusiveTag(
+                    const tagNames = await this._cardTagsView.setExclusiveTag(
                         card._tagSummaryElement,
                         font.id,
                         selectedTagName,
                         opposingTagName,
                         font.full_name
                     );
+
+                    this._cardView.updatePreferenceButtons(card, tagNames);
                 },
             });
 
-            this._cardTagsView.loadTags(font.id, card._tagSummaryElement);
+            this._cardTagsView.loadTags(font.id, card._tagSummaryElement).then((tagNames) => {
+                this._cardView.updatePreferenceButtons(card, tagNames);
+            });
             this._fontGridElement.appendChild(card);
             this._fontObserver.observe(card);
         }
