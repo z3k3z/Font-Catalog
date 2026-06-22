@@ -1,3 +1,4 @@
+import shutil
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -36,9 +37,21 @@ class FontCatalogApp:
         self._applicationConfiguration: ApplicationConfiguration = application_configuration
         self._fontCatalog: FontCatalog = FontCatalog()
         self._staticRootPath: Path = get_static_root_path()
-        self._fontTagService: FontTagService = FontTagService(
-            FontTagStore(file_path=Path("./data/tags.json"))
+        user_data_directory = application_configuration.get_default_user_data_directory()
+        user_data_directory.mkdir(parents=True, exist_ok=True)
+        tag_store_path = user_data_directory / "tags.json"
+        self._migrate_tag_store(Path("./data/tags.json"), tag_store_path)
+        self._fontTagService: FontTagService = FontTagService(FontTagStore(file_path=Path(tag_store_path)))
+
+    def _migrate_tag_store(self, legacy_path: Path, target_path: Path) -> None:
+        if target_path.exists():
+            return
+        if not legacy_path.exists():
+            return
+        emit_error_probe(
+            ProbeLevel.DEBUG, lambda: (f"Migration of {legacy_path} to {target_path} initiated.")
         )
+        shutil.copy2(legacy_path, target_path)
 
     def create_fastapi_app(self) -> FastAPI:
         lifespan = self._create_lifespan_handler()

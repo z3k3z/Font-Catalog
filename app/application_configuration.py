@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +12,14 @@ class ApplicationConfiguration:
     windows_font_registry_subkey: str
     is_trace_enabled: bool
     error_probe_level: ProbeLevel
+
+    def get_default_user_data_directory(self) -> Path:
+        appdata = os.environ.get("APPDATA")
+
+        if appdata is None:
+            return Path.home() / ".fontopia"
+
+        return Path(appdata) / "Fontopia"
 
 
 def create_application_configuration() -> ApplicationConfiguration:
