@@ -13,6 +13,10 @@ Welcome to Fontopia, a desktop font exploration and comparison tool.
 Your default web browser will automatically open the application.  It may take a few minutes for the application to load in the browser.
 
 ## Version History
+### v0.2.1
+- Migrate user tag data to APPDATA (ae9840e)
+- BUG: repair some fonts on-the-fly that fail to load in the browser (ef8603e)
+
 ### v0.2.0
 - Show total font count and viewable font count (ddaf06d)
 - Add default behavior to hide No-Likey fonts (d1f1276)
