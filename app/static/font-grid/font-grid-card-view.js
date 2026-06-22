@@ -83,7 +83,7 @@ export class FontGridCardView {
         this.markFontLoadFailed(card);
 
         if (onFontLoadFailed !== null) {
-            onFontLoadFailed(font, "Font failed to load in browser.");
+            onFontLoadFailed(font, `Font ${font.full_name} failed to load in browser.`);
         }
     }
 

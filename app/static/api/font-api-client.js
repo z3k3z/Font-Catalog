@@ -33,8 +33,8 @@ export class FontApiClient {
         }
     }
 
-    buildFontFileUrl(fontId) {
-        const fontFileUrl = `${this._baseUrl}/api/fonts/${fontId}/file`;
+    buildFontFileUrl(fontId, apiVersion) {
+        const fontFileUrl = `${this._baseUrl}/api/fonts/${fontId}/file?v=${apiVersion}`;
 
         return fontFileUrl;
     }

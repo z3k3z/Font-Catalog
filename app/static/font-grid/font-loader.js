@@ -5,6 +5,7 @@ export class FontLoader {
         this._fontApiClient = fontApiClient;
         this._fontFaceStyleElement = fontFaceStyleElement;
         this._loadedFontIds = new Set();
+        this._apiVersion = "2";
     }
 
     hasFontFaceRegistered(font) {
@@ -38,7 +39,7 @@ export class FontLoader {
     }
 
     _registerFontFace(font) {
-        const fontFileUrl = this._fontApiClient.buildFontFileUrl(font.id);
+        const fontFileUrl = this._fontApiClient.buildFontFileUrl(font.id, this._apiVersion);
 
         const cssText = `
 @font-face {

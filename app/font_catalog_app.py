@@ -16,6 +16,7 @@ from app.api_models.tag_snapshot_response import (
     TagSnapshotResponse,
 )
 from app.application_configuration import ApplicationConfiguration
+from app.BrowserFontByteNormalizer import BrowserFontByteNormalizer
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
 from app.foundation.build_info import read_build_info
@@ -195,12 +196,14 @@ class FontCatalogApp:
         return response
 
     def _read_font_file(self, font_id: int) -> Response:
+        normalizer: BrowserFontByteNormalizer = BrowserFontByteNormalizer(font_id)
         record: CatalogFontRecord | None = self._fontCatalog.get_record_by_id(font_id)
 
         if record is None:
             raise HTTPException(status_code=404, detail="Font id not found.")
 
         font_bytes: bytes = record.font_info.font_candidate.source_reference.get_font_bytes()
+        font_bytes = normalizer.normalize(font_bytes=font_bytes)
 
         response: Response = Response(
             content=font_bytes,
