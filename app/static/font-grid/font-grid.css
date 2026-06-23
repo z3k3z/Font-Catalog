@@ -112,6 +112,7 @@
     opacity: 0.28;
     padding: 2px 3px;
     transform: scale(1);
+    position: relative;
 
     transition:
         filter 120ms ease,
@@ -123,6 +124,36 @@
     filter: grayscale(0);
     opacity: 0.9;
     transform: scale(1.18) rotate(-4deg);
+}
+
+.font-card-preference-particle {
+    animation: font-card-preference-particle-rise 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--particle-delay);
+    font-size: 12px;
+    left: 50%;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(var(--particle-scale)) rotate(var(--particle-rotation));
+    z-index: 5;
+}
+
+@keyframes font-card-preference-particle-rise {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(var(--particle-scale)) rotate(var(--particle-rotation));
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--particle-x)), calc(-50% + var(--particle-y))) scale(0.35)
+            rotate(var(--particle-rotation));
+    }
 }
 
 .font-card-preference-button.is-selected {

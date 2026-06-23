@@ -31,8 +31,14 @@ export class FontGridCardView {
 
         const LIKEY_TAG_NAME = "Likey";
         const NO_LIKEY_TAG_NAME = "No-Likey";
-        card._likeyButton = this._buildPreferenceButton("font-card-likey-button", "🥰", "Likey");
-        card._noLikeyButton = this._buildPreferenceButton("font-card-no-likey-button", "🤮", "No-Likey");
+        card._likeyButton = this._buildPreferenceButton("font-card-likey-button", "❤️", "Likey", "❤️");
+
+        card._noLikeyButton = this._buildPreferenceButton(
+            "font-card-no-likey-button",
+            "💩",
+            "No-Likey",
+            "💩"
+        );
 
         preferenceActions.appendChild(card._likeyButton);
         preferenceActions.appendChild(card._noLikeyButton);
@@ -154,7 +160,7 @@ export class FontGridCardView {
         return sample;
     }
 
-    _buildPreferenceButton(className, text, title) {
+    _buildPreferenceButton(className, text, title, particleText) {
         const button = document.createElement("button");
         button.className = `font-card-preference-button ${className}`;
         button.type = "button";
@@ -165,6 +171,38 @@ export class FontGridCardView {
             event.stopPropagation();
         });
 
+        button.addEventListener("mouseenter", () => {
+            this._emitPreferenceParticles(button, particleText);
+        });
+
         return button;
+    }
+
+    _emitPreferenceParticles(buttonElement, particleText) {
+        const particleCount = 12;
+
+        for (let index = 0; index < particleCount; index += 1) {
+            const particleElement = document.createElement("span");
+            particleElement.className = "font-card-preference-particle";
+            particleElement.textContent = particleText;
+
+            const xOffset = Math.random() * 44 - 22;
+            const yOffset = -(24 + Math.random() * 24);
+            const delayMs = Math.random() * 120;
+            const scale = 0.65 + Math.random() * 0.75;
+            const rotation = Math.random() * 30 - 15;
+
+            particleElement.style.setProperty("--particle-x", `${xOffset}px`);
+            particleElement.style.setProperty("--particle-y", `${yOffset}px`);
+            particleElement.style.setProperty("--particle-delay", `${delayMs}ms`);
+            particleElement.style.setProperty("--particle-scale", `${scale}`);
+            particleElement.style.setProperty("--particle-rotation", `${rotation}deg`);
+
+            buttonElement.appendChild(particleElement);
+
+            window.setTimeout(() => {
+                particleElement.remove();
+            }, 850);
+        }
     }
 }
