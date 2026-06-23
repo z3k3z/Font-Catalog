@@ -21,6 +21,7 @@ from app.BrowserFontByteNormalizer import BrowserFontByteNormalizer
 from app.diagnostics.probe import ProbeLevel, emit_error_probe
 from app.discovery.local_discovery import LocalDiscovery
 from app.foundation.build_info import read_build_info
+from app.foundation.http_request_probe_middleware import HttpRequestProbeMiddleware
 from app.foundation.runtime_paths import get_static_root_path
 from app.models.font_info import FontInfo
 from app.models.font_semantic_key import FontSemanticKey
@@ -66,6 +67,8 @@ class FontCatalogApp:
             StaticFiles(directory=self._staticRootPath),
             name="static",
         )
+
+        fastapi_app.add_middleware(HttpRequestProbeMiddleware)
 
         self._configure_routes(fastapi_app)
 
