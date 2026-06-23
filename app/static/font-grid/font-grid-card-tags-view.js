@@ -225,6 +225,17 @@ export class FontGridCardTagsView {
             addTagCommitButton.disabled = addTagInputElement.value.trim() === "";
         };
 
+        const closeButtonElement = document.createElement("button");
+        closeButtonElement.className = "font-card-tag-popover-close-button";
+
+        closeButtonElement.type = "button";
+        closeButtonElement.textContent = "x";
+
+        closeButtonElement.addEventListener("click", (event) => {
+            event.stopPropagation();
+            this._closeOpenPopover();
+        });
+
         const hideSuggestions = () => {
             suggestionContainer.innerHTML = "";
             suggestionContainer.classList.add("hidden");
@@ -279,6 +290,7 @@ export class FontGridCardTagsView {
 
         addTagEditorElement.appendChild(addTagInputElement);
         addTagEditorElement.appendChild(addTagCommitButton);
+        addTagEditorElement.appendChild(closeButtonElement);
 
         const wrapper = document.createElement("div");
         wrapper.className = "font-card-tag-add-wrapper";
