@@ -6,6 +6,17 @@ export class FontGridCardTagsView {
         this._tagLoader = tagLoader;
         this._toastView = toastView;
         this._onTagsChanged = null;
+        this._openTagSummaryElement = null;
+
+        document.addEventListener("click", () => {
+            this._closeOpenPopover();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                this._closeOpenPopover();
+            }
+        });
     }
 
     build(fontId) {
@@ -30,6 +41,11 @@ export class FontGridCardTagsView {
         tagSummaryElement.appendChild(tagPopoverElement);
 
         tagSummaryElement.addEventListener("click", (event) => {
+            event.stopPropagation();
+            this._togglePopover(tagSummaryElement);
+        });
+
+        tagPopoverElement.addEventListener("click", (event) => {
             event.stopPropagation();
         });
 
@@ -112,6 +128,35 @@ export class FontGridCardTagsView {
 
         tagPopoverElement.appendChild(tagChipContainer);
         tagPopoverElement.appendChild(this._buildAddEditor(tagSummaryElement, fontId, tagNames));
+    }
+    _togglePopover(tagSummaryElement) {
+        if (this._openTagSummaryElement === tagSummaryElement) {
+            this._closeOpenPopover();
+            return;
+        }
+
+        this._closeOpenPopover();
+        this._openPopover(tagSummaryElement);
+    }
+
+    _openPopover(tagSummaryElement) {
+        tagSummaryElement.classList.add("font-card-tag-summary--open");
+        this._openTagSummaryElement = tagSummaryElement;
+
+        const inputElement = tagSummaryElement.querySelector(".font-card-tag-add-input");
+
+        if (inputElement !== null) {
+            inputElement.focus();
+        }
+    }
+
+    _closeOpenPopover() {
+        if (this._openTagSummaryElement === null) {
+            return;
+        }
+
+        this._openTagSummaryElement.classList.remove("font-card-tag-summary--open");
+        this._openTagSummaryElement = null;
     }
 
     _buildTagChip(tagSummaryElement, fontId, tagName) {

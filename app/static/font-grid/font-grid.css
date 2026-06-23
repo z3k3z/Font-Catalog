@@ -278,10 +278,9 @@
     opacity: 1;
 }
 
-.font-card-tag-summary:hover .font-card-tag-popover {
+.font-card-tag-summary--open .font-card-tag-popover {
     opacity: 1;
     pointer-events: auto;
-    transform: translateY(0);
     visibility: visible;
 }
 
