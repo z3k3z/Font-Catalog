@@ -27,6 +27,9 @@
     "cSpell.words": [
         "ÁÉÍÓÚÜ",
         "ÆŒØÐ",
+        "cmap",
+        "codepoint",
+        "codepoints",
         "Fonterson",
         "Fontopia",
         "HKCU",
@@ -37,6 +40,8 @@
         "pytest",
         "renderable",
         "subkey",
+        "subtable",
+        "subtables",
         "testpaths",
         "Þßæœøðþ"
     ],

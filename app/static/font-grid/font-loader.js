@@ -5,7 +5,7 @@ export class FontLoader {
         this._fontApiClient = fontApiClient;
         this._fontFaceStyleElement = fontFaceStyleElement;
         this._loadedFontIds = new Set();
-        this._apiVersion = "2";
+        this._apiVersion = "3";
     }
 
     hasFontFaceRegistered(font) {
