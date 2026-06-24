@@ -13,6 +13,13 @@ Welcome to Fontopia, a desktop font exploration and comparison tool.
 Your default web browser will automatically open the application.  It may take a few minutes for the application to load in the browser.
 
 ## Version History
+### v0.2.2
+- BUG: repair cmap tables on some fonts (c90b103)
+- Add debug capture of API requests (a637543)
+- Effervescence on like / no-like (cf56c2b)
+- Add close button to tag pop-over (9105fa2)
+- tags to require click instead of hover to open (7d60211)
+
 ### v0.2.1
 - Migrate user tag data to APPDATA (ae9840e)
 - BUG: repair some fonts on-the-fly that fail to load in the browser (ef8603e)
