@@ -13,6 +13,10 @@ Welcome to Fontopia, a desktop font exploration and comparison tool.
 Your default web browser will automatically open the application.  It may take a few minutes for the application to load in the browser.
 
 ## Version History
+### v0.2.3
+- additional search term instructions (e8c1da7)
+- BUG: force subtable language ID's to zero (a7876b5)
+
 ### v0.2.2
 - BUG: repair cmap tables on some fonts (c90b103)
 - Add debug capture of API requests (a637543)
