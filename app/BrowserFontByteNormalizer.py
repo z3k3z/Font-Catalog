@@ -60,6 +60,11 @@ class BrowserFontByteNormalizer:
         # Accessing cmap_table.tables and subtable.cmap forces FontTools
         # to decompile/materialize cmap subtables so save() re-compiles them.
         for subtable in cmap_table.tables:
+            _ = subtable.cmap
+
+            if getattr(subtable, "language", 0) != 0:
+                subtable.language = 0
+
             if not subtable.isUnicode():
                 continue
 
